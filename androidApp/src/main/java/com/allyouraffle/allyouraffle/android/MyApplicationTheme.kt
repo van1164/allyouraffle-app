@@ -10,6 +10,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -33,12 +34,29 @@ fun MyApplicationTheme(
             tertiary = Color(0xFF60A5FA)
         )
     }
+    val myFontFamily = FontFamily(
+        Font(R.font.fontdefault, FontWeight.Normal)
+    )
+
     val typography = Typography(
-        bodyMedium = TextStyle(
-            fontFamily = FontFamily.Default,
+        bodyLarge = TextStyle(
+            fontFamily = myFontFamily,
             fontWeight = FontWeight.Normal,
-            fontSize = 16.sp
-        )
+            fontSize = 16.sp,
+            color = Color.Black
+        ),
+        bodyMedium = TextStyle(
+            fontFamily = myFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            color = Color.Black
+        ),
+        bodySmall = TextStyle(
+            fontFamily = myFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 12.sp,
+            color = Color.Black
+        ),
     )
     val shapes = Shapes(
         small = RoundedCornerShape(4.dp),

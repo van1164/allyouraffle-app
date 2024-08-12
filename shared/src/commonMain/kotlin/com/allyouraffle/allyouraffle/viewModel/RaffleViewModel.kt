@@ -15,11 +15,9 @@ class RaffleViewModel {
 
 
     fun loadRaffles() {
-        runBlocking {
-            GlobalScope.launch {
-                _raffleList.value = api.getActive()
-                println(_raffleList.value)
-            }
+        GlobalScope.launch {
+            _raffleList.value = api.getActive()
+            println(_raffleList.value)
         }
         println("XXXXXXXXXXXXXXXXXXXX")
     }
