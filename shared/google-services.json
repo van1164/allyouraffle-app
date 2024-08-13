@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "941459557793",
+    "project_id": "allyouraffle-f271f",
+    "storage_bucket": "allyouraffle-f271f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:941459557793:android:4cc69acf8bca8ec16d0fe0",
+        "android_client_info": {
+          "package_name": "com.allyouraffle.allyouraffle.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "941459557793-q13kto323mkpvtpj2cf64efotk6fm7ss.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.allyouraffle.allyouraffle.android",
+            "certificate_hash": "495123314cffc0e6bc5f8257767b3b572981c8ca"
+          }
+        },
+        {
+          "client_id": "941459557793-2p1ido2i3u5v0tp81btrsfb4rv9n37sh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJ5qrbccxZl5yiryMMMD9T_fRs21whmdU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "941459557793-2p1ido2i3u5v0tp81btrsfb4rv9n37sh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

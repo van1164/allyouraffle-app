@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -50,5 +51,7 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.play.services.auth)
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
 //    implementation(libs.androidx.material.pullrefresh)
 }

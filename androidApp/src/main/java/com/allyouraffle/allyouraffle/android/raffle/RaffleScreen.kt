@@ -47,6 +47,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.allyouraffle.allyouraffle.android.R
+import com.allyouraffle.allyouraffle.android.util.Logo
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 
@@ -65,21 +66,7 @@ fun RaffleListScreen(viewModel: RaffleViewModel) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "AllYouRaffle",
-                fontFamily = FontFamily(Font(R.font.logo)),
-                fontSize = 30.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-        }
-
+        Logo()
         Box {
             PullRefreshIndicator(
                 refreshing = refreshing,

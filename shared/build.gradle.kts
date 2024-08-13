@@ -39,6 +39,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel.compose)
             implementation(libs.androidx.lifecycle.runtime.ktx)
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.play.services.auth)
             //put your multiplatform dependencies here
         }
         commonTest.dependencies {
@@ -53,4 +54,8 @@ android {
     defaultConfig {
         minSdk = 26
     }
+}
+dependencies {
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.android)
 }

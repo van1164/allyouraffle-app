@@ -5,6 +5,9 @@
         android:allowBackup="false"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.gms.auth.api.credentials.CREDENTIALS_API_KEY"
+            android:value="@string/web_client_id" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

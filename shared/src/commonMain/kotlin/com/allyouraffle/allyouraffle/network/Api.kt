@@ -6,10 +6,11 @@ import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.*
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-private const val BASE_URL = "https://allyouraffle.co.kr/"
+const val BASE_URL = "https://allyouraffle.co.kr/"
 
 val ktorClient = HttpClient(CIO){
     install(ContentNegotiation) {
@@ -19,21 +20,17 @@ val ktorClient = HttpClient(CIO){
             ignoreUnknownKeys = true
         })
     }
-//    defaultRequest {
-//        url {
-//            protocol = URLProtocol.HTTPS
-//            host = BASE_URL
-//        }
-//    }
-//    install(ContentNegotiation) {
-//        json() // for json
-//    }
 }
 
 object Api {
     suspend fun getActive(): List<RaffleResponse> {
-        return ktorClient
+        val response = ktorClient
             .get(BASE_URL + "api/v1/raffle/active")
-            .body()
+
+        if(response.status != HttpStatusCode.OK){
+            throw NetworkException()
+        }
+
+        return response.body<List<RaffleResponse>>()
     }
 }
