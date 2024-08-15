@@ -1,15 +1,12 @@
 package com.allyouraffle.allyouraffle.network
 
-import com.allyouraffle.allyouraffle.model.RaffleResponse
+import com.allyouraffle.allyouraffle.exception.NetworkException
 import io.ktor.client.call.body
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.util.InternalAPI
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 

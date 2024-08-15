@@ -50,27 +50,39 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.allyouraffle.allyouraffle.android.Second
-import com.allyouraffle.allyouraffle.android.Third
+import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
 import com.allyouraffle.allyouraffle.android.util.Logo
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
+import com.allyouraffle.allyouraffle.exception.DetailServiceException
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 
+//@Composable
+//fun RaffleListScreen(viewModel: RaffleViewModel) {
+//
+//    val navController = rememberNavController()
+//    NavHost(navController = navController, startDestination = "main") {
+//        composable("main"){Main(viewModel,navController)}
+//    }
+//}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RaffleListScreen(viewModel: RaffleViewModel) {
+fun RaffleListScreen(viewModel : RaffleViewModel,navController: NavHostController,isFree : Boolean){
     val raffleList by viewModel.raffleList.collectAsState()
-    var refreshing by remember { mutableStateOf(false) }
+    viewModel.initRaffle(isFree)
 
+    var refreshing by remember { mutableStateOf(false) }
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
         refreshing = true
-        viewModel.loadRaffles()
+        viewModel.loadRaffles(isFree)
         refreshing = false
     })
     Column(
@@ -79,7 +91,7 @@ fun RaffleListScreen(viewModel: RaffleViewModel) {
     ) {
         Logo(60.sp)
         Spacer(modifier = Modifier.height(10.dp))
-        Banner(message = "광고 래플")
+        Banner(message = if(isFree) "광고 래플" else "천원 레플")
         Box {
             PullRefreshIndicator(
                 refreshing = refreshing,
@@ -93,7 +105,7 @@ fun RaffleListScreen(viewModel: RaffleViewModel) {
                 modifier = Modifier.pullRefresh(pullRefreshState)
             ) {
                 items(raffleList) { raffle ->
-                    ProductCard(raffle, viewModel)
+                    ProductCard(raffle, viewModel,navController,isFree)
                 }
             }
         }
@@ -101,23 +113,18 @@ fun RaffleListScreen(viewModel: RaffleViewModel) {
 }
 
 @Composable
-fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel) {
+fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel, navController: NavController,isFree: Boolean) {
     val sharedPreference = SharedPreference(LocalContext.current)
     val jwt = sharedPreference.getJwt()
     val context = LocalContext.current
-    val navController = rememberNavController()
     // TODO: JWT 없으면 로그인 화면으로 보내기 필요.
-
-    NavHost(navController = navController, startDestination = "test"){
-        composable("광고 래플") { RaffleListScreen(viewModel) }
-    }
     val rowHeight = 120.dp
     Card(
         modifier = Modifier
             .padding(3.dp)
             .shadow(2.dp)
             .clickable {
-                Log.d("ZZZZZZZZZZZZZ", "AAAAAAAAAAAAAAAAA")
+                navController.navigate("raffle/" + raffle.id+"/"+isFree)
             }
     ) {
         Row(
@@ -203,37 +210,5 @@ fun RaffleRightColumn(
         )
 //        Spacer(modifier = Modifier.height(12.dp))
 
-    }
-}
-
-@Composable
-fun PurchaseButton(
-    raffle: RaffleResponse,
-    viewModel: RaffleViewModel,
-    context: Context,
-    jwt: String
-) {
-    Button(
-        onClick = {
-            val response = viewModel.purchase(jwt, raffle.id.toString())
-            if (response) {
-                Toast.makeText(context, "요청 성공", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(context, "요청 실패", Toast.LENGTH_LONG).show()
-            }
-        },
-        shape = RoundedCornerShape(15.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.tertiary, // 버튼 배경색
-            contentColor = Color.White    // 버튼 글자색
-        ),
-    ) {
-        Text(
-            text = "응모하기",
-            color = Color.White
-        )
     }
 }

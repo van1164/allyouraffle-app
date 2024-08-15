@@ -1,5 +1,7 @@
 package com.allyouraffle.allyouraffle.network
 
+import com.allyouraffle.allyouraffle.exception.NetworkException
+import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -8,6 +10,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -28,13 +31,48 @@ val ktorClient = HttpClient(CIO) {
 }
 
 object Api {
-    suspend fun getActive(): List<RaffleResponse> {
-        val response = ktorClient
-            .get(BASE_URL + "api/v1/raffle/active")
+    suspend fun getActive(isFree: Boolean): List<RaffleResponse> {
+        val response : HttpResponse = if(isFree){
+            ktorClient
+                .get(BASE_URL + "api/v1/raffle/active/free")
+        } else{
+            ktorClient
+                .get(BASE_URL + "api/v1/raffle/active/not_free")
+        }
 
         checkNotOkThrowNetworkException(response.status)
 
         return response.body<List<RaffleResponse>>()
+    }
+
+    fun getDetail(id: String, isFree : Boolean): RaffleDetailResponse {
+        return if(isFree){
+            getDetailFree(id)
+        }else{
+            getDetailNotFree(id)
+        }
+    }
+
+    private fun getDetailFree(id : String) : RaffleDetailResponse {
+        return runBlocking {
+            val response = ktorClient
+                .get(BASE_URL + "api/v1/raffle/active/free/detail/"+id)
+
+            checkNotOkThrowNetworkException(response.status)
+
+            return@runBlocking response.body<RaffleDetailResponse>()
+        }
+    }
+
+    private fun getDetailNotFree(id : String) : RaffleDetailResponse {
+        return runBlocking {
+            val response = ktorClient
+                .get(BASE_URL + "api/v1/raffle/active/not_free/detail/"+id)
+
+            checkNotOkThrowNetworkException(response.status)
+
+            return@runBlocking response.body<RaffleDetailResponse>()
+        }
     }
 
     fun purchase(jwt: String, id: String): Boolean {
@@ -48,6 +86,15 @@ object Api {
             return@runBlocking true
         }
     }
+
+    enum class ApiState(val message : String) {
+        Before("실행 전"),
+        Loading("로딩중"),
+        Error("실패"),
+        Success("성공")
+    }
+
+
 }
 
 fun checkNotOkThrowNetworkException(statusCode: HttpStatusCode, message: String? = null) {

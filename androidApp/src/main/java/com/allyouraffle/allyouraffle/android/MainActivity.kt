@@ -31,13 +31,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat.finishAffinity
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
 import com.allyouraffle.allyouraffle.android.login.LoginPage
 import com.allyouraffle.allyouraffle.android.raffle.RaffleListScreen
+import com.allyouraffle.allyouraffle.exception.DetailServiceException
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 
 class MainActivity : ComponentActivity() {
@@ -72,15 +75,16 @@ fun MyApp() {
 @Composable
 fun MainPage() {
     val navController = rememberNavController()
-    val viewModel = RaffleViewModel()
-    viewModel.loadRaffles()
-    BottomNav(navController, viewModel)
+    val freeRaffleViewModel = RaffleViewModel()
+    val noFreeRaffleViewModel = RaffleViewModel()
+    BottomNav(navController, freeRaffleViewModel, noFreeRaffleViewModel)
 }
 
 @Composable
 private fun BottomNav(
     navController: NavHostController,
-    viewModel: RaffleViewModel
+    freeRaffleViewModel: RaffleViewModel,
+    noFreeRaffleViewModel: RaffleViewModel
 ) {
     val startDestination = "광고 래플"
     val items = listOf(
@@ -89,9 +93,13 @@ private fun BottomNav(
         Triple("마이 페이지", R.drawable.ic_user_non_click, R.drawable.ic_user_click)
     )
     var selectedItem by remember { mutableStateOf(startDestination) }
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     Scaffold(
         bottomBar = {
+            Log.d("XXXXXSX", currentRoute.toString())
+            if (currentRoute in listOf("raffle/{itemId}/{isFree}")) return@Scaffold
+
             BottomNavigation(
                 contentColor = MaterialTheme.colorScheme.tertiary,
                 backgroundColor = Color.White,
@@ -136,15 +144,27 @@ private fun BottomNav(
             startDestination = startDestination,
             Modifier.padding(innerPadding)
         ) {
-            composable("광고 래플") { RaffleListScreen(viewModel) }
-            composable("천원 래플") { Second() }
+            composable("광고 래플") { RaffleListScreen(freeRaffleViewModel,navController, true) }
+            composable("천원 래플") { RaffleListScreen(noFreeRaffleViewModel,navController, isFree = false) }
             composable("마이 페이지") { Third() }
+            composable("raffle/{itemId}/{isFree}") { backStackEntry ->
+                val itemId =
+                    backStackEntry.arguments?.getString("itemId") ?: throw DetailServiceException()
+                val isFree = (backStackEntry.arguments?.getString("isFree") ?: throw DetailServiceException()).toBoolean()
+                RaffleDetail(navController, itemId, isFree)
+            }
         }
 
         val context = LocalContext.current
         BackHandler(enabled = true) {
-            Log.d("ABCDEFG","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-            (context as ComponentActivity).finish()
+            Log.d("ABCDEFG", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+            val noFinishRouteList = listOf("raffle/{itemId}/{isFree}")
+            if (currentRoute !in noFinishRouteList) {
+                (context as ComponentActivity).finish()
+            } else {
+                navController.popBackStack()
+            }
+
 //        finishAffinity()
         }
     }
@@ -168,6 +188,6 @@ fun Third() {
 @Composable
 fun DefaultPreview() {
     MyApplicationTheme {
-        RaffleListScreen(RaffleViewModel())
+        RaffleListScreen(RaffleViewModel(),rememberNavController(), true)
     }
 }

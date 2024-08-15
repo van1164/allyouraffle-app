@@ -27,11 +27,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.util.ImageButton
 import com.allyouraffle.allyouraffle.android.util.Logo
+import com.allyouraffle.allyouraffle.network.Api
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -52,10 +52,10 @@ fun LoginPage(navController: NavHostController) {
     Log.d("AAAAAAAAAAAAAAAAAA",loginState.toString())
 
     when (loginState){
-        LoginViewModel.ApiState.Loading ->{
+        Api.ApiState.Loading ->{
             println("==============================")
             Dialog(
-                onDismissRequest = { loginState != LoginViewModel.ApiState.Loading },
+                onDismissRequest = { loginState != Api.ApiState.Loading },
                 properties = DialogProperties(
                     dismissOnBackPress = true,
                     dismissOnClickOutside = true,
@@ -64,9 +64,9 @@ fun LoginPage(navController: NavHostController) {
                 CircularProgressIndicator()
             }
         }
-        LoginViewModel.ApiState.Error ->{
+        Api.ApiState.Error ->{
             Dialog(
-                onDismissRequest = { loginState != LoginViewModel.ApiState.Error },
+                onDismissRequest = { loginState != Api.ApiState.Error },
                 properties = DialogProperties(
                     dismissOnBackPress = true,
                     dismissOnClickOutside = true,
@@ -76,7 +76,7 @@ fun LoginPage(navController: NavHostController) {
             }
         }
 
-        LoginViewModel.ApiState.Success ->{
+        Api.ApiState.Success ->{
             navController.navigate("main")
         }
         else->{
