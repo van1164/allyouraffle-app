@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.play.services.auth)
+    implementation(libs.androidx.animation) // Compose 애니메이션
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
 //    implementation(libs.androidx.material.pullrefresh)
 }

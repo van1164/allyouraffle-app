@@ -1,5 +1,6 @@
 package com.allyouraffle.allyouraffle.android.login
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,10 +37,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun LoginPage(navController: NavHostController) {
     val context = LocalContext.current
-    val loginViewModel = ViewModelProvider.NewInstanceFactory().create(LoginViewModel::class.java)
+    val loginViewModel = LoginViewModel(context)
     val authResultLauncher = rememberLauncherForActivityResult(
         contract = GoogleApiContract()
     ) { task ->
@@ -101,6 +105,7 @@ fun LoginPage(navController: NavHostController) {
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(bottom = 150.dp)
+                .shadow(4.dp, ambientColor = Color.LightGray)
         ) {
             println("XXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 

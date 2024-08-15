@@ -39,6 +39,12 @@ fun MyApplicationTheme(
     )
 
     val typography = Typography(
+        titleLarge = TextStyle(
+            fontFamily = myFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 20.sp,
+            color = Color.Black
+        ),
         bodyLarge = TextStyle(
             fontFamily = myFontFamily,
             fontWeight = FontWeight.Normal,

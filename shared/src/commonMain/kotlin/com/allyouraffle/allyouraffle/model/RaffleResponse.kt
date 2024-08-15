@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RaffleResponse(
+    val id : Long,
     val totalCount: Int,
     val currentCount: Int,
     val ticketPrice: Int,

@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -19,7 +22,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.allyouraffle.allyouraffle.android.R
-import java.time.format.TextStyle
 
 @Composable
 fun ImageButton(image : Int,modifier: Modifier = Modifier,block : () -> Unit) {
@@ -36,7 +38,7 @@ fun ImageButton(image : Int,modifier: Modifier = Modifier,block : () -> Unit) {
 }
 
 @Composable
-fun Logo(fontSize : TextUnit = 30.sp){
+fun Logo(fontSize : TextUnit = 40.sp){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -46,9 +48,14 @@ fun Logo(fontSize : TextUnit = 30.sp){
         Text(
             text = "AllYouRaffle",
             fontFamily = FontFamily(Font(R.font.logo)),
-            fontSize = fontSize,
+            style = androidx.compose.ui.text.TextStyle(
+                fontSize = fontSize,
+                shadow = Shadow(
+                    color = Color.DarkGray, offset = Offset(3.0f, 3.0f), blurRadius = 3f
+                )
+            ),
             fontWeight = FontWeight.ExtraBold,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.tertiary,
         )
     }
 }

@@ -44,7 +44,7 @@ class LoginViewModel(
                 ))
                 Log.d("JJJJJJWWWWWWWWWWW",response.jwt)
                 val sharedPreferences = context.getSharedPreferences("AUTH",Context.MODE_PRIVATE)
-                sharedPreferences.edit().putString("JWT",response.jwt)
+                sharedPreferences.edit().putString("JWT",response.jwt).apply()
                 _loginApiState.value = ApiState.Success
             } ?: run {
                 _loginApiState.value = ApiState.Error

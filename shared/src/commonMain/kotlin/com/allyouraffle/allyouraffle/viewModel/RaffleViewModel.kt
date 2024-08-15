@@ -21,4 +21,8 @@ class RaffleViewModel {
         }
         println("XXXXXXXXXXXXXXXXXXXX")
     }
+
+    fun purchase(jwt : String, id : String): Boolean {
+        return api.purchase(jwt,id)
+    }
 }
