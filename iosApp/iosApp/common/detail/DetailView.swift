@@ -1,9 +1,11 @@
-//
-//  DetailView.swift
-//  iosApp
-//
-//  Created by sihwan on 8/17/24.
-//  Copyright © 2024 orgName. All rights reserved.
-//
+import SwiftUI
+import shared
 
-import Foundation
+struct DetailView : View{
+    var raffleId : String
+    
+    var body: some View {
+        Text("X")
+    }
+    
+}

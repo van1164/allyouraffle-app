@@ -5,7 +5,6 @@ import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -20,7 +19,7 @@ import kotlinx.serialization.json.Json
 
 const val BASE_URL = "https://allyouraffle.co.kr/"
 
-val ktorClient = HttpClient(CIO) {
+val ktorClient = HttpClient() {
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = true

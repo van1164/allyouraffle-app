@@ -2,6 +2,7 @@ package com.allyouraffle.allyouraffle.viewModel
 
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.network.Api
+import com.allyouraffle.allyouraffle.util.asCommonFlow
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,20 +16,24 @@ class RaffleViewModel {
     val raffleList: StateFlow<List<RaffleResponse>> = _raffleList
 
 
-    fun initRaffle(isFree: Boolean){
-        if(_raffleList.value.isEmpty()){
+    fun initRaffle(isFree: Boolean) {
+        if (_raffleList.value.isEmpty()) {
             loadRaffles(isFree)
         }
     }
 
-    fun loadRaffles(isFree : Boolean) {
+    fun loadRaffles(isFree: Boolean) {
         runBlocking {
             _raffleList.value = api.getActive(isFree)
             println(_raffleList.value)
         }
     }
 
-    fun purchase(jwt : String, id : String): Boolean {
-        return api.purchase(jwt,id)
+    fun purchase(jwt: String, id: String): Boolean {
+        return api.purchase(jwt, id)
+    }
+
+    fun test(): String {
+        return ""
     }
 }

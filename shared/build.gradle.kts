@@ -4,7 +4,13 @@ plugins {
     id("kotlinx-serialization")
 }
 
+repositories{
+    google()
+    mavenCentral() // Make sure this is included
+}
+
 kotlin {
+
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -25,20 +31,20 @@ kotlin {
     }
 
     sourceSets {
+        androidMain.dependencies {
+            implementation("io.ktor:ktor-client-android:2.3.12")
+        }
+        iosMain.dependencies {
+            implementation("io.ktor:ktor-client-darwin:2.3.12")
+        }
+
         commonMain.dependencies {
-            implementation(platform("io.ktor:ktor-bom:2.3.12"))
-            implementation("io.ktor:ktor-client-android")
+            implementation(project.dependencies.platform("io.ktor:ktor-bom:2.3.12"))
             implementation("io.ktor:ktor-client-serialization")
             implementation("io.ktor:ktor-client-logging")
             implementation("io.ktor:ktor-client-content-negotiation")
             implementation("io.ktor:ktor-serialization-kotlinx-json")
-            implementation("io.ktor:ktor-client-cio")
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.androidx.lifecycle.viewmodel.compose.android)
-            implementation(libs.androidx.lifecycle.viewmodel.ktx)
-            implementation(libs.androidx.lifecycle.viewmodel.compose)
-            implementation(libs.androidx.lifecycle.runtime.ktx)
-            implementation(libs.kotlinx.coroutines.android)
             implementation(libs.play.services.auth)
             //put your multiplatform dependencies here
         }
@@ -50,7 +56,7 @@ kotlin {
 
 android {
     namespace = "com.allyouraffle.allyouraffle"
-    compileSdk = 35
+    compileSdk = 34
     defaultConfig {
         minSdk = 26
     }
