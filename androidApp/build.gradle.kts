@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.allyouraffle.allyouraffle.android"
-    compileSdk = 35
+    compileSdk = 34
     defaultConfig {
         applicationId = "com.allyouraffle.allyouraffle.android"
         minSdk = 26

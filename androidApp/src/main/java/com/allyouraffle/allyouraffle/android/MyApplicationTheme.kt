@@ -24,13 +24,13 @@ fun MyApplicationTheme(
     val colors = if (darkTheme) {
         darkColorScheme(
             primary = Color(0xFFFFFFFF),
-            secondary = Color(0xFFEF4444),
+            secondary = Color(0xFF5FD855),
             tertiary = Color(0xFF60A5FA)
         )
     } else {
         lightColorScheme(
             primary = Color(0xFFFFFFFF),
-            secondary = Color(0xFFEF4444),
+            secondary = Color(0xFF5FD855),
             tertiary = Color(0xFF60A5FA)
         )
     }

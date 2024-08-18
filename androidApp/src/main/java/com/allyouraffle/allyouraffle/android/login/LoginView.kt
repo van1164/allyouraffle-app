@@ -5,6 +5,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,7 +34,7 @@ import androidx.navigation.NavHostController
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.util.ImageButton
 import com.allyouraffle.allyouraffle.android.util.Logo
-import com.allyouraffle.allyouraffle.network.Api
+import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -40,51 +43,93 @@ import com.google.android.gms.tasks.Task
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun LoginPage(navController: NavHostController) {
+    Log.d("START", "START")
     val context = LocalContext.current
     val loginViewModel = LoginViewModel(context)
-    val authResultLauncher = rememberLauncherForActivityResult(
-        contract = GoogleApiContract()
-    ) { task ->
-        loginViewModel.handleGoogleSignInResult(task)
-    }
-
-    val loginState by loginViewModel.loginApiState.collectAsState()
-    Log.d("AAAAAAAAAAAAAAAAAA",loginState.toString())
-
-    when (loginState){
-        Api.ApiState.Loading ->{
-            println("==============================")
-            Dialog(
-                onDismissRequest = { loginState != Api.ApiState.Loading },
-                properties = DialogProperties(
-                    dismissOnBackPress = true,
-                    dismissOnClickOutside = true,
-                )
-            ) {
-                CircularProgressIndicator()
+    val sharedPreference = SharedPreference(context)
+    if (checkJwtExist(sharedPreference, loginViewModel)) {
+        goMain(navController)
+    } else {
+        val authResultLauncher = rememberLauncherForActivityResult(
+            contract = GoogleApiContract()
+        ) { task ->
+            Log.d("TTTTTTTTTTTTTTTTTTTTTTTTTTT","TASK")
+            loginViewModel.handleGoogleSignInResult(task)?.run {
+                get("JWT")?.let { sharedPreference.setJwt(it) }
+                get("REFRESH")?.let { sharedPreference.setRefresh(it) }
+                goMain(navController)
             }
         }
-        Api.ApiState.Error ->{
-            Dialog(
-                onDismissRequest = { loginState != Api.ApiState.Error },
-                properties = DialogProperties(
-                    dismissOnBackPress = true,
-                    dismissOnClickOutside = true,
-                )
-            ) {
-                Text("로그인 실패")
-            }
-        }
+        LoginView(authResultLauncher, loginViewModel)
+    }
+}
 
-        Api.ApiState.Success ->{
-            navController.navigate("main")
+fun checkJwtExist(
+    sharedPreference: SharedPreference,
+    loginViewModel: LoginViewModel
+): Boolean {
+    Log.d("CHECK", "CHECK")
+    try {
+        val jwt = sharedPreference.getJwt()
+        val refreshToken = sharedPreference.getRefreshToken()
+        Log.d("JWT", jwt)
+        Log.d("REFRESH", refreshToken)
+        if (loginViewModel.jwtVerify(jwt)) {
+            Log.d("JWTVERFY", "JWTVERFY")
+            return true
         }
-        else->{
+        Log.d("LLLLLLLLLLLLLLLLLLLLLLLLLL", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+        loginViewModel.refresh(refreshToken)?.run {
+            Log.d("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ", this)
+            sharedPreference.setJwt(this)
+            return true
+        }
+    } catch (e: RuntimeException) {
+        return false
+    }
+    return false
+}
 
+@Composable
+fun ErrorMessage(message: String = "로그인중 에러 발생") {
+    Toast.makeText(LocalContext.current, message, Toast.LENGTH_SHORT).show()
+}
+
+@Composable
+private fun ObserveLoading(
+    isLoading: Boolean
+) {
+    Log.d("Loading", isLoading.toString())
+    if (isLoading) {
+        Dialog(
+            onDismissRequest = { !isLoading },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+            )
+        ) {
+            CircularProgressIndicator()
         }
     }
+}
 
+fun goMain(navController: NavHostController) {
+    Log.d("GoMain", "AAAAAAAAAAAAAAAAAAAAAAAAA")
+    if (navController.currentDestination?.route != "main") {
+        navController.navigate("main") {
+            popUpTo("login") { inclusive = true } // 로그인 화면을 스택에서 제거
+        }
+    }
+}
 
+@Composable
+private fun LoginView(
+    authResultLauncher: ManagedActivityResultLauncher<Int, Task<GoogleSignInAccount>?>,
+    loginViewModel: LoginViewModel,
+) {
+    val isLoading by loginViewModel.isLoading.collectAsState()
+    ObserveLoading(isLoading)
+    ObserveError(loginViewModel)
     Column(
         modifier = Modifier
             .padding(top = 30.dp)
@@ -97,7 +142,7 @@ fun LoginPage(navController: NavHostController) {
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
             lineHeight = 50.sp,
-            fontSize=18.sp
+            fontSize = 18.sp
         )
 
         ImageButton(
@@ -107,10 +152,17 @@ fun LoginPage(navController: NavHostController) {
                 .padding(bottom = 150.dp)
                 .shadow(4.dp, ambientColor = Color.LightGray)
         ) {
-            println("XXXXXXXXXXXXXXXXXXXXXXXXXXXX")
-
             authResultLauncher.launch(1)
         }
+    }
+}
+
+@Composable
+fun ObserveError(viewModel: LoginViewModel) {
+    val error by viewModel.error.collectAsState()
+    if (error) {
+        ErrorMessage()
+        viewModel.endError()
     }
 }
 
@@ -123,7 +175,6 @@ class GoogleApiContract : ActivityResultContract<Int, Task<GoogleSignInAccount>?
             .build()
 
         val intent = GoogleSignIn.getClient(context, gso)
-        Log.d("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX", intent.toString())
         return intent.signInIntent
     }
 
@@ -132,6 +183,7 @@ class GoogleApiContract : ActivityResultContract<Int, Task<GoogleSignInAccount>?
             Activity.RESULT_OK -> {
                 GoogleSignIn.getSignedInAccountFromIntent(intent)
             }
+
             else -> null
         }
     }

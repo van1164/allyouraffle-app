@@ -97,7 +97,6 @@ private fun BottomNav(
 
     Scaffold(
         bottomBar = {
-            Log.d("XXXXXSX", currentRoute.toString())
             if (currentRoute in listOf("raffle/{itemId}/{isFree}")) return@Scaffold
 
             BottomNavigation(
@@ -157,23 +156,13 @@ private fun BottomNav(
 
         val context = LocalContext.current
         BackHandler(enabled = true) {
-            Log.d("ABCDEFG", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
             val noFinishRouteList = listOf("raffle/{itemId}/{isFree}")
             if (currentRoute !in noFinishRouteList) {
                 (context as ComponentActivity).finish()
             } else {
                 navController.popBackStack()
             }
-
-//        finishAffinity()
         }
-    }
-}
-
-@Composable
-fun Second() {
-    Button(onClick = { /*TODO*/ }) {
-        Text(text = "Second")
     }
 }
 

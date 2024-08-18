@@ -57,6 +57,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
 import com.allyouraffle.allyouraffle.android.util.Logo
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
@@ -91,7 +92,7 @@ fun RaffleListScreen(viewModel : RaffleViewModel,navController: NavHostControlle
     ) {
         Logo(60.sp)
         Spacer(modifier = Modifier.height(10.dp))
-        Banner(message = if(isFree) "광고 래플" else "천원 레플")
+        Banner(message = if(isFree) "광고 래플" else "천원 래플")
         Box {
             PullRefreshIndicator(
                 refreshing = refreshing,
@@ -142,7 +143,7 @@ fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel, navControlle
 //                        .size(Size.ORIGINAL)
                             .build(),
                         error = painterResource(
-                            coil.compose.base.R.drawable.ic_100tb
+                            R.drawable.baseline_error_outline_24
                         )
                     ),
                     contentDescription = raffle.item.name,

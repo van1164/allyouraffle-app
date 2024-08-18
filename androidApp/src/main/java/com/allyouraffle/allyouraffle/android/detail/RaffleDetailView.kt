@@ -3,27 +3,33 @@ package com.allyouraffle.allyouraffle.android.detail
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.Text
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
@@ -60,42 +66,88 @@ fun RaffleDetailBody(
 
     ) {
     Box(
-        modifier = Modifier.padding(15.dp)
+        modifier = Modifier
+            .padding(start = 50.dp,end = 50.dp)
+            .fillMaxSize()
     ) {
-        Column {
-            Image(
-                painter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(raffle.item.imageUrl)
-//                        .size(Size.ORIGINAL)
-                        .build(),
-                    error = painterResource(
-                        coil.compose.base.R.drawable.ic_100tb
-                    )
-                ),
-                contentDescription = raffle.item.name,
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier.verticalScroll(scrollState).padding(top=50.dp)
+        ) {
+            Box(
                 modifier = Modifier
-                    .fillMaxHeight(),
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
+            ) {
+                ImageLoading(raffle)
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            Text(raffle.item.name, fontSize = 35.sp)
+            Spacer(modifier = Modifier.padding(bottom = 500.dp))
+        }
 
-                contentScale = ContentScale.Crop
-            )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 10.dp)
+        ) {
+            BottomButton(isFree, raffle, raffleViewModel, context, jwt)
+        }
+    }
 
-            if (isFree) {
-                ViewAddButton(
-                    raffle = raffle,
-                    viewModel = raffleViewModel,
-                    context = context,
-                    jwt = jwt
-                )
-            } else {
-                PurchaseButton(
-                    raffle = raffle,
-                    viewModel = raffleViewModel,
-                    context = context,
-                    jwt = jwt
+}
+
+@Composable
+private fun ImageLoading(raffle: RaffleDetailResponse) {
+    SubcomposeAsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(raffle.item.imageUrl)
+            .build(),
+        contentDescription = raffle.item.imageUrl,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val state = painter.state
+        when (state) {
+            is AsyncImagePainter.State.Loading -> {
+                // 로딩 중일 때 표시할 UI
+                CircularProgressIndicator()
+            }
+            is AsyncImagePainter.State.Error -> {
+                // 에러 발생 시 표시할 UI
+                Text(text = "Image loading failed")
+            }
+            else -> {
+                // 이미지가 성공적으로 로드된 경우
+                SubcomposeAsyncImageContent(
+
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun BottomButton(
+    isFree: Boolean,
+    raffle: RaffleDetailResponse,
+    raffleViewModel: RaffleDetailViewModel,
+    context: Context,
+    jwt: String
+) {
+    if (isFree) {
+        ViewAdButton(
+            raffle = raffle,
+            viewModel = raffleViewModel,
+            context = context,
+            jwt = jwt
+        )
+    } else {
+        PurchaseButton(
+            raffle = raffle,
+            viewModel = raffleViewModel,
+            context = context,
+            jwt = jwt
+        )
     }
 }
 
@@ -107,7 +159,7 @@ fun PurchaseButton(
     context: Context,
     jwt: String
 ) {
-    Button(
+    FloatingActionButton(
         onClick = {
             val response = viewModel.purchase(jwt, raffle.id.toString())
             if (response) {
@@ -120,26 +172,25 @@ fun PurchaseButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.tertiary, // 버튼 배경색
-            contentColor = Color.White    // 버튼 글자색
-        ),
+        containerColor = MaterialTheme.colorScheme.tertiary,
+        contentColor = Color.White
     ) {
         androidx.compose.material3.Text(
             text = "응모하기",
-            color = Color.White
+            color = Color.White,
+            fontSize = 19.sp
         )
     }
 }
 
 @Composable
-fun ViewAddButton(
+fun ViewAdButton(
     raffle: RaffleDetailResponse,
     viewModel: RaffleDetailViewModel,
     context: Context,
     jwt: String
 ) {
-    Button(
+    FloatingActionButton(
         onClick = {
             val response = viewModel.purchase(jwt, raffle.id.toString())
             if (response) {
@@ -152,14 +203,23 @@ fun ViewAddButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.tertiary, // 버튼 배경색
-            contentColor = Color.White    // 버튼 글자색
-        ),
+        containerColor = MaterialTheme.colorScheme.secondary,
+        contentColor = Color.White
     ) {
-        androidx.compose.material3.Text(
-            text = "응모하기",
-            color = Color.White
-        )
+        Row {
+//            Icon(
+//                painter = painterResource(id = R.drawable.baseline_screenshot_monitor_24), // 아이콘 리소스 ID
+//                contentDescription = "Your Icon Description",
+//                modifier = Modifier.align(Alignment.CenterVertically)
+//            )
+//            Spacer(modifier = Modifier.width(50.dp))
+            androidx.compose.material3.Text(
+                text = "광고 보기",
+                color = Color.White,
+                fontSize = 19.sp,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+        }
+
     }
 }
