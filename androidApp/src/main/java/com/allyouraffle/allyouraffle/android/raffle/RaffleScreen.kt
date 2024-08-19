@@ -65,18 +65,14 @@ import com.allyouraffle.allyouraffle.exception.DetailServiceException
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 
-//@Composable
-//fun RaffleListScreen(viewModel: RaffleViewModel) {
-//
-//    val navController = rememberNavController()
-//    NavHost(navController = navController, startDestination = "main") {
-//        composable("main"){Main(viewModel,navController)}
-//    }
-//}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RaffleListScreen(viewModel : RaffleViewModel,navController: NavHostController,isFree : Boolean){
+fun RaffleListScreen(
+    viewModel: RaffleViewModel,
+    navController: NavHostController,
+    isFree: Boolean
+) {
     val raffleList by viewModel.raffleList.collectAsState()
     viewModel.initRaffle(isFree)
 
@@ -92,7 +88,7 @@ fun RaffleListScreen(viewModel : RaffleViewModel,navController: NavHostControlle
     ) {
         Logo(60.sp)
         Spacer(modifier = Modifier.height(10.dp))
-        Banner(message = if(isFree) "광고 래플" else "천원 래플")
+        Banner(message = if (isFree) "광고 래플" else "천원 래플")
         Box {
             PullRefreshIndicator(
                 refreshing = refreshing,
@@ -106,7 +102,7 @@ fun RaffleListScreen(viewModel : RaffleViewModel,navController: NavHostControlle
                 modifier = Modifier.pullRefresh(pullRefreshState)
             ) {
                 items(raffleList) { raffle ->
-                    ProductCard(raffle, viewModel,navController,isFree)
+                    ProductCard(raffle, viewModel, navController, isFree)
                 }
             }
         }
@@ -114,7 +110,12 @@ fun RaffleListScreen(viewModel : RaffleViewModel,navController: NavHostControlle
 }
 
 @Composable
-fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel, navController: NavController,isFree: Boolean) {
+fun ProductCard(
+    raffle: RaffleResponse,
+    viewModel: RaffleViewModel,
+    navController: NavController,
+    isFree: Boolean
+) {
     val sharedPreference = SharedPreference(LocalContext.current)
     val jwt = sharedPreference.getJwt()
     val context = LocalContext.current
@@ -125,7 +126,7 @@ fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel, navControlle
             .padding(3.dp)
             .shadow(2.dp)
             .clickable {
-                navController.navigate("raffle/" + raffle.id+"/"+isFree)
+                navController.navigate("raffle/" + raffle.id + "/" + isFree)
             }
     ) {
         Row(
@@ -135,7 +136,7 @@ fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel, navControlle
                 .align(Alignment.CenterHorizontally),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Box(modifier = Modifier.aspectRatio(1f)){
+            Box(modifier = Modifier.aspectRatio(1f)) {
                 Image(
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -155,7 +156,7 @@ fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel, navControlle
             }
 
 
-            RaffleRightColumn(raffle, viewModel, context, jwt,rowHeight)
+            RaffleRightColumn(raffle, rowHeight, isFree)
 
         }
 
@@ -165,17 +166,14 @@ fun ProductCard(raffle: RaffleResponse, viewModel: RaffleViewModel, navControlle
 @Composable
 fun RaffleRightColumn(
     raffle: RaffleResponse,
-    viewModel: RaffleViewModel,
-    context: Context,
-    jwt: String,
     rowHeight: Dp,
+    isFree: Boolean
 ) {
     Column(
         modifier = Modifier
             .background(Color.White)
             .height(rowHeight)
-            .padding(start = 3.dp)
-        ,
+            .padding(start = 3.dp),
         verticalArrangement = Arrangement.Center,
     ) {
 
@@ -196,7 +194,7 @@ fun RaffleRightColumn(
                 .padding(3.dp)
                 .clip(RoundedCornerShape(12.dp)),
             trackColor = Color.LightGray,
-            color = MaterialTheme.colorScheme.tertiary,
+            color = if (isFree) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary,
         )
         Spacer(modifier = Modifier.height(15.dp))
         Text(

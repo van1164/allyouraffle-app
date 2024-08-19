@@ -1,5 +1,7 @@
 package com.allyouraffle.allyouraffle.android.detail
 
+import android.app.Activity
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -35,6 +38,13 @@ import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
 import com.allyouraffle.allyouraffle.network.Api
 import com.allyouraffle.allyouraffle.viewModel.RaffleDetailViewModel
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnUserEarnedRewardListener
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 
 
 @Composable
@@ -119,7 +129,6 @@ private fun ImageLoading(raffle: RaffleDetailResponse) {
             else -> {
                 // 이미지가 성공적으로 로드된 경우
                 SubcomposeAsyncImageContent(
-
                 )
             }
         }
@@ -175,7 +184,7 @@ fun PurchaseButton(
         containerColor = MaterialTheme.colorScheme.tertiary,
         contentColor = Color.White
     ) {
-        androidx.compose.material3.Text(
+        Text(
             text = "응모하기",
             color = Color.White,
             fontSize = 19.sp
@@ -190,14 +199,62 @@ fun ViewAdButton(
     context: Context,
     jwt: String
 ) {
+    var rewardedAd : RewardedAd? = null
+    var adRequest = AdRequest.Builder().build()
+    RewardedAd.load(context,"ca-app-pub-7372592599478425/5652948903", adRequest, object : RewardedAdLoadCallback() {
+        override fun onAdFailedToLoad(adError: LoadAdError) {
+            Log.d("AD ERROR", adError.toString())
+            rewardedAd = null
+        }
+
+        override fun onAdLoaded(ad: RewardedAd) {
+            Log.d("AD Success", "Ad was loaded.")
+            rewardedAd = ad
+        }
+    })
+    rewardedAd?.fullScreenContentCallback = object: FullScreenContentCallback() {
+        override fun onAdClicked() {
+            // Called when a click is recorded for an ad.
+            Log.d(TAG, "Ad was clicked.")
+        }
+
+        override fun onAdDismissedFullScreenContent() {
+            // Called when ad is dismissed.
+            // Set the ad reference to null so you don't show the ad a second time.
+            Log.d(TAG, "Ad dismissed fullscreen content.")
+            rewardedAd = null
+        }
+
+        override fun onAdImpression() {
+            // Called when an impression is recorded for an ad.
+            Log.d(TAG, "Ad recorded an impression.")
+        }
+
+        override fun onAdShowedFullScreenContent() {
+            // Called when ad is shown.
+            Log.d(TAG, "Ad showed fullscreen content.")
+        }
+    }
+
     FloatingActionButton(
         onClick = {
-            val response = viewModel.purchase(jwt, raffle.id.toString())
-            if (response) {
-                Toast.makeText(context, "요청 성공", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(context, "요청 실패", Toast.LENGTH_LONG).show()
+            rewardedAd?.let { ad ->
+                ad.show(context as Activity, OnUserEarnedRewardListener { rewardItem ->
+                    // Handle the reward.
+                    val rewardAmount = rewardItem.amount
+                    val rewardType = rewardItem.type
+                    Log.d(TAG, "User earned the reward.")
+                })
+            } ?: run {
+                Log.d(TAG, "The rewarded ad wasn't ready yet.")
             }
+
+//            val response = viewModel.purchase(jwt, raffle.id.toString())
+//            if (response) {
+//                Toast.makeText(context, "요청 성공", Toast.LENGTH_LONG).show()
+//            } else {
+//                Toast.makeText(context, "요청 실패", Toast.LENGTH_LONG).show()
+//            }
         },
         shape = RoundedCornerShape(15.dp),
         modifier = Modifier
@@ -213,7 +270,7 @@ fun ViewAdButton(
 //                modifier = Modifier.align(Alignment.CenterVertically)
 //            )
 //            Spacer(modifier = Modifier.width(50.dp))
-            androidx.compose.material3.Text(
+            Text(
                 text = "광고 보기",
                 color = Color.White,
                 fontSize = 19.sp,

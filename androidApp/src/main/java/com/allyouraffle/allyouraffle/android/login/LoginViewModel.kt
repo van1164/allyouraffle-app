@@ -11,6 +11,7 @@ import com.allyouraffle.allyouraffle.exception.LoginException
 import com.allyouraffle.allyouraffle.network.MobileUserLoginDto
 import com.allyouraffle.allyouraffle.exception.NetworkException
 import com.allyouraffle.allyouraffle.network.Api
+import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
@@ -27,15 +28,18 @@ class LoginViewModel(
     private val _error = MutableStateFlow(false)
     val error = _error.asStateFlow()
 
-
     fun jwtVerify(jwt: String): Boolean {
         return LoginApi.verify(jwt)
     }
 
     fun refresh(refreshToken: String): String? {
         return LoginApi.refresh(refreshToken)
-
     }
+
+    fun getUserInfo(jwt : String): UserInfoResponse {
+        return LoginApi.getUserInfo(jwt)
+    }
+
 
     @SuppressLint("CommitPrefEdits")
     fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>?): HashMap<String, String>? {

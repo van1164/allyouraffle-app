@@ -21,4 +21,8 @@ class SharedPreference(context : Context) {
         authPrefs.edit().putString("REFRESH",refresh).apply()
     }
 
+    fun deleteAllToken(){
+        authPrefs.edit().remove("JWT").remove("REFRESH").apply()
+    }
+
 }

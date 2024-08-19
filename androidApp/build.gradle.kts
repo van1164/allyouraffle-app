@@ -43,8 +43,10 @@ dependencies {
     implementation(projects.shared)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
+//    implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.material3.android)
+//    implementation(libs.androidx.material3.android)
     debugImplementation(libs.compose.ui.tooling)
     implementation(libs.coil)
     implementation(libs.coil.compose)
@@ -54,5 +56,7 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.androidx.animation) // Compose 애니메이션
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation(libs.play.services.ads)
+
 //    implementation(libs.androidx.material.pullrefresh)
 }

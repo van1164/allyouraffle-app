@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -31,14 +34,19 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.util.ImageButton
 import com.allyouraffle.allyouraffle.android.util.Logo
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
+import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
+
 
 @SuppressLint("ViewModelConstructorInComposable")
 @Composable
@@ -47,22 +55,43 @@ fun LoginPage(navController: NavHostController) {
     val context = LocalContext.current
     val loginViewModel = LoginViewModel(context)
     val sharedPreference = SharedPreference(context)
-    if (checkJwtExist(sharedPreference, loginViewModel)) {
-        goMain(navController)
-    } else {
-        val authResultLauncher = rememberLauncherForActivityResult(
-            contract = GoogleApiContract()
-        ) { task ->
-            Log.d("TTTTTTTTTTTTTTTTTTTTTTTTTTT","TASK")
-            loginViewModel.handleGoogleSignInResult(task)?.run {
-                get("JWT")?.let { sharedPreference.setJwt(it) }
-                get("REFRESH")?.let { sharedPreference.setRefresh(it) }
-                goMain(navController)
+    var jwtState by remember { mutableStateOf(true) }
+    key(jwtState) {
+        if (checkJwtExist(sharedPreference, loginViewModel)) {
+            val userInfoResponse = loginViewModel.getUserInfo(sharedPreference.getJwt())
+            AddressNavHost(userInfoResponse, navController)
+//        goMain(navController)
+        } else {
+            val authResultLauncher = rememberLauncherForActivityResult(
+                contract = GoogleApiContract()
+            ) { task ->
+                Log.d("TTTTTTTTTTTTTTTTTTTTTTTTTTT", "TASK")
+                loginViewModel.handleGoogleSignInResult(task)?.run {
+                    get("JWT")?.let { sharedPreference.setJwt(it) }
+                    get("REFRESH")?.let { sharedPreference.setRefresh(it) }
+                    jwtState = !jwtState
+//                val userInfoResponse = loginViewModel.getUserInfo(sharedPreference.getJwt())
+//                AddressNavHost(userInfoResponse = userInfoResponse, navController = navController)
+                }
             }
+            LoginView(authResultLauncher, loginViewModel)
         }
-        LoginView(authResultLauncher, loginViewModel)
+    }
+
+}
+
+@Composable
+private fun AddressNavHost(
+    userInfoResponse: UserInfoResponse,
+    navController: NavHostController
+) {
+    val loginNavController = rememberNavController()
+    NavHost(loginNavController, startDestination = "userAddress") {
+        composable("userAddress") { UserAddressView(loginNavController, userInfoResponse) }
+        composable("userPhoneNumber") { UserPhoneNumberView(navController, userInfoResponse) }
     }
 }
+
 
 fun checkJwtExist(
     sharedPreference: SharedPreference,
@@ -137,7 +166,7 @@ private fun LoginView(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Logo(60.sp)
-        Text(
+        androidx.compose.material3.Text(
             "All You Raffle에 오신 것을 환영합니다! \n이제 광고를 보는 것만으로도\n특별한 보상을 받을 수 있습니다.\n다양한 상품이 여러분을 기다립니다!",
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,

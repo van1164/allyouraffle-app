@@ -8,6 +8,9 @@
         <meta-data
             android:name="com.google.android.gms.auth.api.credentials.CREDENTIALS_API_KEY"
             android:value="@string/web_client_id" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7372592599478425~6939880348"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
