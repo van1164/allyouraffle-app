@@ -46,6 +46,7 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json")
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.play.services.auth)
+            implementation(libs.androidx.lifecycle.viewmodel.ktx)
             //put your multiplatform dependencies here
         }
         commonTest.dependencies {

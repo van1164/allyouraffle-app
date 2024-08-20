@@ -10,22 +10,26 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RaffleDetailViewModel : AbstractViewModel() {
+class RaffleDetailViewModel {
     private val api = Api
     private val _raffleDetail = MutableStateFlow<RaffleDetailResponse?>(null)
     val raffleDetail: StateFlow<RaffleDetailResponse?> = _raffleDetail.asStateFlow()
 
+    private val _raffleLoading = MutableStateFlow<Boolean>(true)
+    val raffleLoading = _raffleLoading.asStateFlow()
 
-    fun getDetail(id : String, isFree : Boolean) {
-        _apiState.update {
-            Api.ApiState.Loading
+    suspend fun getDetail(id : String, isFree : Boolean) {
+        println("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
+        _raffleLoading.update {
+            true
         }
         _raffleDetail.update {
             api.getDetail(id,isFree)
         }
-        _apiState.update {
-            Api.ApiState.Success
+        _raffleLoading.update {
+            false
         }
+        println("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
     }
 
     fun purchase(jwt : String, id : String): Boolean {

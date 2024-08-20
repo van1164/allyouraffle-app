@@ -187,14 +187,14 @@ fun RaffleRightColumn(
         )
         Spacer(modifier = Modifier.height(15.dp))
         LinearProgressIndicator(
-            progress = raffle.currentCount.toFloat() / raffle.totalCount,
+            progress = { raffle.currentCount.toFloat() / raffle.totalCount },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(15.dp)
                 .padding(3.dp)
                 .clip(RoundedCornerShape(12.dp)),
-            trackColor = Color.LightGray,
             color = if (isFree) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary,
+            trackColor = Color.LightGray,
         )
         Spacer(modifier = Modifier.height(15.dp))
         Text(

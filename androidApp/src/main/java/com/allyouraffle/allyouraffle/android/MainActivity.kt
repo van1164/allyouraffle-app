@@ -57,6 +57,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            // 예외 처리 로직
+            println("Uncaught exception in thread ${thread.name}: $throwable")
+        }
     }
 
 }
@@ -143,13 +147,20 @@ private fun BottomNav(
             startDestination = startDestination,
             Modifier.padding(innerPadding)
         ) {
-            composable("광고 래플") { RaffleListScreen(freeRaffleViewModel,navController, true) }
-            composable("천원 래플") { RaffleListScreen(noFreeRaffleViewModel,navController, isFree = false) }
+            composable("광고 래플") { RaffleListScreen(freeRaffleViewModel, navController, true) }
+            composable("천원 래플") {
+                RaffleListScreen(
+                    noFreeRaffleViewModel,
+                    navController,
+                    isFree = false
+                )
+            }
             composable("마이 페이지") { Third() }
             composable("raffle/{itemId}/{isFree}") { backStackEntry ->
                 val itemId =
                     backStackEntry.arguments?.getString("itemId") ?: throw DetailServiceException()
-                val isFree = (backStackEntry.arguments?.getString("isFree") ?: throw DetailServiceException()).toBoolean()
+                val isFree = (backStackEntry.arguments?.getString("isFree")
+                    ?: throw DetailServiceException()).toBoolean()
                 RaffleDetail(navController, itemId, isFree)
             }
         }
@@ -177,6 +188,6 @@ fun Third() {
 @Composable
 fun DefaultPreview() {
     MyApplicationTheme {
-        RaffleListScreen(RaffleViewModel(),rememberNavController(), true)
+        RaffleListScreen(RaffleViewModel(), rememberNavController(), true)
     }
 }

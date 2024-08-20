@@ -44,7 +44,7 @@ object Api {
         return response.body<List<RaffleResponse>>()
     }
 
-    fun getDetail(id: String, isFree : Boolean): RaffleDetailResponse {
+    suspend fun getDetail(id: String, isFree : Boolean): RaffleDetailResponse {
         return if(isFree){
             getDetailFree(id)
         }else{
@@ -52,15 +52,13 @@ object Api {
         }
     }
 
-    private fun getDetailFree(id : String) : RaffleDetailResponse {
-        return runBlocking {
+    private suspend fun getDetailFree(id : String) : RaffleDetailResponse {
             val response = ktorClient
                 .get(BASE_URL + "api/v1/raffle/active/free/detail/"+id)
 
             checkNotOkThrowNetworkException(response.status)
 
-            return@runBlocking response.body<RaffleDetailResponse>()
-        }
+            return response.body<RaffleDetailResponse>()
     }
 
     private fun getDetailNotFree(id : String) : RaffleDetailResponse {
