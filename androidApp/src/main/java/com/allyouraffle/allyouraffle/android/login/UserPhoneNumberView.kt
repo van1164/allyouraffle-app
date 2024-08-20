@@ -1,9 +1,6 @@
 package com.allyouraffle.allyouraffle.android.login
 
-import android.telephony.PhoneNumberUtils
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,9 +15,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldColors
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -130,7 +125,9 @@ fun PhoneField(
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         visualTransformation = PhoneVisualTransformation(mask, maskNumber),
-        modifier = modifier.fillMaxWidth().padding(16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
         singleLine = true,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = MaterialTheme.colorScheme.tertiary,

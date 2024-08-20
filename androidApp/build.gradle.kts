@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.androidx.animation) // Compose 애니메이션
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation(libs.play.services.ads)
-    implementation (libs.accompanist.navigation.animation)
+    implementation(libs.accompanist.navigation.animation)
 
 
 //    implementation(libs.androidx.material.pullrefresh)

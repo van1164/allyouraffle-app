@@ -31,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,14 +53,11 @@ import com.allyouraffle.allyouraffle.android.util.GoogleAd
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
-import com.allyouraffle.allyouraffle.network.Api
 import com.allyouraffle.allyouraffle.viewModel.RaffleDetailViewModel
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 
@@ -84,7 +80,7 @@ fun RaffleDetail(navController: NavController, itemId: String, isFree: Boolean) 
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
         refreshing = true
         runBlocking {
-            raffleViewModel.getDetail(itemId,isFree)
+            raffleViewModel.getDetail(itemId, isFree)
         }
         refreshing = false
     })

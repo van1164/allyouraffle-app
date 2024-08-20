@@ -8,9 +8,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,13 +19,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,7 +46,6 @@ import com.allyouraffle.allyouraffle.network.AddressInfo
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.allyouraffle.allyouraffle.viewModel.AddressViewModel
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
 
 @Composable
 fun UserAddressView(loginNavController: NavHostController, userInfoResponse: UserInfoResponse) {

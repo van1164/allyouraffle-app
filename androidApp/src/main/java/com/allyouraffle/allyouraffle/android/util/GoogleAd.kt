@@ -1,15 +1,11 @@
 package com.allyouraffle.allyouraffle.android.util
 
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.util.Log
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
-import kotlinx.coroutines.runBlocking
 
 class GoogleAd(
     private var context: Context, private val onAdLoad: (RewardedAd) -> Unit

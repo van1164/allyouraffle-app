@@ -1,8 +1,5 @@
 package com.allyouraffle.allyouraffle.android.raffle
 
-import android.content.Context
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,8 +21,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -52,16 +47,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.allyouraffle.allyouraffle.android.R
-import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
 import com.allyouraffle.allyouraffle.android.util.Logo
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
-import com.allyouraffle.allyouraffle.exception.DetailServiceException
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 

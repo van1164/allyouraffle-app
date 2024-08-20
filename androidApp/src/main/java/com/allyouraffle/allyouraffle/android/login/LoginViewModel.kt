@@ -3,14 +3,10 @@ package com.allyouraffle.allyouraffle.android.login
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.lifecycle.ViewModel
-import com.allyouraffle.allyouraffle.network.LoginApi
 import com.allyouraffle.allyouraffle.exception.LoginException
-import com.allyouraffle.allyouraffle.network.MobileUserLoginDto
 import com.allyouraffle.allyouraffle.exception.NetworkException
-import com.allyouraffle.allyouraffle.network.Api
+import com.allyouraffle.allyouraffle.network.LoginApi
+import com.allyouraffle.allyouraffle.network.MobileUserLoginDto
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -36,7 +32,7 @@ class LoginViewModel(
         return LoginApi.refresh(refreshToken)
     }
 
-    fun getUserInfo(jwt : String): UserInfoResponse {
+    fun getUserInfo(jwt: String): UserInfoResponse {
         return LoginApi.getUserInfo(jwt)
     }
 
