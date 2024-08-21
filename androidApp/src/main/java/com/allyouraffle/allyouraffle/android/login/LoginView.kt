@@ -1,6 +1,5 @@
 package com.allyouraffle.allyouraffle.android.login
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -47,12 +46,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 
 
-@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun LoginPage(navController: NavHostController) {
     Log.d("START", "START")
     val context = LocalContext.current
-    val loginViewModel = LoginViewModel(context)
+    val loginViewModel = remember { LoginViewModel() }
     val sharedPreference = SharedPreference(context)
     var jwtState by remember { mutableStateOf(true) }
     key(jwtState) {
@@ -137,15 +135,6 @@ private fun ObserveLoading(
             )
         ) {
             CircularProgressIndicator()
-        }
-    }
-}
-
-fun goMain(navController: NavHostController) {
-    Log.d("GoMain", "AAAAAAAAAAAAAAAAAAAAAAAAA")
-    if (navController.currentDestination?.route != "main") {
-        navController.navigate("main") {
-            popUpTo("login") { inclusive = true } // 로그인 화면을 스택에서 제거
         }
     }
 }

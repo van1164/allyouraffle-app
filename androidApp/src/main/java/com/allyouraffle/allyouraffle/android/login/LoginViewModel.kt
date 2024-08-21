@@ -1,7 +1,6 @@
 package com.allyouraffle.allyouraffle.android.login
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import com.allyouraffle.allyouraffle.exception.LoginException
 import com.allyouraffle.allyouraffle.exception.NetworkException
@@ -15,9 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class LoginViewModel(
-    @SuppressLint("StaticFieldLeak") private val context: Context
-) {
+class LoginViewModel {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 

@@ -63,9 +63,9 @@ object LoginApi {
         }
     }
 
-    fun setUserAddress(jwt : String,addressRequestDto: AddressRequestDto): Boolean {
+    fun setUserAddress(jwt: String, addressRequestDto: AddressRequestDto): Boolean {
         return runBlocking {
-            val response = ktorClient.post(BASE_URL+"api/v1/user/set_address"){
+            val response = ktorClient.post(BASE_URL + "api/v1/user/set_address") {
                 headers["Authorization"] = "Bearer $jwt"
                 contentType(ContentType.Application.Json)
                 setBody(addressRequestDto)
@@ -75,7 +75,57 @@ object LoginApi {
             return@runBlocking true
         }
     }
+
+    fun verifyPhoneNumber(phoneNumber: String): PhoneNumberVerifyResponse? {
+        return runBlocking {
+            try {
+                val response = ktorClient.post(BASE_URL + "api/v1/login/verify_phone") {
+                    contentType(ContentType.Application.Json)
+                    setBody(PhoneNumberVerifyDto(phoneNumber))
+                }
+                println(response)
+                checkNotOkThrowNetworkException(response.status)
+                return@runBlocking response.body()
+            } catch (e: Exception) {
+                return@runBlocking null
+            }
+        }
+    }
+
+    fun setPhoneNumber(jwt: String, phoneNumber: String): Boolean {
+        return runBlocking {
+            try {
+                val response = ktorClient.post(BASE_URL + "api/v1/user/set_phoneNumber") {
+                    headers["Authorization"] = "Bearer $jwt"
+                    contentType(ContentType.Application.Json)
+                    setBody(PhoneNumberDto(phoneNumber))
+                }
+                println(response)
+                checkNotOkThrowNetworkException(response.status)
+                return@runBlocking true
+            } catch (e: Exception) {
+                return@runBlocking false
+            }
+        }
+    }
 }
+
+
+@Serializable
+data class PhoneNumberVerifyResponse(
+    val secretKey: String
+)
+
+@Serializable
+data class PhoneNumberVerifyDto(
+    val phoneNumber: String
+)
+
+
+@Serializable
+data class PhoneNumberDto(
+    val phone_number: String
+)
 
 
 @Serializable
@@ -162,5 +212,5 @@ data class AddressInfo(
     val sigungu: String,
     val postalCode: String,
     val country: String,
-    val detail : String? = null
+    val detail: String? = null
 )

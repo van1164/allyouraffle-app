@@ -59,9 +59,9 @@ import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RaffleListScreen(
-    viewModel: RaffleViewModel,
     navController: NavHostController,
-    isFree: Boolean
+    isFree: Boolean,
+    viewModel: RaffleViewModel
 ) {
     val raffleList by viewModel.raffleList.collectAsState()
     viewModel.initRaffle(isFree)
@@ -79,7 +79,7 @@ fun RaffleListScreen(
         Logo(60.sp)
         Spacer(modifier = Modifier.height(10.dp))
         Banner(message = if (isFree) "광고 래플" else "천원 래플")
-        Box {
+        Box(modifier = Modifier.fillMaxHeight()) {
             PullRefreshIndicator(
                 refreshing = refreshing,
                 state = pullRefreshState,
@@ -89,7 +89,9 @@ fun RaffleListScreen(
             )
             // 상품 리스트
             LazyColumn(
-                modifier = Modifier.pullRefresh(pullRefreshState)
+                modifier = Modifier
+                    .pullRefresh(pullRefreshState)
+                    .fillMaxHeight()
             ) {
                 items(raffleList) { raffle ->
                     ProductCard(raffle, viewModel, navController, isFree)

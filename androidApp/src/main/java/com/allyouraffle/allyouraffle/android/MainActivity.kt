@@ -1,6 +1,7 @@
 package com.allyouraffle.allyouraffle.android
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -37,8 +38,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
 import com.allyouraffle.allyouraffle.android.login.LoginPage
+import com.allyouraffle.allyouraffle.android.mypage.MyPageScreen
 import com.allyouraffle.allyouraffle.android.raffle.RaffleListScreen
 import com.allyouraffle.allyouraffle.exception.DetailServiceException
+import com.allyouraffle.allyouraffle.viewModel.MyPageViewModel
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 
 class MainActivity : ComponentActivity() {
@@ -67,6 +70,7 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     MaterialTheme {
         val navController = rememberNavController()
+        Log.d("MYAPP", "START MYAPP")
         NavHost(navController = navController, startDestination = "login") {
             composable("login") { LoginPage(navController) }
             composable("main") { MainPage() }
@@ -77,16 +81,12 @@ fun MyApp() {
 @Composable
 fun MainPage() {
     val navController = rememberNavController()
-    val freeRaffleViewModel = RaffleViewModel()
-    val noFreeRaffleViewModel = RaffleViewModel()
-    BottomNav(navController, freeRaffleViewModel, noFreeRaffleViewModel)
+    BottomNav(navController)
 }
 
 @Composable
 private fun BottomNav(
     navController: NavHostController,
-    freeRaffleViewModel: RaffleViewModel,
-    noFreeRaffleViewModel: RaffleViewModel
 ) {
     val startDestination = "광고 래플"
     val items = listOf(
@@ -140,20 +140,24 @@ private fun BottomNav(
             }
         }
     ) { innerPadding ->
+        val freeViewModel = remember { RaffleViewModel() }
+        val noFreeViewModel = remember {
+            RaffleViewModel()
+        }
+        val myPageViewModel = remember { MyPageViewModel() }
         NavHost(
             navController,
             startDestination = startDestination,
             Modifier.padding(innerPadding)
         ) {
-            composable("광고 래플") { RaffleListScreen(freeRaffleViewModel, navController, true) }
+            composable("광고 래플") { RaffleListScreen(navController, true, freeViewModel) }
             composable("천원 래플") {
                 RaffleListScreen(
-                    noFreeRaffleViewModel,
                     navController,
-                    isFree = false
+                    isFree = false, noFreeViewModel
                 )
             }
-            composable("마이 페이지") { Third() }
+            composable("마이 페이지") { MyPageScreen(myPageViewModel) }
             composable("raffle/{itemId}/{isFree}") { backStackEntry ->
                 val itemId =
                     backStackEntry.arguments?.getString("itemId") ?: throw DetailServiceException()
@@ -186,6 +190,6 @@ fun Third() {
 @Composable
 fun DefaultPreview() {
     MyApplicationTheme {
-        RaffleListScreen(RaffleViewModel(), rememberNavController(), true)
+        RaffleListScreen(rememberNavController(), true, RaffleViewModel())
     }
 }

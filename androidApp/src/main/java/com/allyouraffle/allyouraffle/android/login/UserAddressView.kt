@@ -21,6 +21,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Surface
 import androidx.compose.material.TextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,6 +52,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserAddressView(loginNavController: NavHostController, userInfoResponse: UserInfoResponse) {
     if (userInfoResponse.address != null) {
+        println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
         goPhoneNumberView(loginNavController)
     } else {
         val addressNavController = rememberNavController()
@@ -71,7 +74,6 @@ fun UserAddressView(loginNavController: NavHostController, userInfoResponse: Use
                 AddressDetail(
                     addressViewModel = addressViewModel,
                     userAddress = userAddress,
-                    addressNavController = addressNavController,
                     loginNavController = loginNavController
                 )
             }
@@ -83,95 +85,88 @@ fun UserAddressView(loginNavController: NavHostController, userInfoResponse: Use
 fun AddressDetail(
     addressViewModel: AddressViewModel,
     userAddress: AddressInfo?,
-    addressNavController: NavHostController,
     loginNavController: NavHostController
 ) {
-    var detail = addressViewModel.detail.collectAsState()
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp),
-//        verticalArrangement = Arrangement.spacedBy(8.dp),
-//        horizontalAlignment = Alignment.Start
-//    ) {
-//        userAddress?.let { info ->
-//            Text(text = "주소: ${info.address}", style = MaterialTheme.typography.h6)
-//            Text(text = "우편번호: ${info.postalCode}", style = MaterialTheme.typography.body1)
-//            Text("도시: ${info.sigungu}", style = MaterialTheme.typography.body2)
-//        } ?: run {
-//            Toast.makeText(LocalContext.current, "주소에 이상이 있습니다.", Toast.LENGTH_SHORT).show()
-//            addressNavController.navigate("address")
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-    val userAddresss = userAddress!!
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 150.dp, start = 20.dp, end = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
-        ) {
-            Text(
-                text = "주소 정보",
-                fontSize = 38.sp,
-                color = Color(0xFF1E88E5),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            Text(
-                text = "주소: ${userAddresss.address}",
-                fontSize = 18.sp,
-                color = Color(0xFF424242),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = "도시: ${userAddresss.sido}",
-                fontSize = 18.sp,
-                color = Color(0xFF424242),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = "우편번호: ${userAddresss.postalCode}",
-                fontSize = 18.sp,
-                color = Color(0xFF424242),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            TextField(
-                value = detail.value,
-                onValueChange = { addressViewModel.setDetail(it) },
-                label = { Text("상세 주소 입력", fontSize = 12.sp) },
+    val detail = addressViewModel.detail.collectAsState()
+    if (userAddress == null) {
+//        Toast.makeText(LocalContext.current, "주소 입력에 실패하였습니다.", Toast.LENGTH_LONG).show()
+//        addressNavController.navigate("address")
+    } else {
+        Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                singleLine = true,
-                textStyle = TextStyle(fontSize = 20.sp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            val context = LocalContext.current
-            val jwt = SharedPreference(context).getJwt()
-            Button(
-                onClick = {
-                    if (addressViewModel.saveUserAddress(jwt)) {
-                        loginNavController.navigate("userPhoneNumber")
-                    } else {
-                        Toast.makeText(context, "주소 저장에 실패하였습니다.", Toast.LENGTH_SHORT)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1E88E5)),
-                shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, Color(0xFF1E88E5))
+                    .fillMaxSize()
+                    .padding(top = 150.dp, start = 20.dp, end = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Top
             ) {
                 Text(
-                    text = "저장", fontSize = 18.sp, color = Color.White
+                    text = "주소 정보",
+                    fontSize = 38.sp,
+                    color = Color(0xFF1E88E5),
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
+
+                Text(
+                    text = "주소: ${userAddress.address}",
+                    fontSize = 18.sp,
+                    color = Color(0xFF424242),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "도시: ${userAddress.sido}",
+                    fontSize = 18.sp,
+                    color = Color(0xFF424242),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = "우편번호: ${userAddress.postalCode}",
+                    fontSize = 18.sp,
+                    color = Color(0xFF424242),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                TextField(
+                    value = detail.value,
+                    onValueChange = { addressViewModel.setDetail(it) },
+                    label = { Text("상세 주소 입력", fontSize = 12.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    singleLine = true,
+                    textStyle = TextStyle(fontSize = 20.sp),
+                    colors = androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                        focusedLabelColor = Color(0xFF424242),
+                        cursorColor = Color(0xFF424242)
+                    ),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val context = LocalContext.current
+                val jwt = SharedPreference(context).getJwt()
+                val keyboardController = LocalSoftwareKeyboardController.current
+                Button(
+                    onClick = {
+                        if (addressViewModel.saveUserAddress(jwt)) {
+                            keyboardController?.hide()
+                            goPhoneNumberView(loginNavController)
+                        } else {
+                            Toast.makeText(context, "주소 저장에 실패하였습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF1E88E5)),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, Color(0xFF1E88E5))
+                ) {
+                    Text(
+                        text = "저장", fontSize = 18.sp, color = Color.White
+                    )
+                }
             }
         }
     }

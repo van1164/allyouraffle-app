@@ -28,8 +28,7 @@ class AddressViewModel {
     }
 
     fun saveUserAddress(jwt : String): Boolean {
-        val finalAddress = _userAddress.value
-        checkNotNull(finalAddress)
+        val finalAddress = _userAddress.value ?: return false
         val addressRequest = AddressRequestDto(
             address = finalAddress.address,
             addressEnglish = finalAddress.addressEnglish,
