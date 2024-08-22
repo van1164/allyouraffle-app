@@ -26,6 +26,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,10 +51,12 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.allyouraffle.allyouraffle.android.R
+import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.Logo
-import com.allyouraffle.allyouraffle.android.util.SharedPreference
+import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
+import kotlinx.coroutines.runBlocking
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -63,13 +66,29 @@ fun RaffleListScreen(
     isFree: Boolean,
     viewModel: RaffleViewModel
 ) {
+    println("RAFFLE SCREEN$isFree")
     val raffleList by viewModel.raffleList.collectAsState()
-    viewModel.initRaffle(isFree)
+    val loading by viewModel.loading.collectAsState()
+    val error = viewModel.error.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.initRaffle(isFree)
+    }
+    if (loading) {
+        LoadingScreen()
+    }
+    if (error.value != null) {
+        errorToast(context, error.value!!, viewModel)
+//        Toast.makeText(context,error.value,Toast.LENGTH_SHORT).show()
+//        viewModel.setNullError()
+    }
 
     var refreshing by remember { mutableStateOf(false) }
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
         refreshing = true
-        viewModel.loadRaffles(isFree)
+        runBlocking {
+            viewModel.loadRaffles(isFree)
+        }
         refreshing = false
     })
     Column(
@@ -94,7 +113,7 @@ fun RaffleListScreen(
                     .fillMaxHeight()
             ) {
                 items(raffleList) { raffle ->
-                    ProductCard(raffle, viewModel, navController, isFree)
+                    ProductCard(raffle, navController, isFree)
                 }
             }
         }
@@ -104,13 +123,9 @@ fun RaffleListScreen(
 @Composable
 fun ProductCard(
     raffle: RaffleResponse,
-    viewModel: RaffleViewModel,
     navController: NavController,
     isFree: Boolean
 ) {
-    val sharedPreference = SharedPreference(LocalContext.current)
-    val jwt = sharedPreference.getJwt()
-    val context = LocalContext.current
     // TODO: JWT 없으면 로그인 화면으로 보내기 필요.
     val rowHeight = 120.dp
     Card(
@@ -133,7 +148,6 @@ fun ProductCard(
                     painter = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(raffle.item.imageUrl)
-//                        .size(Size.ORIGINAL)
                             .build(),
                         error = painterResource(
                             R.drawable.baseline_error_outline_24
@@ -169,7 +183,6 @@ fun RaffleRightColumn(
         verticalArrangement = Arrangement.Center,
     ) {
 
-//        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = raffle.item.name,
             color = Color.Black,
@@ -199,7 +212,5 @@ fun RaffleRightColumn(
                 .align(Alignment.End)
                 .padding(end = 2.dp)
         )
-//        Spacer(modifier = Modifier.height(12.dp))
-
     }
 }

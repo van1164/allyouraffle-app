@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,9 +42,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.LogoutButton
 import com.allyouraffle.allyouraffle.android.util.MainButton
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
+import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.network.AddressInfo
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.allyouraffle.allyouraffle.viewModel.AddressViewModel
@@ -56,9 +59,20 @@ fun UserAddressView(loginNavController: NavHostController, userInfoResponse: Use
         goPhoneNumberView(loginNavController)
     } else {
         val addressNavController = rememberNavController()
-        val addressViewModel = AddressViewModel()
+        val addressViewModel = remember { AddressViewModel() }
         val userAddress by addressViewModel.userAddress.collectAsState()
         val coroutineScope = rememberCoroutineScope()
+        val loading = addressViewModel.loading.collectAsState()
+        val error = addressViewModel.error.collectAsState()
+
+        if (loading.value) {
+            LoadingScreen()
+        }
+
+        if (error.value != null) {
+            errorToast(LocalContext.current, error.value!!, addressViewModel)
+        }
+
         NavHost(addressNavController, startDestination = "main") {
             composable("main") { InputMain(addressNavController) }
             composable("address") {

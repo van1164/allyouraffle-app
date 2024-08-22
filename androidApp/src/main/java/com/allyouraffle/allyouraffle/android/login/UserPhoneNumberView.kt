@@ -21,11 +21,14 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,8 +47,10 @@ import androidx.navigation.NavHostController
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.LogoutButton
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
+import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.allyouraffle.allyouraffle.viewModel.PhoneNumberViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -66,11 +71,22 @@ fun UserPhoneNumberMain(navController: NavHostController, userInfoResponse: User
     val scrollState = rememberScrollState()
     val phoneNumber by phoneNumberViewModel.phoneNumber.collectAsState()
     val isLoading by phoneNumberViewModel.loading.collectAsState()
+    val error by phoneNumberViewModel.error.collectAsState()
     val context = LocalContext.current
     val sharedPreference = SharedPreference(context)
     val jwt = sharedPreference.getJwt()
     val userVerificationCode = remember { mutableStateOf("") }
     val verifying = phoneNumberViewModel.verifying.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val numberSaved = phoneNumberViewModel.numberSaved.collectAsState()
+
+    if (numberSaved.value) {
+        navigatePhoneNumberToMain(navController)
+    }
+    if (error != null) {
+        errorToast(context, error!!, phoneNumberViewModel)
+    }
+
     if (isLoading) {
         LoadingScreen()
     } else {
@@ -105,7 +121,9 @@ fun UserPhoneNumberMain(navController: NavHostController, userInfoResponse: User
                     onPhoneChanged = { phoneNumberViewModel.setPhoneNumber(it) })
                 Button(
                     onClick = {
-                        phoneNumberViewModel.verifyPhoneNumber()
+                        coroutineScope.launch {
+                            phoneNumberViewModel.verifyPhoneNumber()
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -147,6 +165,8 @@ private fun VerifyView(
     navController: NavHostController,
     context: Context
 ) {
+    var verifyState by remember { mutableStateOf(false) }
+
     // 인증번호 입력 필드
     TextField(
         value = userVerificationCode.value,
@@ -172,14 +192,9 @@ private fun VerifyView(
         onClick = {
             // 인증번호 확인 로직 구현
             if (phoneNumberViewModel.verifyNumber.value == userVerificationCode.value) {
-                if (phoneNumberViewModel.savePhoneNumber(jwt)) {
-                    navigatePhoneNumberToMain(navController)
-                } else {
-                    Toast.makeText(context, "번호 저장 실패 다시시도 해주세요", Toast.LENGTH_LONG)
-                        .show()
-                }
+                verifyState = true
             } else {
-                Toast.makeText(context, "인증 번호가 틀렸습니다.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "인증 번호가 틀렸습니다.", Toast.LENGTH_SHORT).show()
             }
         },
         modifier = Modifier
@@ -195,6 +210,12 @@ private fun VerifyView(
             fontSize = 18.sp,
             color = Color.White
         )
+    }
+
+    if (verifyState) {
+        LaunchedEffect(Unit) {
+            phoneNumberViewModel.savePhoneNumber(jwt)
+        }
     }
 }
 

@@ -1,38 +1,55 @@
 package com.allyouraffle.allyouraffle.viewModel
 
+import com.allyouraffle.allyouraffle.exception.RaffleNotFoundException
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
-import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.network.Api
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
-class RaffleDetailViewModel {
+class RaffleDetailViewModel : BaseViewModel() {
     private val api = Api
     private val _raffleDetail = MutableStateFlow<RaffleDetailResponse?>(null)
     val raffleDetail: StateFlow<RaffleDetailResponse?> = _raffleDetail.asStateFlow()
 
-    private val _raffleLoading = MutableStateFlow<Boolean>(true)
-    val raffleLoading = _raffleLoading.asStateFlow()
+    private val _raffleEnd = MutableStateFlow<Boolean>(false)
+    val raffleEnd = _raffleEnd.asStateFlow()
 
-    suspend fun getDetail(id : String, isFree : Boolean) {
-        println("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
-        _raffleLoading.update {
-            true
-        }
-        _raffleDetail.update {
-            api.getDetail(id,isFree)
-        }
-        _raffleLoading.update {
-            false
+    private val _purchaseSuccess = MutableStateFlow(false)
+    val purchaseSuccess = _purchaseSuccess.asStateFlow()
+
+    private val _purchaseFail = MutableStateFlow(false)
+    val purchaseFail = _purchaseFail.asStateFlow()
+
+    suspend fun getDetail(id: String, isFree: Boolean) {
+        safeApiCall {
+            try {
+                _raffleDetail.update {
+                    api.getDetail(id, isFree)
+                }
+            } catch (e: RaffleNotFoundException) {
+                _raffleEnd.update { true }
+            }
         }
         println("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK")
     }
 
-    fun purchase(jwt : String, id : String): Boolean {
-        return api.purchase(jwt,id)
+    suspend fun purchase(jwt: String, id: String) {
+        safeApiCall {
+            if (api.purchase(jwt, id)) {
+                _purchaseSuccess.update { true }
+            } else {
+                _purchaseFail.update { true }
+            }
+        }
+    }
+
+    fun setSuccessFalse() {
+        _purchaseSuccess.update { false }
+    }
+
+    fun setFailFalse() {
+        _purchaseFail.update { false }
     }
 }

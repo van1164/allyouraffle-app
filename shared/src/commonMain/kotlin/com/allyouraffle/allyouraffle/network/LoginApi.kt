@@ -50,17 +50,16 @@ object LoginApi {
         }
     }
 
-    fun getUserInfo(jwt: String): UserInfoResponse {
-        return runBlocking {
-            val response = ktorClient.get(BASE_URL + "api/v1/user/mypage") {
-                headers["Authorization"] = "Bearer $jwt"
-            }
-            println(response)
-            checkNotOkThrowNetworkException(response.status)
+    suspend fun getUserInfo(jwt: String): UserInfoResponse {
 
-            return@runBlocking response.body()
-
+        val response = ktorClient.get(BASE_URL + "api/v1/user/mypage") {
+            headers["Authorization"] = "Bearer $jwt"
         }
+        println(response)
+        checkNotOkThrowNetworkException(response.status)
+
+        return response.body()
+
     }
 
     fun setUserAddress(jwt: String, addressRequestDto: AddressRequestDto): Boolean {
@@ -76,37 +75,26 @@ object LoginApi {
         }
     }
 
-    fun verifyPhoneNumber(phoneNumber: String): PhoneNumberVerifyResponse? {
-        return runBlocking {
-            try {
-                val response = ktorClient.post(BASE_URL + "api/v1/login/verify_phone") {
-                    contentType(ContentType.Application.Json)
-                    setBody(PhoneNumberVerifyDto(phoneNumber))
-                }
-                println(response)
-                checkNotOkThrowNetworkException(response.status)
-                return@runBlocking response.body()
-            } catch (e: Exception) {
-                return@runBlocking null
-            }
+    suspend fun verifyPhoneNumber(phoneNumber: String): PhoneNumberVerifyResponse {
+        val response = ktorClient.post(BASE_URL + "api/v1/login/verify_phone") {
+            contentType(ContentType.Application.Json)
+            setBody(PhoneNumberVerifyDto(phoneNumber))
         }
+        println(response)
+        checkNotOkThrowNetworkException(response.status)
+        return response.body()
+
     }
 
-    fun setPhoneNumber(jwt: String, phoneNumber: String): Boolean {
-        return runBlocking {
-            try {
-                val response = ktorClient.post(BASE_URL + "api/v1/user/set_phoneNumber") {
-                    headers["Authorization"] = "Bearer $jwt"
-                    contentType(ContentType.Application.Json)
-                    setBody(PhoneNumberDto(phoneNumber))
-                }
-                println(response)
-                checkNotOkThrowNetworkException(response.status)
-                return@runBlocking true
-            } catch (e: Exception) {
-                return@runBlocking false
-            }
+    suspend fun setPhoneNumber(jwt: String, phoneNumber: String) {
+        val response = ktorClient.post(BASE_URL + "api/v1/user/set_phoneNumber") {
+            headers["Authorization"] = "Bearer $jwt"
+            contentType(ContentType.Application.Json)
+            setBody(PhoneNumberDto(phoneNumber))
         }
+        println(response)
+        checkNotOkThrowNetworkException(response.status)
+
     }
 }
 

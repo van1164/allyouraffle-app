@@ -2,18 +2,19 @@ package com.allyouraffle.allyouraffle.viewModel
 
 import com.allyouraffle.allyouraffle.network.LoginApi
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class PhoneNumberViewModel {
+class PhoneNumberViewModel : BaseViewModel() {
 
     private val _phoneNumber = MutableStateFlow<String>("")
     val phoneNumber = _phoneNumber.asStateFlow()
-
-    private val _loading = MutableStateFlow<Boolean>(false)
-    val loading = _loading.asStateFlow()
 
     private val _verifying = MutableStateFlow<Boolean>(false)
     val verifying = _verifying.asStateFlow()
@@ -21,14 +22,20 @@ class PhoneNumberViewModel {
     private val _verifyNumber = MutableStateFlow<String?>(null)
     val verifyNumber = _verifyNumber.asStateFlow()
 
+    private val _numberSaved = MutableStateFlow<Boolean>(false)
+    val numberSaved = _numberSaved.asStateFlow()
+    private val viewModelJob = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     fun setPhoneNumber(number: String) {
         _phoneNumber.update { number }
     }
 
-    fun verifyPhoneNumber() {
-        val response = LoginApi.verifyPhoneNumber(formatPhoneNumber(_phoneNumber.value))?.secretKey
-        _verifyNumber.update { response }
-        _verifying.update { true }
+    suspend fun verifyPhoneNumber() {
+        safeApiCall {
+            _verifying.update { true }
+            val response = LoginApi.verifyPhoneNumber(formatPhoneNumber(_phoneNumber.value)).secretKey
+            _verifyNumber.update { response }
+        }
     }
 
     fun verifyTest(){
@@ -36,11 +43,13 @@ class PhoneNumberViewModel {
         _verifying.update { true }
     }
 
-    fun savePhoneNumber(jwt: String): Boolean {
-        _loading.update { true }
-        val response =  LoginApi.setPhoneNumber(jwt,formatPhoneNumber(_phoneNumber.value))
-        _loading.update { false }
-        return response
+    suspend fun savePhoneNumber(jwt: String) {
+        coroutineScope.launch {
+            safeApiCall {
+                LoginApi.setPhoneNumber(jwt,formatPhoneNumber(_phoneNumber.value))
+                _numberSaved.update { true }
+            }
+        }
     }
 
     private fun formatPhoneNumber(input: String): String {

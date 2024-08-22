@@ -29,7 +29,7 @@ class LoginViewModel {
         return LoginApi.refresh(refreshToken)
     }
 
-    fun getUserInfo(jwt: String): UserInfoResponse {
+    suspend fun getUserInfo(jwt: String): UserInfoResponse {
         return LoginApi.getUserInfo(jwt)
     }
 

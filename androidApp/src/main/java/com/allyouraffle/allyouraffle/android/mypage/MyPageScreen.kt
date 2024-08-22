@@ -1,6 +1,7 @@
 package com.allyouraffle.allyouraffle.android.mypage
 
-import android.util.Log
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,13 +20,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,24 +42,38 @@ import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.LogoutButton
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
+import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.allyouraffle.allyouraffle.viewModel.MyPageViewModel
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MyPageScreen(myPageViewModel: MyPageViewModel) {
     val userInfo = myPageViewModel.userInfo.collectAsState()
     val loading = myPageViewModel.loading.collectAsState()
     val sharedPreference = SharedPreference(LocalContext.current)
+    val coroutineScope = rememberCoroutineScope()
+    val error = myPageViewModel.error.collectAsState()
     val jwt = sharedPreference.getJwt()
-    myPageViewModel.getUserInfo(jwt)
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        myPageViewModel.initUserInfo(jwt)
+    }
+
+    if (error.value != null) {
+        errorToast(context, error.value!!, myPageViewModel)
+    }
+
     if (loading.value) {
         LoadingScreen()
     } else {
         val data = userInfo.value
         if (data == null) {
-            myPageViewModel.getUserInfo(jwt)
+            coroutineScope.launch {
+                myPageViewModel.getUserInfo(jwt)
+            }
         } else {
-            Log.d("ZZZZZZZZZZZZZZ", data.toString())
             MyPage(data)
         }
     }
@@ -146,7 +164,15 @@ private fun ImageLoading(imageUrl: String?) {
 
             is AsyncImagePainter.State.Error -> {
                 // 에러 발생 시 표시할 UI
-                Text(text = "Image loading failed")
+                // 벡터 자산 로드
+                val vectorImage =
+                    painterResource(id = R.drawable.default_user_image) // your_vector_asset은 벡터 파일 이름입니다.
+                // 이미지 표시
+                Image(
+                    painter = vectorImage,
+                    contentDescription = "Vector Asset",
+                    modifier = Modifier.width(150.dp)
+                )
             }
 
             else -> {

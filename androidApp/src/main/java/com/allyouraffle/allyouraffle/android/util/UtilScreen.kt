@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.allyouraffle.allyouraffle.android.MainActivity
 import com.allyouraffle.allyouraffle.android.R
+import com.allyouraffle.allyouraffle.viewModel.BaseViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
@@ -170,4 +172,9 @@ fun CustomDialog(title: String, body: String, buttonMessage: String, onDismiss: 
                 shadowElevation = 8.dp.toPx()
             }
     )
+}
+
+fun errorToast(context: Context, message: String, viewModel: BaseViewModel) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    viewModel.setNullError()
 }

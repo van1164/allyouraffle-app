@@ -3,7 +3,6 @@ package com.allyouraffle.allyouraffle.android.detail
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,12 +37,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -52,9 +49,9 @@ import com.allyouraffle.allyouraffle.android.util.CustomDialog
 import com.allyouraffle.allyouraffle.android.util.GoogleAd
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
+import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleDetailViewModel
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -64,18 +61,17 @@ import kotlinx.coroutines.runBlocking
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun RaffleDetail(navController: NavController, itemId: String, isFree: Boolean) {
-    MobileAds.initialize(LocalContext.current as Activity)
+fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boolean) {
+    val context = LocalContext.current
     val raffleViewModel = remember { RaffleDetailViewModel() }
-    val raffleLoading = raffleViewModel.raffleLoading.collectAsState()
+    val loading = raffleViewModel.loading.collectAsState(initial = true)
+    val error = raffleViewModel.error.collectAsState()
+    val raffleEnd = raffleViewModel.raffleEnd.collectAsState()
     val raffle = raffleViewModel.raffleDetail.collectAsState()
     var isLoading = remember { MutableStateFlow(false) } // 광고 로드
     val isLoadingState = isLoading.collectAsState()
-    var purchaseSuccess = remember { MutableStateFlow(false) }
-    val purchaseSuccessState = purchaseSuccess.collectAsState()
-    var purchaseFail = remember { MutableStateFlow(false) }
-    val purchaseFailState = purchaseFail.collectAsState()
-
+    var purchaseSuccess = raffleViewModel.purchaseSuccess.collectAsState()
+    var purchaseFail = raffleViewModel.purchaseFail.collectAsState()
     var refreshing by remember { mutableStateOf(false) }
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
         refreshing = true
@@ -87,19 +83,34 @@ fun RaffleDetail(navController: NavController, itemId: String, isFree: Boolean) 
     LaunchedEffect(Unit) {
         raffleViewModel.getDetail(itemId, isFree)
     }
-    Log.d("AAAAAAFDSFDSF", raffleLoading.value.toString())
+
+    LaunchedEffect(raffleEnd.value) {
+        if (raffleEnd.value) {
+            errorToast(context, "이 래플이 종료되었습니다. 새로고침해주세요.", raffleViewModel)
+            navController.popBackStack()
+        }
+    }
+
+    Log.d("AAAAAAFDSFDSF", loading.value.toString())
+    if (loading.value) {
+        LoadingScreen()
+    }
+    if (error.value != null) {
+        errorToast(context, error.value!!, raffleViewModel)
+    }
+
     if (isLoadingState.value) {
         LoadingScreen()
     }
-    if (purchaseSuccessState.value) {
-        SuccessDialog(purchaseSuccess)
+    if (purchaseSuccess.value) {
+        SuccessDialog(raffleViewModel)
     }
 
-    if (purchaseFailState.value) {
-        FailDialog(purchaseFail)
+    if (purchaseFail.value) {
+        FailDialog(raffleViewModel)
     }
 
-    if (raffleLoading.value) {
+    if (loading.value && raffle.value == null) {
         LoadingScreen()
     } else {
         Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
@@ -124,8 +135,7 @@ fun RaffleDetail(navController: NavController, itemId: String, isFree: Boolean) 
                     data,
                     raffleViewModel,
                     isLoading,
-                    purchaseSuccess,
-                    purchaseFail
+                    itemId
                 )
             }
         }
@@ -222,8 +232,7 @@ private fun BottomButton(
     raffle: RaffleDetailResponse,
     raffleViewModel: RaffleDetailViewModel,
     isLoading: MutableStateFlow<Boolean>,
-    purchaseSuccess: MutableStateFlow<Boolean>,
-    purchaseFail: MutableStateFlow<Boolean>,
+    itemId: String
 ) {
     val sharedPreference = SharedPreference(LocalContext.current)
     val jwt = sharedPreference.getJwt()
@@ -233,16 +242,14 @@ private fun BottomButton(
             viewModel = raffleViewModel,
             jwt = jwt,
             isLoading,
-            purchaseSuccess,
-            purchaseFail
+            itemId = itemId,
+            isFree
         )
     } else {
         PurchaseButton(
             raffle = raffle,
             viewModel = raffleViewModel,
-            jwt = jwt,
-            purchaseSuccess,
-            purchaseFail
+            jwt = jwt
         )
     }
 }
@@ -253,17 +260,12 @@ fun PurchaseButton(
     raffle: RaffleDetailResponse,
     viewModel: RaffleDetailViewModel,
     jwt: String,
-    purchaseSuccess: MutableStateFlow<Boolean>,
-    purchaseFail: MutableStateFlow<Boolean>
 ) {
     val context = LocalContext.current
     FloatingActionButton(
         onClick = {
-            val response = viewModel.purchase(jwt, raffle.id.toString())
-            if (response) {
-                Toast.makeText(context, "요청 성공", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(context, "요청 실패", Toast.LENGTH_LONG).show()
+            runBlocking {
+                viewModel.purchase(jwt, raffle.id.toString())
             }
         },
         shape = RoundedCornerShape(15.dp),
@@ -288,8 +290,8 @@ fun ViewAdButton(
     viewModel: RaffleDetailViewModel,
     jwt: String,
     isLoading: MutableStateFlow<Boolean>,
-    purchaseSuccess: MutableStateFlow<Boolean>,
-    purchaseFail: MutableStateFlow<Boolean>,
+    itemId: String,
+    isFree: Boolean
 ) {
     val context = LocalContext.current
     var adLoaded by remember { mutableStateOf(false) }
@@ -317,17 +319,16 @@ fun ViewAdButton(
         rewardedAd?.show(context as Activity) { reward ->
             println(reward.type)
             println(reward.amount)
-            val response = viewModel.purchase(jwt, raffle.id.toString())
-            if (response) {
-                purchaseSuccess.update { true }
-            } else {
-                purchaseFail.update { true }
+            runBlocking {
+                Log.d("PURCHASE START", "START")
+                viewModel.purchase(jwt, raffle.id.toString())
+                buttonClicked = false
+                isLoading.update { false }
+                adLoaded = false
+                googleAd.refreshAd()
+                viewModel.getDetail(itemId, isFree)
+                Log.d("PURCHASE End", "End")
             }
-
-            buttonClicked = false
-            isLoading.update { false }
-            adLoaded = false
-            googleAd.refreshAd()
         }
     }
     Log.d("LLLLLLLLLLLLLLLLLLLLL", rewardedAd.toString())
@@ -368,31 +369,19 @@ fun ViewAdButton(
 }
 
 @Composable
-fun SuccessDialog(purchaseSuccess: MutableStateFlow<Boolean>) {
+fun SuccessDialog(viewModel: RaffleDetailViewModel) {
     CustomDialog(
         title = "응모 완료!",
         body = "응모가 완료되었습니다. \n구매내역은 마이페이지에서 확인 가능합니다. \n당첨시 메일로 당첨내역이 발송됩니다.",
         "확인"
     ) {
-        purchaseSuccess.update { false }
+        viewModel.setSuccessFalse()
     }
 }
 
 @Composable
-fun FailDialog(purchaseFail: MutableStateFlow<Boolean>) {
+fun FailDialog(viewModel: RaffleDetailViewModel) {
     CustomDialog(title = "응모 실패", body = "응모에 실패하였습니다. \n다시 시도해주세요", "확인") {
-        purchaseFail.update { false }
+        viewModel.setFailFalse()
     }
-}
-//private fun showAd(
-//    rewardedAd: RewardedAd?,
-//    context: Context
-//) {
-//
-//}
-
-@Preview
-@Composable
-fun Preview() {
-    RaffleDetail(navController = rememberNavController(), itemId = "1", isFree = true)
 }

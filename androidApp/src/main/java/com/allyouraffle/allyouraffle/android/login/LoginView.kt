@@ -44,6 +44,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.runBlocking
 
 
 @Composable
@@ -55,7 +56,8 @@ fun LoginPage(navController: NavHostController) {
     var jwtState by remember { mutableStateOf(true) }
     key(jwtState) {
         if (checkJwtExist(sharedPreference, loginViewModel)) {
-            val userInfoResponse = loginViewModel.getUserInfo(sharedPreference.getJwt())
+            val userInfoResponse =
+                runBlocking { loginViewModel.getUserInfo(sharedPreference.getJwt()) }
             AddressNavHost(userInfoResponse, navController)
 //        goMain(navController)
         } else {
@@ -98,15 +100,10 @@ fun checkJwtExist(
     try {
         val jwt = sharedPreference.getJwt()
         val refreshToken = sharedPreference.getRefreshToken()
-        Log.d("JWT", jwt)
-        Log.d("REFRESH", refreshToken)
         if (loginViewModel.jwtVerify(jwt)) {
-            Log.d("JWTVERFY", "JWTVERFY")
             return true
         }
-        Log.d("LLLLLLLLLLLLLLLLLLLLLLLLLL", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
         loginViewModel.refresh(refreshToken)?.run {
-            Log.d("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ", this)
             sharedPreference.setJwt(this)
             return true
         }

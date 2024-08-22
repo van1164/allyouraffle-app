@@ -1,6 +1,7 @@
 package com.allyouraffle.allyouraffle.network
 
 import com.allyouraffle.allyouraffle.exception.NetworkException
+import com.allyouraffle.allyouraffle.exception.RaffleNotFoundException
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import io.ktor.client.HttpClient
@@ -40,7 +41,6 @@ object Api {
         }
 
         checkNotOkThrowNetworkException(response.status)
-
         return response.body<List<RaffleResponse>>()
     }
 
@@ -55,7 +55,8 @@ object Api {
     private suspend fun getDetailFree(id : String) : RaffleDetailResponse {
             val response = ktorClient
                 .get(BASE_URL + "api/v1/raffle/active/free/detail/"+id)
-
+            println(response)
+            if(response.status == HttpStatusCode.NotFound) throw RaffleNotFoundException("래플 마감.")
             checkNotOkThrowNetworkException(response.status)
 
             return response.body<RaffleDetailResponse>()
@@ -72,26 +73,16 @@ object Api {
         }
     }
 
-    fun purchase(jwt: String, id: String): Boolean {
-        return runBlocking {
-            val response = ktorClient
-                .post(BASE_URL + "api/v1/raffle/purchase/" + id){
-                    contentType(ContentType.Application.Json)
-                    header("Authorization", "Bearer $jwt")
-                }
-            checkNotOkThrowNetworkException(response.status)
-            return@runBlocking true
-        }
+    suspend fun purchase(jwt: String, id: String): Boolean {
+        val response = ktorClient
+            .post(BASE_URL + "api/v1/raffle/purchase/" + id){
+                contentType(ContentType.Application.Json)
+                header("Authorization", "Bearer $jwt")
+            }
+        checkNotOkThrowNetworkException(response.status)
+        return true
+
     }
-
-    enum class ApiState(val message : String) {
-        Before("실행 전"),
-        Loading("로딩중"),
-        Error("실패"),
-        Success("성공")
-    }
-
-
 }
 
 fun checkNotOkThrowNetworkException(statusCode: HttpStatusCode, message: String? = null) {

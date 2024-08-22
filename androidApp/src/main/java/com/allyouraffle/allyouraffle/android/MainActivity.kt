@@ -1,7 +1,7 @@
 package com.allyouraffle.allyouraffle.android
 
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -41,13 +40,18 @@ import com.allyouraffle.allyouraffle.android.login.LoginPage
 import com.allyouraffle.allyouraffle.android.mypage.MyPageScreen
 import com.allyouraffle.allyouraffle.android.raffle.RaffleListScreen
 import com.allyouraffle.allyouraffle.exception.DetailServiceException
+import com.allyouraffle.allyouraffle.exception.NetworkException
 import com.allyouraffle.allyouraffle.viewModel.MyPageViewModel
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
+import com.google.android.gms.ads.MobileAds
+import kotlinx.coroutines.CoroutineExceptionHandler
 
 class MainActivity : ComponentActivity() {
+    lateinit var exceptionHandler: CoroutineExceptionHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this)
         setContent {
             MyApplicationTheme {
                 Surface(
@@ -58,9 +62,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            // 예외 처리 로직
-            println("Uncaught exception in thread ${thread.name}: $throwable")
+        exceptionHandler = CoroutineExceptionHandler { _, exception ->
+            when (exception) {
+                is NetworkException -> {
+                    Toast.makeText(this, "네트워크 에러가 발생했습니다.", Toast.LENGTH_LONG).show()
+                }
+
+                else -> {
+                    println("예상치 못한 오류가 발생했습니다. 앱을 재시작해주세요.")
+                }
+            }
         }
     }
 
@@ -70,7 +81,6 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     MaterialTheme {
         val navController = rememberNavController()
-        Log.d("MYAPP", "START MYAPP")
         NavHost(navController = navController, startDestination = "login") {
             composable("login") { LoginPage(navController) }
             composable("main") { MainPage() }
@@ -179,12 +189,6 @@ private fun BottomNav(
     }
 }
 
-@Composable
-fun Third() {
-    Button(onClick = { /*TODO*/ }) {
-        Text(text = "Third")
-    }
-}
 
 @Preview
 @Composable
