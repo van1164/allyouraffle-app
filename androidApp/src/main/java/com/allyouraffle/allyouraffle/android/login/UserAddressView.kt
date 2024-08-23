@@ -58,39 +58,44 @@ fun UserAddressView(loginNavController: NavHostController, userInfoResponse: Use
         println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
         goPhoneNumberView(loginNavController)
     } else {
-        val addressNavController = rememberNavController()
-        val addressViewModel = remember { AddressViewModel() }
-        val userAddress by addressViewModel.userAddress.collectAsState()
-        val coroutineScope = rememberCoroutineScope()
-        val loading = addressViewModel.loading.collectAsState()
-        val error = addressViewModel.error.collectAsState()
+        SetAddressView(loginNavController)
+    }
+}
 
-        if (loading.value) {
-            LoadingScreen()
-        }
+@Composable
+fun SetAddressView(loginNavController: NavHostController) {
+    val addressNavController = rememberNavController()
+    val addressViewModel = remember { AddressViewModel() }
+    val userAddress by addressViewModel.userAddress.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val loading = addressViewModel.loading.collectAsState()
+    val error = addressViewModel.error.collectAsState()
 
-        if (error.value != null) {
-            errorToast(LocalContext.current, error.value!!, addressViewModel)
-        }
+    if (loading.value) {
+        LoadingScreen()
+    }
 
-        NavHost(addressNavController, startDestination = "main") {
-            composable("main") { InputMain(addressNavController) }
-            composable("address") {
-                AddressSearchWebView() { info ->
-                    addressViewModel.setUserAddress(info)
-                    println(info)
-                    coroutineScope.launch {
-                        addressNavController.navigate("addressDetail")
-                    }
+    if (error.value != null) {
+        errorToast(LocalContext.current, error.value!!, addressViewModel)
+    }
+
+    NavHost(addressNavController, startDestination = "main") {
+        composable("main") { InputMain(addressNavController) }
+        composable("address") {
+            AddressSearchWebView() { info ->
+                addressViewModel.setUserAddress(info)
+                println(info)
+                coroutineScope.launch {
+                    addressNavController.navigate("addressDetail")
                 }
             }
-            composable("addressDetail") {
-                AddressDetail(
-                    addressViewModel = addressViewModel,
-                    userAddress = userAddress,
-                    loginNavController = loginNavController
-                )
-            }
+        }
+        composable("addressDetail") {
+            AddressDetail(
+                addressViewModel = addressViewModel,
+                userAddress = userAddress,
+                loginNavController = loginNavController
+            )
         }
     }
 }

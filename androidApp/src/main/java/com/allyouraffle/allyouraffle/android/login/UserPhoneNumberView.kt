@@ -59,12 +59,12 @@ fun UserPhoneNumberView(navController: NavHostController, userInfoResponse: User
         println("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
         navigatePhoneNumberToMain(navController)
     } else {
-        UserPhoneNumberMain(navController = navController, userInfoResponse = userInfoResponse)
+        UserPhoneNumberMain(navController = navController)
     }
 }
 
 @Composable
-fun UserPhoneNumberMain(navController: NavHostController, userInfoResponse: UserInfoResponse) {
+fun UserPhoneNumberMain(navController: NavHostController) {
     val phoneNumberViewModel = remember {
         PhoneNumberViewModel()
     }

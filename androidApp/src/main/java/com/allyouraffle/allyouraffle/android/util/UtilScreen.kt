@@ -21,11 +21,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -107,7 +108,9 @@ fun MainButton(
 @Composable
 fun LoadingScreen() {
     Box(
-        modifier = Modifier.fillMaxSize().background(Color.White),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
         contentAlignment = Alignment.Center // Box의 중앙 정렬
     ) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.logo_loading_shadow))
@@ -128,16 +131,56 @@ fun LoadingScreen() {
 fun LogoutButton() {
     val context = LocalContext.current
     val sharedPreference = SharedPreference(context)
+    val showDialog = remember { mutableStateOf(false) }
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = {  },
+            text = {
+
+                Text(
+                    text = "로그아웃 하시겠습니까?",
+                    fontSize = 20.sp,
+                    color = Color(0xFF424242)
+                )
+
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        Log.d("LogOut", "LogOut")
+                        sharedPreference.deleteAllToken()
+                        googleSignOut(context)
+                        val intent = Intent(context, MainActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                        (context as Activity).finish()
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
+                    modifier = Modifier
+                ) {
+                    androidx.compose.material.Text(text = "로그아웃", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDialog.value = false },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                    modifier = Modifier
+                ) {
+                    androidx.compose.material.Text("취소")
+                }
+            }
+        )
+    }
+
+
     Text("다른 계정으로 로그인하기 =>",
         color = Color.DarkGray.copy(alpha = 0.5f),
         modifier = Modifier.clickable {
-            Log.d("LogOut", "LogOut")
-            sharedPreference.deleteAllToken()
-            googleSignOut(context)
-            val intent = Intent(context, MainActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-            (context as Activity).finish()
+            showDialog.value = true
         })
 }
 

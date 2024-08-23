@@ -21,29 +21,41 @@ class HomeViewModel : BaseViewModel() {
         }
     }
 
-    suspend fun initHome(jwt : String){
-        if(_popularRaffleList.value.isEmpty()){
-            loadPopularRaffleList()
+    suspend fun initHome(jwt: String) {
+        safeApiCall {
+            if (_popularRaffleList.value.isEmpty()) {
+                _loadPopularRaffleList()
+            }
+            _loadTickets(jwt)
         }
-        loadTickets(jwt)
     }
 
-    suspend fun refresh(jwt: String){
-        loadPopularRaffleList()
-        loadTickets(jwt)
+    suspend fun refresh(jwt: String) {
+        safeApiCall {
+            _loadPopularRaffleList()
+            _loadTickets(jwt)
+        }
     }
 
     suspend fun loadTickets(jwt: String) {
         safeApiCall {
-            _ticketCount.update { getTickets(jwt) }
+            _loadTickets(jwt)
         }
     }
 
-    suspend fun loadPopularRaffleList(){
+    private suspend fun _loadTickets(jwt: String) {
+        _ticketCount.update { getTickets(jwt) }
+    }
+
+    suspend fun loadPopularRaffleList() {
         safeApiCall {
-            _popularRaffleList.update {
-                RaffleApi.loadPopularRaffleList()
-            }
+            _loadPopularRaffleList()
+        }
+    }
+
+    private suspend fun _loadPopularRaffleList(){
+        _popularRaffleList.update {
+            RaffleApi.loadPopularRaffleList()
         }
     }
 }

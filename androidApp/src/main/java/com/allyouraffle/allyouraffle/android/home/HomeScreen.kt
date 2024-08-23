@@ -59,7 +59,6 @@ import com.allyouraffle.allyouraffle.viewModel.HomeViewModel
 import com.google.android.gms.ads.rewarded.RewardedAd
 import kotlinx.coroutines.runBlocking
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel, navHostController: NavHostController) {
     // Lottie 애니메이션
@@ -67,10 +66,10 @@ fun HomeScreen(homeViewModel: HomeViewModel, navHostController: NavHostControlle
     val sharedPreference = SharedPreference(context)
     val jwt = sharedPreference.getJwt()
     val error = homeViewModel.error.collectAsState()
+    val isLoading = homeViewModel.loading.collectAsState()
     LaunchedEffect(Unit) {
         homeViewModel.initHome(jwt)
     }
-    val isLoading = homeViewModel.loading.collectAsState()
     val scrollShape = rememberScrollState()
     if (error.value != null) {
         errorToast(context, error.value!!, homeViewModel)
@@ -78,9 +77,9 @@ fun HomeScreen(homeViewModel: HomeViewModel, navHostController: NavHostControlle
 
     if (isLoading.value) {
         LoadingScreen()
+    }else {
+        HomeScreenBody(homeViewModel, jwt, scrollShape, navHostController, isLoading)
     }
-    HomeScreenBody(homeViewModel, jwt, scrollShape, navHostController, isLoading)
-
 }
 
 @Composable

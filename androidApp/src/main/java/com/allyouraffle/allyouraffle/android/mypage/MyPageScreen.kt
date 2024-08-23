@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
@@ -21,7 +23,10 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,11 +39,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import com.allyouraffle.allyouraffle.android.R
+import com.allyouraffle.allyouraffle.android.login.SetAddressView
+import com.allyouraffle.allyouraffle.android.login.UserPhoneNumberMain
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.LogoutButton
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
@@ -57,9 +68,20 @@ fun MyPageScreen(myPageViewModel: MyPageViewModel) {
     val error = myPageViewModel.error.collectAsState()
     val jwt = sharedPreference.getJwt()
     val context = LocalContext.current
+    val infoUpdated = remember {
+        mutableStateOf(false)
+    }
     LaunchedEffect(Unit) {
         myPageViewModel.initUserInfo(jwt)
     }
+
+    LaunchedEffect(infoUpdated.value) {
+        if (infoUpdated.value) {
+            myPageViewModel.getUserInfo(jwt)
+        }
+        infoUpdated.value = false
+    }
+
 
     if (error.value != null) {
         errorToast(context, error.value!!, myPageViewModel)
@@ -74,13 +96,26 @@ fun MyPageScreen(myPageViewModel: MyPageViewModel) {
                 myPageViewModel.getUserInfo(jwt)
             }
         } else {
-            MyPage(data)
+            val myPageNavController = rememberNavController()
+            NavHost(myPageNavController, startDestination = "mypage") {
+                composable("mypage") { MyPage(userInfo = data, myPageNavController) }
+                composable("userAddress") { SetAddressView(myPageNavController) }
+                composable("changePhone") { UserPhoneNumberMain(myPageNavController) }
+                composable("userPhoneNumber") {
+                    infoUpdated.value = true
+                }
+                composable("main") {
+                    infoUpdated.value = true
+                }
+            }
+//
+//            MyPage(data)
         }
     }
 }
 
 @Composable
-fun MyPage(userInfo: UserInfoResponse) {
+fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -89,6 +124,21 @@ fun MyPage(userInfo: UserInfoResponse) {
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val showSetAddress = remember {
+            mutableStateOf(false)
+        }
+        val showSetPhoneNumber = remember {
+            mutableStateOf(false)
+        }
+
+        if (showSetAddress.value) {
+            ChangeAddressDialog(showSetAddress, userInfo, myPageNavController)
+        }
+
+        if (showSetPhoneNumber.value){
+            ChangePhoneDialog(showSetPhoneNumber,userInfo,myPageNavController)
+        }
+
         Text(
             "마이 페이지",
             modifier = Modifier.padding(top = 40.dp, bottom = 20.dp),
@@ -118,13 +168,136 @@ fun MyPage(userInfo: UserInfoResponse) {
         Spacer(modifier = Modifier.height(8.dp))
 
         // 버튼들
-        UserActionButton("주소 변경") { /* 주소 변경 로직 */ }
-        UserActionButton("휴대폰번호 변경") { /* 휴대폰번호 변경 로직 */ }
+        UserActionButton("주소 변경") { showSetAddress.value = true }
+        UserActionButton("휴대폰번호 변경") { showSetPhoneNumber.value = true }
         UserActionButton("래플 이력") { /* 래플 이력 화면으로 이동 */ }
         Spacer(modifier = Modifier.height(15.dp))
         LogoutButton()
     }
 
+}
+
+
+@Composable
+private fun ChangePhoneDialog(
+    showPhoneNumber: MutableState<Boolean>,
+    userInfo: UserInfoResponse,
+    myPageNavController: NavHostController
+) {
+    AlertDialog(
+        onDismissRequest = { showPhoneNumber.value = false },
+        title = { Text("휴대폰 번호 변경 변경") },
+        text = {
+            Column {
+                androidx.compose.material3.Text(
+                    text = "현재 번호",
+                    fontSize = 18.sp,
+                    color = Color(0xFF424242),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                androidx.compose.material3.Text(
+                    text = userInfo.phoneNumber?:"없음",
+                    fontSize = 25.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text("휴대폰 번호를 변경하시겠습니까?")
+            }
+
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    showPhoneNumber.value = false
+                    myPageNavController.navigate("changePhone")
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
+                modifier = Modifier
+            ) {
+                Text(text = "변경하기", color = Color.White)
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { showPhoneNumber.value = false },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                modifier = Modifier
+            ) {
+                Text("취소")
+            }
+        }
+    )
+}
+
+@Composable
+private fun ChangeAddressDialog(
+    showSetAddress: MutableState<Boolean>,
+    userInfo: UserInfoResponse,
+    myPageNavController: NavHostController
+) {
+    AlertDialog(
+        onDismissRequest = { showSetAddress.value = false },
+        title = { Text("주소 변경") },
+        text = {
+            Column {
+                androidx.compose.material3.Text(
+                    text = "현재 주소",
+                    fontSize = 18.sp,
+                    color = Color(0xFF424242),
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                androidx.compose.material3.Text(
+                    text = userInfo.address?.address + " " + userInfo.address?.detail,
+                    fontSize = 25.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                androidx.compose.material3.Text(
+                    text = "우편번호",
+                    fontSize = 18.sp,
+                    color = Color(0xFF424242),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                androidx.compose.material3.Text(
+                    text = userInfo.address?.postalCode ?: "없음",
+                    fontSize = 25.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Text("주소를 변경하시겠습니까?")
+            }
+
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    showSetAddress.value = false
+                    myPageNavController.navigate("userAddress")
+//                        navController.navigate("changeAddress")
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
+                modifier = Modifier
+            ) {
+                Text(text = "변경하기", color = Color.White)
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { showSetAddress.value = false },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                modifier = Modifier
+            ) {
+                Text("취소")
+            }
+        }
+    )
 }
 
 @Composable
