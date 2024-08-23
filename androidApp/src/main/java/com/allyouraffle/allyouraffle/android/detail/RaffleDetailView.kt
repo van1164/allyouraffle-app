@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,20 +70,35 @@ fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boole
     val error = raffleViewModel.error.collectAsState()
     val raffleEnd = raffleViewModel.raffleEnd.collectAsState()
     val raffle = raffleViewModel.raffleDetail.collectAsState()
-    var isLoading = remember { MutableStateFlow(false) } // 광고 로드
-    val isLoadingState = isLoading.collectAsState()
     var purchaseSuccess = raffleViewModel.purchaseSuccess.collectAsState()
     var purchaseFail = raffleViewModel.purchaseFail.collectAsState()
     var refreshing by remember { mutableStateOf(false) }
+    val sharedPreference = SharedPreference(LocalContext.current)
+    val jwt = sharedPreference.getJwt()
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
         refreshing = true
         runBlocking {
-            raffleViewModel.getDetail(itemId, isFree)
+            raffleViewModel.initRaffleDetail(jwt,itemId,isFree)
         }
         refreshing = false
     })
+    val buttonClickedState = remember{ mutableStateOf(false)}
+    val userTicketsState = raffleViewModel.userTickets.collectAsState()
+    val userTickets = userTicketsState.value
+    LaunchedEffect(buttonClickedState.value) {
+        if(buttonClickedState.value){
+            if (userTickets == null) {
+                raffleViewModel.setError("응모권 조회과정에서 오류가 발생하였습니다.")
+            } else if (userTickets <= 0) {
+                raffleViewModel.setError("응모권이 부족합니다.")
+            } else {
+                raffleViewModel.purchaseWithTicket(jwt, itemId)
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
-        raffleViewModel.getDetail(itemId, isFree)
+        raffleViewModel.initRaffleDetail(jwt,itemId,isFree)
     }
 
     LaunchedEffect(raffleEnd.value) {
@@ -91,26 +108,28 @@ fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boole
         }
     }
 
-    Log.d("AAAAAAFDSFDSF", loading.value.toString())
     if (loading.value) {
         LoadingScreen()
     }
+    if (purchaseFail.value) {
+        FailDialog(viewModel = raffleViewModel)
+        buttonClickedState.value = false
+    }
+
     if (error.value != null) {
         errorToast(context, error.value!!, raffleViewModel)
     }
-
-    if (isLoadingState.value) {
-        LoadingScreen()
+    LaunchedEffect(purchaseSuccess.value) {
+        if(purchaseSuccess.value){
+            raffleViewModel.initRaffleDetail(jwt,itemId,isFree)
+        }
     }
     if (purchaseSuccess.value) {
         SuccessDialog(raffleViewModel)
+        buttonClickedState.value = false
     }
 
-    if (purchaseFail.value) {
-        FailDialog(raffleViewModel)
-    }
-
-    if (loading.value && raffle.value == null) {
+    if (loading.value || raffle.value == null) {
         LoadingScreen()
     } else {
         Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
@@ -130,12 +149,13 @@ fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boole
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 10.dp, start = 15.dp, end = 15.dp)
             ) {
+
                 BottomButton(
                     isFree,
                     data,
                     raffleViewModel,
-                    isLoading,
-                    itemId
+                    itemId,
+                    buttonClickedState
                 )
             }
         }
@@ -214,7 +234,7 @@ private fun ImageLoading(raffle: RaffleDetailResponse) {
 
             is AsyncImagePainter.State.Error -> {
                 // 에러 발생 시 표시할 UI
-                Text(text = "Image loading failed")
+                Text(text = "이미지 로딩에 실패하였습니다.")
             }
 
             else -> {
@@ -231,29 +251,75 @@ private fun BottomButton(
     isFree: Boolean,
     raffle: RaffleDetailResponse,
     raffleViewModel: RaffleDetailViewModel,
-    isLoading: MutableStateFlow<Boolean>,
-    itemId: String
+    itemId: String,
+    buttonClickedState: MutableState<Boolean>,
 ) {
+    val userTickets = raffleViewModel.userTickets.collectAsState()
     val sharedPreference = SharedPreference(LocalContext.current)
     val jwt = sharedPreference.getJwt()
-    if (isFree) {
-        ViewAdButton(
-            raffle = raffle,
-            viewModel = raffleViewModel,
-            jwt = jwt,
-            isLoading,
-            itemId = itemId,
-            isFree
-        )
-    } else {
-        PurchaseButton(
-            raffle = raffle,
-            viewModel = raffleViewModel,
-            jwt = jwt
-        )
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = "응모권 갯수 : "+userTickets.value.toString(), modifier = Modifier.padding(bottom = 8.dp))
+            if (isFree) {
+                NewViewAdButton(
+                    viewModel = raffleViewModel,
+                    jwt = jwt,
+                    itemId = itemId,
+                    buttonClickedState
+                )
+            } else {
+                PurchaseButton(
+                    raffle = raffle,
+                    viewModel = raffleViewModel,
+                    jwt = jwt
+                )
+            }
+        }
     }
 }
 
+@Composable
+fun NewViewAdButton(
+    viewModel: RaffleDetailViewModel,
+    jwt: String,
+    itemId: String,
+    buttonClickedState: MutableState<Boolean>,
+) {
+    var buttonClicked by remember {
+        buttonClickedState
+    }
+
+    FloatingActionButton(
+        onClick = {
+            buttonClicked = true
+        },
+
+        shape = RoundedCornerShape(15.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+            .clickable(enabled = !buttonClicked) {},
+        containerColor = MaterialTheme.colorScheme.secondary,
+        contentColor = Color.White
+    ) {
+        Row {
+            Text(
+                text = "응모 하기",
+                color = Color.White,
+                fontSize = 19.sp,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            )
+        }
+
+    }
+}
 
 @Composable
 fun PurchaseButton(
@@ -283,6 +349,8 @@ fun PurchaseButton(
     }
 }
 
+
+//혹시 몰라 납두겠음.
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun ViewAdButton(

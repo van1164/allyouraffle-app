@@ -9,7 +9,8 @@ data class RaffleResponse(
     val currentCount: Int,
     val ticketPrice: Int,
     val status: String,
-    val item: Item
+    val item: Item,
+    val isFree : Boolean
 ) {
     val progress: Float get() = (currentCount.toFloat() / totalCount.toFloat()) * 100
 }

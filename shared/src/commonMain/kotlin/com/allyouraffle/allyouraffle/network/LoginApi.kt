@@ -1,6 +1,8 @@
 package com.allyouraffle.allyouraffle.network
 
 import com.allyouraffle.allyouraffle.exception.NetworkException
+import com.allyouraffle.allyouraffle.exception.PhoneNumberDuplicatedException
+import com.allyouraffle.allyouraffle.exception.PurchaseException
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -38,10 +40,10 @@ object LoginApi {
         }
     }
 
-    fun refresh(refreshToken: String): String? {
+    fun refresh(refreshToken: String): JwtTokenResponse? {
         return runBlocking {
             val response =
-                ktorClient.post(BASE_URL + "api/v1/login/refresh?refresh=" + refreshToken)
+                ktorClient.post(BASE_URL + "api/v1/login/refresh?refreshToken=" + refreshToken)
             println(response.toString())
             if (response.status != HttpStatusCode.OK) {
                 return@runBlocking null
@@ -81,9 +83,13 @@ object LoginApi {
             setBody(PhoneNumberVerifyDto(phoneNumber))
         }
         println(response)
+        if(response.status ==HttpStatusCode.BadRequest){
+            val body : ErrorResponse? = response.body() as? ErrorResponse
+            println(body)
+            if (body != null) throw PhoneNumberDuplicatedException(body.message.toString())
+        }
         checkNotOkThrowNetworkException(response.status)
         return response.body()
-
     }
 
     suspend fun setPhoneNumber(jwt: String, phoneNumber: String) {
@@ -93,6 +99,11 @@ object LoginApi {
             setBody(PhoneNumberDto(phoneNumber))
         }
         println(response)
+        if(response.status ==HttpStatusCode.BadRequest){
+            val body : ErrorResponse? = response.body() as? ErrorResponse
+            println(body)
+            if (body != null) throw PhoneNumberDuplicatedException(body.message.toString())
+        }
         checkNotOkThrowNetworkException(response.status)
 
     }
@@ -108,7 +119,6 @@ data class PhoneNumberVerifyResponse(
 data class PhoneNumberVerifyDto(
     val phoneNumber: String
 )
-
 
 @Serializable
 data class PhoneNumberDto(

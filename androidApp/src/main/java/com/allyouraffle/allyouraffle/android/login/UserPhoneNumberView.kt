@@ -150,8 +150,9 @@ fun UserPhoneNumberMain(navController: NavHostController, userInfoResponse: User
                     )
 
                     Spacer(modifier = Modifier.height(30.dp))
-                    LogoutButton()
                 }
+
+                LogoutButton()
             }
         }
     }

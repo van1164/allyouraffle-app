@@ -58,6 +58,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
     implementation(libs.play.services.ads)
     implementation(libs.accompanist.navigation.animation)
+    implementation (libs.android.lottie.compose)
 
 
 //    implementation(libs.androidx.material.pullrefresh)

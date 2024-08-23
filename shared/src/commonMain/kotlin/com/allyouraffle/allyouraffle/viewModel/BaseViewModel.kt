@@ -32,4 +32,20 @@ open class BaseViewModel {
             null
         }
     }
+
+    fun setLoadingFalse(){
+        _loading.update {
+            false
+        }
+    }
+
+    fun setLoadingTrue() {
+        _loading.update {
+            true
+        }
+    }
+
+    fun setError(message : String) {
+        _error.update { message }
+    }
 }

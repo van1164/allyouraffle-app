@@ -1,11 +1,10 @@
 package com.allyouraffle.allyouraffle.viewModel
 
+import com.allyouraffle.allyouraffle.exception.PhoneNumberDuplicatedException
 import com.allyouraffle.allyouraffle.network.LoginApi
-import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -32,13 +31,25 @@ class PhoneNumberViewModel : BaseViewModel() {
 
     suspend fun verifyPhoneNumber() {
         safeApiCall {
-            _verifying.update { true }
-            val response = LoginApi.verifyPhoneNumber(formatPhoneNumber(_phoneNumber.value)).secretKey
-            _verifyNumber.update { response }
+            try {
+                val response =
+                    LoginApi.verifyPhoneNumber(formatPhoneNumber(_phoneNumber.value)).secretKey
+                _verifying.update { true }
+                _verifyNumber.update { response }
+            } catch (
+                e: PhoneNumberDuplicatedException
+
+            ) {
+                _verifying.update { false }
+                _verifyNumber.update { null }
+                _phoneNumber.update { "" }
+                _error.update { "이미 등록된 전화번호입니다." }
+            }
+
         }
     }
 
-    fun verifyTest(){
+    fun verifyTest() {
         _verifyNumber.update { "123456" }
         _verifying.update { true }
     }
@@ -46,8 +57,18 @@ class PhoneNumberViewModel : BaseViewModel() {
     suspend fun savePhoneNumber(jwt: String) {
         coroutineScope.launch {
             safeApiCall {
-                LoginApi.setPhoneNumber(jwt,formatPhoneNumber(_phoneNumber.value))
-                _numberSaved.update { true }
+                try {
+                    LoginApi.setPhoneNumber(jwt, formatPhoneNumber(_phoneNumber.value))
+                    _numberSaved.update { true }
+                } catch (
+                    e: PhoneNumberDuplicatedException
+                ) {
+                    _verifying.update { false }
+                    _verifyNumber.update { null }
+                    _phoneNumber.update { "" }
+                    _error.update { "이미 등록된 전화번호입니다." }
+                }
+
             }
         }
     }

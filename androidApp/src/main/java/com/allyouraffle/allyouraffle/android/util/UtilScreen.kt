@@ -6,13 +6,16 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
@@ -22,6 +25,7 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -37,6 +41,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.allyouraffle.allyouraffle.android.MainActivity
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.viewModel.BaseViewModel
@@ -59,6 +66,7 @@ fun ImageButton(image: Int, modifier: Modifier = Modifier, block: () -> Unit) {
 
 @Composable
 fun Logo(fontSize: TextUnit = 40.sp) {
+    Spacer(modifier = Modifier.height(15.dp))
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,7 +75,7 @@ fun Logo(fontSize: TextUnit = 40.sp) {
     ) {
         Text(
             text = "AllYouRaffle",
-            fontFamily = FontFamily(Font(R.font.logo)),
+            fontFamily = FontFamily(Font(R.font.fontdefault)),
             style = androidx.compose.ui.text.TextStyle(
                 fontSize = fontSize,
                 shadow = Shadow(
@@ -99,12 +107,20 @@ fun MainButton(
 @Composable
 fun LoadingScreen() {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(Color.White),
         contentAlignment = Alignment.Center // Box의 중앙 정렬
     ) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.tertiary
-        ) // 중앙에 위치할 CircularProgressIndicator
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.logo_loading_shadow))
+        LottieAnimation(
+            composition,
+            modifier = Modifier.fillMaxSize(),
+            iterations = 5,
+            alignment = Alignment.Center,
+        )
+
+//        CircularProgressIndicator(
+//            color = MaterialTheme.colorScheme.tertiary
+//        ) // 중앙에 위치할 CircularProgressIndicator
     }
 }
 

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import com.allyouraffle.allyouraffle.exception.LoginException
 import com.allyouraffle.allyouraffle.exception.NetworkException
+import com.allyouraffle.allyouraffle.network.JwtTokenResponse
 import com.allyouraffle.allyouraffle.network.LoginApi
 import com.allyouraffle.allyouraffle.network.MobileUserLoginDto
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
@@ -25,7 +26,7 @@ class LoginViewModel {
         return LoginApi.verify(jwt)
     }
 
-    fun refresh(refreshToken: String): String? {
+    fun refresh(refreshToken: String): JwtTokenResponse? {
         return LoginApi.refresh(refreshToken)
     }
 

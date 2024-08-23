@@ -110,8 +110,8 @@ fun AddressDetail(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 150.dp, start = 20.dp, end = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .padding(top = 50.dp, start = 20.dp, end = 20.dp),
+                horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.Top
             ) {
                 Text(
@@ -122,21 +122,29 @@ fun AddressDetail(
                 )
 
                 Text(
-                    text = "주소: ${userAddress.address}",
+                    text = "주소",
                     fontSize = 18.sp,
                     color = Color(0xFF424242),
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
+
                 Text(
-                    text = "도시: ${userAddress.sido}",
-                    fontSize = 18.sp,
-                    color = Color(0xFF424242),
+                    text = userAddress.address,
+                    fontSize = 30.sp,
+                    color = Color.Black,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    text = "우편번호: ${userAddress.postalCode}",
+                    text = "우편번호",
                     fontSize = 18.sp,
                     color = Color(0xFF424242),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                Text(
+                    text =userAddress.postalCode,
+                    fontSize = 30.sp,
+                    color = Color.Black,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 

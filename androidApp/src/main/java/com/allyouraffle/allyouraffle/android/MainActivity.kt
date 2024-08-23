@@ -36,11 +36,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
+import com.allyouraffle.allyouraffle.android.home.HomeScreen
 import com.allyouraffle.allyouraffle.android.login.LoginPage
 import com.allyouraffle.allyouraffle.android.mypage.MyPageScreen
 import com.allyouraffle.allyouraffle.android.raffle.RaffleListScreen
 import com.allyouraffle.allyouraffle.exception.DetailServiceException
 import com.allyouraffle.allyouraffle.exception.NetworkException
+import com.allyouraffle.allyouraffle.viewModel.HomeViewModel
 import com.allyouraffle.allyouraffle.viewModel.MyPageViewModel
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 import com.google.android.gms.ads.MobileAds
@@ -98,10 +100,11 @@ fun MainPage() {
 private fun BottomNav(
     navController: NavHostController,
 ) {
-    val startDestination = "광고 래플"
+    val startDestination = "홈"
     val items = listOf(
+        Triple("홈", R.drawable.ic_home_non_click, R.drawable.ic_home_click),
         Triple("광고 래플", R.drawable.ic_ad_non_click, R.drawable.ic_ad_click),
-        Triple("천원 래플", R.drawable.ic_shop_non_click, R.drawable.ic_shop_click),
+//        Triple("천원 래플", R.drawable.ic_shop_non_click, R.drawable.ic_shop_click),
         Triple("마이 페이지", R.drawable.ic_user_non_click, R.drawable.ic_user_click)
     )
     var selectedItem by remember { mutableStateOf(startDestination) }
@@ -154,19 +157,21 @@ private fun BottomNav(
         val noFreeViewModel = remember {
             RaffleViewModel()
         }
+        val homeViewModel = remember { HomeViewModel() }
         val myPageViewModel = remember { MyPageViewModel() }
         NavHost(
             navController,
             startDestination = startDestination,
             Modifier.padding(innerPadding)
         ) {
+            composable("홈") { HomeScreen(homeViewModel,navController) }
             composable("광고 래플") { RaffleListScreen(navController, true, freeViewModel) }
-            composable("천원 래플") {
-                RaffleListScreen(
-                    navController,
-                    isFree = false, noFreeViewModel
-                )
-            }
+//            composable("천원 래플") {
+//                RaffleListScreen(
+//                    navController,
+//                    isFree = false, noFreeViewModel
+//                )
+//            }
             composable("마이 페이지") { MyPageScreen(myPageViewModel) }
             composable("raffle/{itemId}/{isFree}") { backStackEntry ->
                 val itemId =

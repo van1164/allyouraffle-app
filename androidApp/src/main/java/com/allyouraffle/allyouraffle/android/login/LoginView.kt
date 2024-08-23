@@ -98,19 +98,17 @@ fun checkJwtExist(
 ): Boolean {
     Log.d("CHECK", "CHECK")
     try {
-        val jwt = sharedPreference.getJwt()
+//        val jwt = sharedPreference.getJwt()
         val refreshToken = sharedPreference.getRefreshToken()
-        if (loginViewModel.jwtVerify(jwt)) {
-            return true
-        }
-        loginViewModel.refresh(refreshToken)?.run {
-            sharedPreference.setJwt(this)
-            return true
-        }
+//        if (loginViewModel.jwtVerify(jwt)) {
+//            return true
+//        }
+        val jwtResponse = loginViewModel.refresh(refreshToken)?:return false
+        sharedPreference.setJwt(jwtResponse.jwt)
+        return true
     } catch (e: RuntimeException) {
         return false
     }
-    return false
 }
 
 @Composable
@@ -150,7 +148,7 @@ private fun LoginView(
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Logo(60.sp)
+        Logo(50.sp)
         androidx.compose.material3.Text(
             "All You Raffle에 오신 것을 환영합니다! \n이제 광고를 보는 것만으로도\n특별한 보상을 받을 수 있습니다.\n다양한 상품이 여러분을 기다립니다!",
             modifier = Modifier.align(Alignment.CenterHorizontally),
