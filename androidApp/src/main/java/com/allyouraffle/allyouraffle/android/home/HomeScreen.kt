@@ -1,6 +1,7 @@
 package com.allyouraffle.allyouraffle.android.home
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -28,9 +29,11 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,16 +54,20 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.home.myiconpack.IcTickets
 import com.allyouraffle.allyouraffle.android.raffle.ProductCard
-import com.allyouraffle.allyouraffle.android.util.GoogleAd
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.android.util.errorToast
+import com.allyouraffle.allyouraffle.android.util.getRewardedAd
 import com.allyouraffle.allyouraffle.viewModel.HomeViewModel
 import com.google.android.gms.ads.rewarded.RewardedAd
 import kotlinx.coroutines.runBlocking
 
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel, navHostController: NavHostController) {
+fun HomeScreen(
+    homeViewModel: HomeViewModel,
+    adViewModel: AdViewModel,
+    navHostController: NavHostController
+) {
     // Lottie 애니메이션
     val context = LocalContext.current
     val sharedPreference = SharedPreference(context)
@@ -78,7 +85,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, navHostController: NavHostControlle
     if (isLoading.value) {
         LoadingScreen()
     }else {
-        HomeScreenBody(homeViewModel, jwt, scrollShape, navHostController, isLoading)
+        HomeScreenBody(homeViewModel,adViewModel, jwt, scrollShape, navHostController, isLoading)
     }
 }
 
@@ -86,6 +93,7 @@ fun HomeScreen(homeViewModel: HomeViewModel, navHostController: NavHostControlle
 @OptIn(ExperimentalMaterialApi::class)
 private fun HomeScreenBody(
     homeViewModel: HomeViewModel,
+    adViewModel: AdViewModel,
     jwt: String,
     scrollShape: ScrollState,
     navHostController: NavHostController,
@@ -124,7 +132,7 @@ private fun HomeScreenBody(
                 elevation = 10.dp
             ) {
                 // 응모권 개수 표시
-                TicketView(homeViewModel, jwt, isLoading)
+                TicketView(homeViewModel,adViewModel, jwt, isLoading)
             }
             Spacer(modifier = Modifier.height(30.dp))
             Surface(
@@ -183,39 +191,35 @@ private fun PopularRankingView(homeViewModel: HomeViewModel, navHostController: 
 @Composable
 private fun TicketView(
     viewModel: HomeViewModel,
+    adViewModel: AdViewModel,
     jwt: String,
     isLoading: State<Boolean>
 ) {
     // 버튼 클릭 시 응모권 추가 애니메이션
     val context = LocalContext.current
     var ticketCount = viewModel.ticketCount.collectAsState()
-    var adLoaded by remember { mutableStateOf(false) }
-    var buttonClicked by remember { mutableStateOf(false) }
-    var rewardedAd: RewardedAd? by remember {
-        mutableStateOf(null)
-    }
-    val googleAd = remember {
-        GoogleAd(context) { ad ->
-            rewardedAd = ad
-            adLoaded = true
-            if (isLoading.value) {
-                viewModel.setLoadingFalse()
-            }
-        }
-    }
-
-    if (buttonClicked && adLoaded && !isLoading.value) {
-        rewardedAd?.show(context as Activity) { reward ->
+//    var adLoaded by remember { mutableStateOf(false) }
+    var buttonClicked = adViewModel.buttonClicked.collectAsState()
+    var rewardedAd = adViewModel.rewardedAd.collectAsState()
+    if (buttonClicked.value && rewardedAd.value != null && !isLoading.value) {
+        Log.d("NNNNNNNNNNNNNNNNNN","NNNNNNNNNNNNNNN")
+        rewardedAd.value?.show(context as Activity) { reward ->
             runBlocking {
                 viewModel.ticketPlusOne(jwt)
-                buttonClicked = false
-                adLoaded = false
-                googleAd.refreshAd()
+                adViewModel.setButtonClickedFalse()
+                getRewardedAd(context,{
+                    viewModel.setLoadingFalse()
+                    viewModel.setError("광고가 모두 소진되었습니다.. ㅠㅠ")
+                }) { ad ->
+                    adViewModel.loadRewardedAd(ad)
+                    viewModel.setLoadingFalse()
+
+                }
             }
-        }
+        }?: viewModel.setError("광고 로드중에 오류가 발생했습니다.")
     }
 
-    if (ticketCount.value == -1 || buttonClicked) {
+    if (ticketCount.value == -1 || buttonClicked.value) {
         LoadingScreen()
     } else {
 
@@ -257,15 +261,24 @@ private fun TicketView(
             // 광고를 보고 응모권을 획득하는 버튼
             Button(
                 onClick = {
-                    if (!buttonClicked) {
-                        if (adLoaded) {
-                            buttonClicked = true
+                    if (!buttonClicked.value) {
+                        if (rewardedAd.value !=null) {
+                            adViewModel.setButtonClickedTrue()
                         } else {
-                            buttonClicked = true
+                            getRewardedAd(context,{
+                                viewModel.setLoadingFalse()
+                                viewModel.setError("광고가 모두 소진되었습니다.. ㅠㅠ")
+                            }) { ad ->
+                                viewModel.printTest()
+                                adViewModel.loadRewardedAd(ad)
+                                viewModel.setLoadingFalse()
+                            }
+                            adViewModel.setButtonClickedTrue()
                             viewModel.setLoadingTrue()
                         }
                     }
                 },
+                enabled = !buttonClicked.value,
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
                 modifier = Modifier
