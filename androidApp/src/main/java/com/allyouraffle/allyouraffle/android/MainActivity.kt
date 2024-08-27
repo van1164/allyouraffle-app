@@ -1,12 +1,15 @@
 package com.allyouraffle.allyouraffle.android
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,10 +21,12 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -36,17 +41,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
+import com.allyouraffle.allyouraffle.android.home.AdViewModel
 import com.allyouraffle.allyouraffle.android.home.HomeScreen
 import com.allyouraffle.allyouraffle.android.login.LoginPage
 import com.allyouraffle.allyouraffle.android.mypage.MyPageScreen
 import com.allyouraffle.allyouraffle.android.raffle.RaffleListScreen
+import com.allyouraffle.allyouraffle.android.util.LoadingScreen
+import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.exception.DetailServiceException
+import com.allyouraffle.allyouraffle.exception.JwtException
 import com.allyouraffle.allyouraffle.exception.NetworkException
+import com.allyouraffle.allyouraffle.network.LoginApi
 import com.allyouraffle.allyouraffle.viewModel.HomeViewModel
 import com.allyouraffle.allyouraffle.viewModel.MyPageViewModel
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 import com.google.android.gms.ads.MobileAds
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     lateinit var exceptionHandler: CoroutineExceptionHandler
@@ -60,12 +71,34 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = Color.White
                 ) {
+                    var isSplashVisible by remember { mutableStateOf(true) }
+
+                    LaunchedEffect(Unit) {
+                        // 3초 동안 초기화 작업을 진행
+                        delay(2200)
+                        isSplashVisible = false
+                    }
                     MyApp()
+                    if (isSplashVisible) {
+                        SplashScreen()
+                    }
+
                 }
             }
         }
         exceptionHandler = CoroutineExceptionHandler { _, exception ->
             when (exception) {
+                is JwtException -> {
+                    val sharedPreference = SharedPreference(this)
+                    val jwt = LoginApi.refresh(sharedPreference.getRefreshToken())
+                    if (jwt == null) {
+                        Toast.makeText(this, "앱을 재시작해주세요.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        SharedPreference(this).setJwt(jwt.jwt)
+                        Toast.makeText(this, "다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
                 is NetworkException -> {
                     Toast.makeText(this, "네트워크 에러가 발생했습니다.", Toast.LENGTH_LONG).show()
                 }
@@ -83,10 +116,25 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     MaterialTheme {
         val navController = rememberNavController()
+
+
         NavHost(navController = navController, startDestination = "login") {
             composable("login") { LoginPage(navController) }
             composable("main") { MainPage() }
         }
+    }
+}
+
+@Composable
+fun SplashScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        // 스플래시 화면 콘텐츠
+        LoadingScreen()
     }
 }
 
@@ -109,7 +157,7 @@ private fun BottomNav(
     )
     var selectedItem by remember { mutableStateOf(startDestination) }
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-
+    var backPressedTime by remember { mutableStateOf(0L) }
     Scaffold(
         bottomBar = {
             if (currentRoute in listOf("raffle/{itemId}/{isFree}")) return@Scaffold
@@ -158,13 +206,14 @@ private fun BottomNav(
             RaffleViewModel()
         }
         val homeViewModel = remember { HomeViewModel() }
+        val adViewModel = remember{AdViewModel()}
         val myPageViewModel = remember { MyPageViewModel() }
         NavHost(
             navController,
             startDestination = startDestination,
             Modifier.padding(innerPadding)
         ) {
-            composable("홈") { HomeScreen(homeViewModel,navController) }
+            composable("홈") { HomeScreen(homeViewModel,adViewModel, navController) }
             composable("광고 래플") { RaffleListScreen(navController, true, freeViewModel) }
 //            composable("천원 래플") {
 //                RaffleListScreen(
@@ -186,7 +235,15 @@ private fun BottomNav(
         BackHandler(enabled = true) {
             val noFinishRouteList = listOf("raffle/{itemId}/{isFree}")
             if (currentRoute !in noFinishRouteList) {
-                (context as ComponentActivity).finish()
+                val currentTime = SystemClock.elapsedRealtime()
+                println(currentTime)
+                if (currentTime - backPressedTime < 2000) {
+                    (context as ComponentActivity).finish()
+                } else {
+                    backPressedTime = currentTime
+                    Toast.makeText(context, "뒤로가기를 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+                }
+
             } else {
                 navController.popBackStack()
             }
