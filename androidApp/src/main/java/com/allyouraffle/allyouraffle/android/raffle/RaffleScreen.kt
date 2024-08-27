@@ -76,7 +76,7 @@ fun RaffleListScreen(
     val sharedPreference = SharedPreference(context)
     val jwt = sharedPreference.getJwt()
     LaunchedEffect(Unit) {
-        viewModel.initRaffle(isFree, jwt)
+        viewModel.initRaffle(isFree)
     }
     LaunchedEffect(Unit) {
         viewModel.loadTickets(jwt)
@@ -133,6 +133,7 @@ private fun RaffleScreenBody(
             LazyColumn(
                 modifier = Modifier
                     .pullRefresh(pullRefreshState)
+                    .padding(horizontal = 10.dp)
                     .fillMaxHeight()
             ) {
                 items(raffleList) { raffle ->
@@ -209,7 +210,7 @@ fun RaffleRightColumn(
             text = raffle.item.name,
             color = Color.Black,
             fontSize = 23.sp,
-            fontWeight = FontWeight.Light,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 5.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

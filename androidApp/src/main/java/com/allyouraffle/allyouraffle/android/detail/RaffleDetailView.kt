@@ -1,8 +1,8 @@
 package com.allyouraffle.allyouraffle.android.detail
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +41,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,16 +54,14 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
+import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.IcTickets
+import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.TicketWhite
 import com.allyouraffle.allyouraffle.android.util.CustomDialog
-import com.allyouraffle.allyouraffle.android.util.GoogleAd
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleDetailViewModel
-import com.google.android.gms.ads.rewarded.RewardedAd
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 
 
@@ -142,6 +147,10 @@ fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boole
                     .align(Alignment.TopCenter)
                     .zIndex(1f)
             )
+//            Icon(
+//                painter = painterResource(R.drawable.ic_back),
+//                contentDescription = null
+//            )
             RaffleDetailBody(raffle = data, isFree)
 
             Box(
@@ -171,7 +180,6 @@ fun RaffleDetailBody(
 ) {
     Box(
         modifier = Modifier
-            .padding(start = 30.dp, end = 30.dp)
             .fillMaxSize()
     ) {
         val scrollState = rememberScrollState()
@@ -181,12 +189,13 @@ fun RaffleDetailBody(
                 .fillMaxWidth()
                 .padding(top = 50.dp)
         ) {
+        Column(Modifier.padding(start = 30.dp, end = 30.dp)) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(0.7F)
                     .align(Alignment.CenterHorizontally)
             ) {
-                ImageLoading(raffle)
+                ImageLoading(raffle.item.imageUrl)
             }
             Spacer(modifier = Modifier.height(30.dp))
             Text(raffle.item.name, fontSize = 35.sp, textAlign = TextAlign.Center)
@@ -212,24 +221,31 @@ fun RaffleDetailBody(
                     .padding(end = 2.dp)
             )
         }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                raffle.item.imageList.forEach {
+                    ImageLoading(imageUrl = it.imageUrl)
+                }
+            }
+        }
     }
 
 }
 
 @Composable
-private fun ImageLoading(raffle: RaffleDetailResponse) {
+private fun ImageLoading(imageUrl: String) {
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(raffle.item.imageUrl)
+            .data(imageUrl)
             .build(),
-        contentDescription = raffle.item.imageUrl,
+        contentScale = ContentScale.FillWidth,
+        contentDescription = imageUrl,
         modifier = Modifier.fillMaxSize()
     ) {
         val state = painter.state
         when (state) {
             is AsyncImagePainter.State.Loading -> {
                 // 로딩 중일 때 표시할 UI
-                CircularProgressIndicator()
+                LoadingScreen()
             }
 
             is AsyncImagePainter.State.Error -> {
@@ -266,13 +282,14 @@ private fun BottomButton(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(text = "응모권 갯수 : "+userTickets.value.toString(), modifier = Modifier.padding(bottom = 8.dp))
+//            Text(text = "응모권 갯수 : "+userTickets.value.toString(), modifier = Modifier.padding(bottom = 8.dp))
             if (isFree) {
                 NewViewAdButton(
                     viewModel = raffleViewModel,
                     jwt = jwt,
                     itemId = itemId,
-                    buttonClickedState
+                    buttonClickedState,
+                    userTickets
                 )
             } else {
                 PurchaseButton(
@@ -291,6 +308,7 @@ fun NewViewAdButton(
     jwt: String,
     itemId: String,
     buttonClickedState: MutableState<Boolean>,
+    userTickets: State<Int?>,
 ) {
     var buttonClicked by remember {
         buttonClickedState
@@ -314,8 +332,26 @@ fun NewViewAdButton(
                 text = "응모 하기",
                 color = Color.White,
                 fontSize = 19.sp,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
+            Spacer(modifier = Modifier.width(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val icon = remember {
+                    TicketWhite.IcTickets
+                }
+                Image(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .padding(end = 5.dp)
+                )
+                Text(
+                    text = userTickets.value.toString(),
+                    fontSize = 25.sp,
+                    color = Color.White,
+                )
+            }
         }
 
     }
@@ -351,90 +387,90 @@ fun PurchaseButton(
 
 
 //혹시 몰라 납두겠음.
-@SuppressLint("StateFlowValueCalledInComposition")
-@Composable
-fun ViewAdButton(
-    raffle: RaffleDetailResponse,
-    viewModel: RaffleDetailViewModel,
-    jwt: String,
-    isLoading: MutableStateFlow<Boolean>,
-    itemId: String,
-    isFree: Boolean
-) {
-    val context = LocalContext.current
-    var adLoaded by remember { mutableStateOf(false) }
-    var buttonClicked by remember { mutableStateOf(false) }
-    var rewardedAd: RewardedAd? by remember {
-        mutableStateOf(null)
-    }
-    val googleAd = remember {
-        GoogleAd(context) { ad ->
-            rewardedAd = ad
-            adLoaded = true
-            if (isLoading.value) {
-                isLoading.update { false }
-            }
-            Log.d("ADD LOADED", adLoaded.toString())
-            Log.d("AD LOADED", rewardedAd.toString())
-            Log.d("AD LOADING", isLoading.toString())
-        }
-    }
-
-
-    if (buttonClicked && adLoaded && !isLoading.value) {
-        Log.d("AD Loading Complete", "TTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
-        Log.d("AD Loading Complete", rewardedAd.toString())
-        rewardedAd?.show(context as Activity) { reward ->
-            println(reward.type)
-            println(reward.amount)
-            runBlocking {
-                Log.d("PURCHASE START", "START")
-                viewModel.purchase(jwt, raffle.id.toString())
-                buttonClicked = false
-                isLoading.update { false }
-                adLoaded = false
-                googleAd.refreshAd()
-                viewModel.getDetail(itemId, isFree)
-                Log.d("PURCHASE End", "End")
-            }
-        }
-    }
-    Log.d("LLLLLLLLLLLLLLLLLLLLL", rewardedAd.toString())
-
-    FloatingActionButton(
-        onClick = {
-            Log.d("AAAAAAAAAAAAAAAAAAAAAAAAA", adLoaded.toString())
-            Log.d("AAAAAAAAAAAAAAAAAAAAAAAAA", rewardedAd.toString())
-            if (!buttonClicked) {
-                if (adLoaded) {
-                    buttonClicked = true
-                } else {
-                    buttonClicked = true
-                    isLoading.update { true }
-                }
-            }
-        },
-
-        shape = RoundedCornerShape(15.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(5.dp)
-            .clickable(enabled = !buttonClicked) {},
-        containerColor = MaterialTheme.colorScheme.secondary,
-        contentColor = Color.White
-    ) {
-        Row {
-            Text(
-                text = "광고 보기",
-                color = Color.White,
-                fontSize = 19.sp,
-                modifier = Modifier.align(Alignment.CenterVertically)
-            )
-        }
-
-    }
-
-}
+//@SuppressLint("StateFlowValueCalledInComposition")
+//@Composable
+//fun ViewAdButton(
+//    raffle: RaffleDetailResponse,
+//    viewModel: RaffleDetailViewModel,
+//    jwt: String,
+//    isLoading: MutableStateFlow<Boolean>,
+//    itemId: String,
+//    isFree: Boolean
+//) {
+//    val context = LocalContext.current
+//    var adLoaded by remember { mutableStateOf(false) }
+//    var buttonClicked by remember { mutableStateOf(false) }
+//    var rewardedAd: RewardedAd? by remember {
+//        mutableStateOf(null)
+//    }
+//    val googleAd = remember {
+//        GoogleAd(context) { ad ->
+//            rewardedAd = ad
+//            adLoaded = true
+//            if (isLoading.value) {
+//                isLoading.update { false }
+//            }
+//            Log.d("ADD LOADED", adLoaded.toString())
+//            Log.d("AD LOADED", rewardedAd.toString())
+//            Log.d("AD LOADING", isLoading.toString())
+//        }
+//    }
+//
+//
+//    if (buttonClicked && adLoaded && !isLoading.value) {
+//        Log.d("AD Loading Complete", "TTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
+//        Log.d("AD Loading Complete", rewardedAd.toString())
+//        rewardedAd?.show(context as Activity) { reward ->
+//            println(reward.type)
+//            println(reward.amount)
+//            runBlocking {
+//                Log.d("PURCHASE START", "START")
+//                viewModel.purchase(jwt, raffle.id.toString())
+//                buttonClicked = false
+//                isLoading.update { false }
+//                adLoaded = false
+//                googleAd.refreshAd()
+//                viewModel.getDetail(itemId, isFree)
+//                Log.d("PURCHASE End", "End")
+//            }
+//        }
+//    }
+//    Log.d("LLLLLLLLLLLLLLLLLLLLL", rewardedAd.toString())
+//
+//    FloatingActionButton(
+//        onClick = {
+//            Log.d("AAAAAAAAAAAAAAAAAAAAAAAAA", adLoaded.toString())
+//            Log.d("AAAAAAAAAAAAAAAAAAAAAAAAA", rewardedAd.toString())
+//            if (!buttonClicked) {
+//                if (adLoaded) {
+//                    buttonClicked = true
+//                } else {
+//                    buttonClicked = true
+//                    isLoading.update { true }
+//                }
+//            }
+//        },
+//
+//        shape = RoundedCornerShape(15.dp),
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(5.dp)
+//            .clickable(enabled = !buttonClicked) {},
+//        containerColor = MaterialTheme.colorScheme.secondary,
+//        contentColor = Color.White
+//    ) {
+//        Row {
+//            Text(
+//                text = "광고 보기",
+//                color = Color.White,
+//                fontSize = 19.sp,
+//                modifier = Modifier.align(Alignment.CenterVertically)
+//            )
+//        }
+//
+//    }
+//
+//}
 
 @Composable
 fun SuccessDialog(viewModel: RaffleDetailViewModel) {

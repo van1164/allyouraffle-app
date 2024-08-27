@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -107,12 +106,16 @@ fun MyPageScreen(myPageViewModel: MyPageViewModel) {
                 composable("main") {
                     infoUpdated.value = true
                 }
+                composable("raffleHistory"){
+                    RaffleHistoryScreen(myPageNavController)
+                }
             }
 //
 //            MyPage(data)
         }
     }
 }
+
 
 @Composable
 fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
@@ -170,7 +173,9 @@ fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
         // 버튼들
         UserActionButton("주소 변경") { showSetAddress.value = true }
         UserActionButton("휴대폰번호 변경") { showSetPhoneNumber.value = true }
-        UserActionButton("래플 이력") { /* 래플 이력 화면으로 이동 */ }
+        UserActionButton("래플 이력") {
+            myPageNavController.navigate("raffleHistory")
+        }
         Spacer(modifier = Modifier.height(15.dp))
         LogoutButton()
     }
@@ -332,7 +337,7 @@ private fun ImageLoading(imageUrl: String?) {
         when (state) {
             is AsyncImagePainter.State.Loading -> {
                 // 로딩 중일 때 표시할 UI
-                CircularProgressIndicator()
+                LoadingScreen()
             }
 
             is AsyncImagePainter.State.Error -> {

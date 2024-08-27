@@ -1,6 +1,5 @@
-package ticketicon
+package com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite
 
-import TicketIcon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -11,14 +10,14 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-public val TicketIcon.IcTickets: ImageVector
+public val TicketWhite.IcTickets: ImageVector
     get() {
         if (_icTickets != null) {
             return _icTickets!!
         }
         _icTickets = Builder(name = "IcTickets", defaultWidth = 64.0.dp, defaultHeight = 64.0.dp,
                 viewportWidth = 64.0f, viewportHeight = 64.0f).apply {
-            path(fill = SolidColor(Color(0xFF241F20)), stroke = null, strokeLineWidth = 0.0f,
+            path(fill = SolidColor(Color(0xFFFFFFFF)), stroke = null, strokeLineWidth = 0.0f,
                     strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
                     pathFillType = NonZero) {
                 moveTo(62.981f, 20.549f)
