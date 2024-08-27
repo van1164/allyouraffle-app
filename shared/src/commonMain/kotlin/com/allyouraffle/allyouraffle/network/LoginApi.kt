@@ -3,6 +3,7 @@ package com.allyouraffle.allyouraffle.network
 import com.allyouraffle.allyouraffle.exception.NetworkException
 import com.allyouraffle.allyouraffle.exception.PhoneNumberDuplicatedException
 import com.allyouraffle.allyouraffle.exception.PurchaseException
+import com.allyouraffle.allyouraffle.model.RaffleResponse
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -211,4 +212,10 @@ data class AddressInfo(
     val postalCode: String,
     val country: String,
     val detail: String? = null
+)
+@Serializable
+data class PurchaseHistory(
+    val raffle : RaffleResponse,
+    val count : Int,
+    val isWinner : Boolean
 )

@@ -1,4 +1,4 @@
-package com.allyouraffle.allyouraffle.android.home.myiconpack
+package svg.ticketicon
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import com.allyouraffle.allyouraffle.android.home.MyIconPack
+import svg.TicketIcon
 
-public val MyIconPack.IcTickets: ImageVector
+public val TicketIcon.IcTickets: ImageVector
     get() {
         if (_icTickets != null) {
             return _icTickets!!
@@ -169,162 +169,3 @@ public val MyIconPack.IcTickets: ImageVector
     }
 
 private var _icTickets: ImageVector? = null
-
-
-public val MyIconPack.IcTicketsWhite: ImageVector
-    get() {
-        if (_icTickets != null) {
-            return _icTickets!!
-        }
-        _icTickets = Builder(name = "IcTickets", defaultWidth = 64.0.dp, defaultHeight = 64.0.dp,
-            viewportWidth = 64.0f, viewportHeight = 64.0f).apply {
-            path(fill = SolidColor(Color.White), stroke = null, strokeLineWidth = 0.0f,
-                strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-                pathFillType = NonZero) {
-                moveTo(62.981f, 20.549f)
-                lineToRelative(-3.557f, -3.571f)
-                curveToRelative(-1.431f, -1.437f, -3.636f, -0.265f, -3.636f, -0.265f)
-                lineToRelative(-0.006f, -0.004f)
-                curveToRelative(-2.298f, 0.957f, -5.044f, 0.506f, -6.91f, -1.367f)
-                curveToRelative(-1.867f, -1.876f, -2.308f, -4.628f, -1.337f, -6.923f)
-                curveToRelative(0.009f, -0.022f, 0.009f, -0.036f, 0.019f, -0.059f)
-                curveToRelative(0.83f, -2.196f, -0.35f, -3.637f, -0.698f, -4.001f)
-                lineToRelative(-3.574f, -3.588f)
-                curveToRelative(-1.561f, -1.567f, -3.256f, -0.142f, -3.671f, 0.257f)
-                lineTo(1.035f, 39.45f)
-                curveToRelative(-2.143f, 2.132f, -0.376f, 3.835f, -0.376f, 3.835f)
-                lineToRelative(4.139f, 4.155f)
-                curveToRelative(0.0f, 0.0f, 1.021f, 1.104f, 3.003f, 0.304f)
-                curveToRelative(0.063f, -0.025f, 0.111f, -0.036f, 0.166f, -0.053f)
-                curveToRelative(2.356f, -1.135f, 5.261f, -0.744f, 7.21f, 1.212f)
-                curveToRelative(1.856f, 1.865f, 2.307f, 4.594f, 1.359f, 6.882f)
-                horizontalLineToRelative(0.003f)
-                curveToRelative(0.0f, 0.0f, -1.204f, 2.235f, 0.244f, 3.688f)
-                lineToRelative(3.625f, 3.64f)
-                curveToRelative(0.258f, 0.254f, 2.163f, 1.965f, 4.541f, -0.401f)
-                lineToRelative(38.329f, -38.173f)
-                curveTo(63.856f, 23.866f, 64.758f, 22.333f, 62.981f, 20.549f)
-                close()
-                moveTo(23.456f, 45.199f)
-                lineToRelative(-0.329f, 0.326f)
-                curveToRelative(-0.369f, 0.368f, -0.747f, 0.132f, -0.939f, -0.039f)
-                lineToRelative(-4.249f, -4.267f)
-                lineToRelative(-1.07f, 1.067f)
-                curveToRelative(-0.542f, 0.541f, -1.005f, -0.017f, -1.005f, -0.017f)
-                lineToRelative(-0.142f, -0.143f)
-                curveToRelative(0.0f, 0.0f, -0.385f, -0.346f, 0.201f, -0.928f)
-                lineToRelative(3.254f, -3.241f)
-                curveToRelative(0.0f, 0.0f, 0.512f, -0.566f, 1.0f, -0.078f)
-                lineToRelative(0.111f, 0.111f)
-                curveToRelative(0.365f, 0.388f, 0.137f, 0.738f, -0.02f, 0.908f)
-                lineToRelative(-1.104f, 1.102f)
-                lineToRelative(4.085f, 4.103f)
-                curveTo(23.756f, 44.611f, 23.613f, 44.993f, 23.456f, 45.199f)
-                close()
-                moveTo(27.073f, 41.596f)
-                lineToRelative(-0.266f, 0.265f)
-                curveToRelative(-0.414f, 0.413f, -0.956f, -0.063f, -1.088f, -0.189f)
-                lineToRelative(-4.487f, -4.507f)
-                curveToRelative(0.0f, 0.0f, -0.619f, -0.637f, -0.111f, -1.141f)
-                lineToRelative(0.189f, -0.188f)
-                curveToRelative(0.0f, 0.0f, 0.538f, -0.501f, 1.278f, 0.243f)
-                lineToRelative(4.405f, 4.422f)
-                curveTo(27.48f, 40.991f, 27.235f, 41.409f, 27.073f, 41.596f)
-                close()
-                moveTo(32.547f, 35.873f)
-                curveToRelative(-0.271f, 0.535f, -0.62f, 1.043f, -1.097f, 1.52f)
-                curveToRelative(-0.84f, 0.837f, -1.736f, 1.221f, -2.688f, 1.154f)
-                curveToRelative(-0.953f, -0.064f, -1.904f, -0.574f, -2.854f, -1.527f)
-                curveToRelative(-0.597f, -0.601f, -1.012f, -1.233f, -1.243f, -1.905f)
-                curveToRelative(-0.231f, -0.669f, -0.262f, -1.326f, -0.092f, -1.976f)
-                reflectiveCurveToRelative(0.529f, -1.246f, 1.079f, -1.795f)
-                curveToRelative(0.44f, -0.438f, 0.992f, -0.772f, 1.603f, -1.045f)
-                curveToRelative(0.203f, -0.033f, 0.577f, -0.036f, 0.755f, 0.379f)
-                lineToRelative(0.069f, 0.162f)
-                curveToRelative(0.304f, 0.71f, -0.546f, 0.947f, -0.546f, 0.947f)
-                lineToRelative(0.001f, 0.003f)
-                curveToRelative(-0.035f, 0.017f, -0.074f, 0.031f, -0.11f, 0.047f)
-                curveToRelative(-0.294f, 0.139f, -0.546f, 0.315f, -0.757f, 0.527f)
-                curveToRelative(-0.461f, 0.457f, -0.645f, 0.987f, -0.553f, 1.585f)
-                curveToRelative(0.092f, 0.597f, 0.446f, 1.204f, 1.062f, 1.823f)
-                curveToRelative(1.282f, 1.286f, 2.408f, 1.45f, 3.374f, 0.487f)
-                curveToRelative(0.281f, -0.278f, 0.553f, -0.686f, 0.82f, -1.146f)
-                curveToRelative(0.003f, 0.0f, 0.02f, 0.006f, 0.02f, 0.006f)
-                reflectiveCurveToRelative(0.352f, -0.607f, 0.683f, -0.276f)
-                lineToRelative(0.205f, 0.207f)
-                curveTo(32.625f, 35.371f, 32.604f, 35.681f, 32.547f, 35.873f)
-                close()
-                moveTo(38.388f, 30.326f)
-                lineToRelative(-0.585f, 0.583f)
-                curveToRelative(-0.364f, 0.362f, -0.936f, 0.226f, -0.936f, 0.226f)
-                lineToRelative(-3.362f, -0.792f)
-                lineToRelative(-0.146f, 0.886f)
-                lineToRelative(1.388f, 1.394f)
-                curveToRelative(0.498f, 0.499f, 0.387f, 0.884f, 0.23f, 1.104f)
-                lineToRelative(-0.303f, 0.298f)
-                curveToRelative(-0.426f, 0.427f, -0.907f, 0.054f, -1.088f, -0.119f)
-                lineToRelative(-4.517f, -4.535f)
-                curveToRelative(0.0f, 0.0f, -0.636f, -0.632f, -0.177f, -1.087f)
-                lineToRelative(0.282f, -0.281f)
-                curveToRelative(0.177f, -0.148f, 0.598f, -0.374f, 1.151f, 0.181f)
-                lineToRelative(1.968f, 1.976f)
-                lineTo(32.097f, 29.0f)
-                lineToRelative(-0.34f, -3.06f)
-                curveToRelative(0.0f, 0.0f, -0.053f, -0.457f, 0.294f, -0.803f)
-                lineToRelative(0.458f, -0.457f)
-                curveToRelative(0.0f, 0.0f, 0.555f, -0.56f, 0.647f, 0.245f)
-                curveToRelative(0.0f, 0.0f, 0.002f, 0.0f, 0.002f, 0.003f)
-                lineToRelative(0.438f, 3.76f)
-                lineToRelative(4.53f, 1.037f)
-                curveTo(38.368f, 29.791f, 38.753f, 29.961f, 38.388f, 30.326f)
-                close()
-                moveTo(42.528f, 26.33f)
-                lineToRelative(-2.213f, 2.205f)
-                curveToRelative(-0.576f, 0.574f, -1.113f, 0.137f, -1.266f, -0.011f)
-                lineToRelative(-4.468f, -4.484f)
-                curveToRelative(0.0f, 0.0f, -0.555f, -0.744f, 0.029f, -1.327f)
-                lineToRelative(2.164f, -2.154f)
-                curveToRelative(0.0f, 0.0f, 0.456f, -0.51f, 0.833f, -0.131f)
-                lineToRelative(0.173f, 0.172f)
-                curveToRelative(0.0f, 0.0f, 0.531f, 0.427f, -0.007f, 0.962f)
-                lineToRelative(-1.179f, 1.173f)
-                curveToRelative(-0.451f, 0.451f, -0.003f, 0.875f, -0.003f, 0.875f)
-                lineToRelative(0.348f, 0.346f)
-                curveToRelative(0.0f, 0.0f, 0.471f, 0.493f, 1.007f, -0.042f)
-                lineToRelative(0.948f, -0.945f)
-                curveToRelative(0.0f, 0.0f, 0.471f, -0.485f, 0.833f, -0.123f)
-                lineToRelative(0.141f, 0.142f)
-                curveToRelative(0.396f, 0.432f, 0.219f, 0.767f, 0.084f, 0.925f)
-                lineToRelative(-0.912f, 0.909f)
-                curveToRelative(-0.571f, 0.568f, -0.249f, 0.989f, -0.147f, 1.095f)
-                lineToRelative(0.624f, 0.627f)
-                curveToRelative(0.188f, 0.147f, 0.495f, 0.276f, 0.822f, -0.05f)
-                lineToRelative(1.164f, -1.16f)
-                curveToRelative(0.0f, 0.0f, 0.478f, -0.516f, 0.791f, -0.203f)
-                lineToRelative(0.198f, 0.198f)
-                curveTo(42.913f, 25.764f, 42.687f, 26.148f, 42.528f, 26.33f)
-                close()
-                moveTo(45.704f, 23.041f)
-                lineToRelative(-0.192f, 0.189f)
-                curveToRelative(-0.381f, 0.379f, -0.85f, -0.017f, -1.002f, -0.165f)
-                lineToRelative(-3.625f, -3.639f)
-                curveToRelative(-0.47f, -0.471f, -0.875f, -0.18f, -1.016f, -0.049f)
-                lineToRelative(-0.657f, 0.656f)
-                curveToRelative(-0.458f, 0.457f, -0.886f, -0.039f, -0.886f, -0.039f)
-                lineToRelative(-0.174f, -0.176f)
-                curveToRelative(0.0f, 0.0f, -0.382f, -0.38f, 0.076f, -0.837f)
-                lineToRelative(3.369f, -3.354f)
-                curveToRelative(0.203f, -0.183f, 0.612f, -0.456f, 0.963f, -0.104f)
-                lineToRelative(0.109f, 0.111f)
-                curveToRelative(0.389f, 0.41f, 0.165f, 0.772f, 0.024f, 0.931f)
-                lineToRelative(-0.678f, 0.674f)
-                curveToRelative(-0.091f, 0.095f, -0.389f, 0.482f, 0.156f, 1.031f)
-                lineToRelative(3.564f, 3.579f)
-                curveTo(45.932f, 22.071f, 46.213f, 22.542f, 45.704f, 23.041f)
-                close()
-            }
-        }
-            .build()
-        return _icTickets!!
-    }
-

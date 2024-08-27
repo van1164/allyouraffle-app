@@ -1,5 +1,6 @@
 package com.allyouraffle.allyouraffle.network
 
+import com.allyouraffle.allyouraffle.exception.JwtException
 import com.allyouraffle.allyouraffle.exception.NetworkException
 import com.allyouraffle.allyouraffle.exception.PurchaseException
 import com.allyouraffle.allyouraffle.exception.RaffleNotFoundException
@@ -10,6 +11,7 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -33,6 +35,21 @@ val ktorClient = HttpClient() {
 }
 
 object RaffleApi {
+
+    suspend fun getRaffleHistoryList(jwt: String,offset:Long,size:Long): List<PurchaseHistory> {
+        val response = ktorClient
+            .get(BASE_URL + "api/v1/purchase_history") {
+                parameter("offset",offset)
+                parameter("size",size)
+                contentType(ContentType.Application.Json)
+                header("Authorization", "Bearer $jwt")
+            }
+        checkJwtExpire(response.status)
+        checkNotOkThrowNetworkException(response.status)
+        return response.body()
+
+    }
+
     suspend fun getActive(isFree: Boolean): List<RaffleResponse> {
         val response: HttpResponse = if (isFree) {
             ktorClient
@@ -87,6 +104,7 @@ object RaffleApi {
                 it
             )
         } ?: PurchaseException("구매에 실패하였습니다.")
+        checkJwtExpire(response.status)
         checkNotOkThrowNetworkException(response.status)
         return true
 
@@ -105,6 +123,7 @@ object RaffleApi {
             println(body)
             if (body != null) throw PurchaseException(body.message.toString())
         }
+        checkJwtExpire(response.status)
         checkNotOkThrowNetworkException(response.status)
         return true
 
@@ -124,6 +143,12 @@ object RaffleApi {
 fun checkNotOkThrowNetworkException(statusCode: HttpStatusCode, message: String? = null) {
     if (statusCode != HttpStatusCode.OK) {
         throw message?.let { NetworkException(it) } ?: NetworkException()
+    }
+}
+
+fun checkJwtExpire(statusCode: HttpStatusCode) {
+    if (statusCode == HttpStatusCode.Forbidden) {
+        throw JwtException()
     }
 }
 

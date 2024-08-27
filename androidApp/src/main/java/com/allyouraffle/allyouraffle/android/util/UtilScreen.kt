@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +18,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.allyouraffle.allyouraffle.android.MainActivity
 import com.allyouraffle.allyouraffle.android.R
@@ -117,7 +124,7 @@ fun LoadingScreen() {
         LottieAnimation(
             composition,
             modifier = Modifier.fillMaxSize(),
-            iterations = 5,
+            iterations = LottieConstants.IterateForever,
             alignment = Alignment.Center,
         )
 
@@ -236,4 +243,30 @@ fun CustomDialog(title: String, body: String, buttonMessage: String, onDismiss: 
 fun errorToast(context: Context, message: String, viewModel: BaseViewModel) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     viewModel.setNullError()
+}
+
+@Composable
+fun LazyListState.OnBottomReached(loadMore: () -> Unit) {
+    val isAtBottom by remember {
+        derivedStateOf {
+            // LazyColumn의 스크롤 위치와 총 항목 수를 사용하여 끝에 도달했는지 확인
+            layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
+        }
+    }
+    LaunchedEffect(isAtBottom) {
+        if (isAtBottom) {
+            loadMore()
+        }
+    }
+}
+
+@Composable
+fun ScrollingText(text: String) {
+    val scrollState = rememberScrollState()
+
+    BasicText(
+        text = text,
+        modifier = Modifier
+            .horizontalScroll(scrollState) // 가로 스크롤 가능하도록 설정
+    )
 }
