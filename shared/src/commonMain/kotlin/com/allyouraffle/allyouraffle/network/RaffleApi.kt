@@ -22,7 +22,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-const val BASE_URL = "https://allyouraffle.co.kr/"
+const val BASE_URL = "https://api.allyouraffle.co.kr/"
 
 val ktorClient = HttpClient() {
     install(ContentNegotiation) {

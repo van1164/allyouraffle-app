@@ -30,6 +30,7 @@ class PhoneNumberViewModel : BaseViewModel() {
     }
 
     suspend fun verifyPhoneNumber() {
+        println("여기는 번호 인증 : "+ phoneNumber.value.toString())
         safeApiCall {
             try {
                 val response =

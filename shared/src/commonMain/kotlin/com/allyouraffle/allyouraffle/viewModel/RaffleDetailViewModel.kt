@@ -24,7 +24,7 @@ class RaffleDetailViewModel : BaseViewModel() {
     private val _purchaseFail = MutableStateFlow(false)
     val purchaseFail = _purchaseFail.asStateFlow()
 
-    private val _userTickets = MutableStateFlow<Int?>(null)
+    private val _userTickets = MutableStateFlow<Int>(-1)
     val userTickets = _userTickets.asStateFlow()
 
     suspend fun initRaffleDetail(jwt: String,id: String,isFree: Boolean){

@@ -4,8 +4,11 @@ import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.network.RaffleApi
 import com.allyouraffle.allyouraffle.network.getTickets
 import com.allyouraffle.allyouraffle.network.ticketPlus
+import com.allyouraffle.allyouraffle.util.CommonFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 class HomeViewModel : BaseViewModel() {
@@ -57,5 +60,9 @@ class HomeViewModel : BaseViewModel() {
         _popularRaffleList.update {
             RaffleApi.loadPopularRaffleList()
         }
+    }
+    fun <T> StateFlow<T>.asCommonFlow(): CommonFlow<T> = CommonFlow(this)
+    fun printTest() {
+        println("BBBBBBBBBBBBBBBB")
     }
 }
