@@ -66,6 +66,7 @@ class HomeObserver: ObservableObject {
     func initHome(jwt: String) {
         Task {
             do {
+                print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                 try await viewModel.doInitHome(jwt: jwt)
             } catch {
                 // Handle error
@@ -73,8 +74,25 @@ class HomeObserver: ObservableObject {
         }
     }
 
+    func setLoading(){
+        viewModel.setLoadingTrue()
+    }
+    
+    func setLoadingFalse(){
+        viewModel.setLoadingFalse()
+    }
+    
+    func ticketPlusOne(jwt: String) {
+        Task {
+            do {
+                try await viewModel.ticketPlusOne(jwt: jwt)
+            } catch {
+                // Handle error
+            }
+        }
+    }
+    
     func loadTickets(jwt: String) async {
-
             do {
                 try await viewModel.loadTickets(jwt: jwt)
             } catch {
@@ -82,7 +100,10 @@ class HomeObserver: ObservableObject {
             }
         
     }
-    func setError() {
-        viewModel.setNullError()
+    
+    
+    
+    func setError(message : String) {
+        viewModel.setError(message: message)
     }
 }

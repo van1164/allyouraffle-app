@@ -6,21 +6,19 @@ import SVGKit
 
 struct HomeView: View {
     @ObservedObject var observer: HomeObserver
+    @ObservedObject var rewardedViewModel : RewardedViewModel
     @State private var refreshing: Bool = false
     
     var body: some View {
         VStack{
-//            NavigationView{
-                if observer.loading || observer.ticketCount == -1{
-                    LoadingScreen()
-                }
-                else {
-                    HomeScreenBody(observer: observer, refreshing: $refreshing).onAppear{
-                        print(observer.loading)
-                        print(observer.ticketCount != -1)
-                    }
-                }
-//            }
+            //            NavigationView{
+            
+            HomeScreenBody(observer: observer, refreshing: $refreshing, rewardedViewModel:rewardedViewModel).onAppear{
+                print(observer.loading)
+                print(observer.ticketCount != -1)
+                
+            }
+            //            }
         }
         .onAppear {
             print("XXXXXXXXX")
@@ -35,21 +33,27 @@ struct HomeView: View {
 struct HomeScreenBody: View {
     @ObservedObject var observer: HomeObserver
     @Binding var refreshing: Bool
+    @ObservedObject var rewardedViewModel : RewardedViewModel
     
     var body: some View {
-        ScrollView {
-            VStack() {
-                TicketView(observer: observer)
-                    .padding(.bottom,20)
-                    .padding(.top,10)
-                PopularRankingView(observer: observer)
+        if(rewardedViewModel.adLoading){
+            LoadingScreen()
+        }
+        else{
+            ScrollView {
+                VStack() {
+                    TicketView(observer: observer,rewardedViewModel:rewardedViewModel)
+                        .padding(.bottom,20)
+                        .padding(.top,10)
+                    PopularRankingView(observer: observer)
+                }
+                .padding(10)
+                //            .pullToRefresh(isShowing: $refreshing) {
+                //                observer.refresh()
+                //            }
+            }.refreshable {
+                observer.initRaffle()
             }
-            .padding(10)
-            //            .pullToRefresh(isShowing: $refreshing) {
-            //                observer.refresh()
-            //            }
-        }.refreshable {
-            observer.initRaffle()
         }
     }
 }
@@ -58,6 +62,7 @@ struct PopularRankingView: View {
     @ObservedObject var observer: HomeObserver
     
     var body: some View {
+        
         VStack {
             HStack(alignment:.center) {
                 LottieView(animationName: "fire", loopMode: LottieLoopMode.loop)
@@ -71,9 +76,13 @@ struct PopularRankingView: View {
             }.frame(maxWidth: .infinity, alignment: .leading)
                 .frame(height: 50)
                 .padding(.vertical,5)
-            
-            ForEach(observer.raffleList, id: \.id) { raffle in
-                ProductCard(raffle: raffle)
+            if observer.loading {
+                LoadingScreen()
+            }
+            else {
+                ForEach(observer.raffleList, id: \.id) { raffle in
+                    ProductCard(raffle: raffle)
+                }
             }
         }   .padding(3)
             .background(Color.white)
@@ -84,54 +93,99 @@ struct PopularRankingView: View {
 
 struct TicketView: View {
     @ObservedObject var observer: HomeObserver
+    @ObservedObject var rewardedViewModel : RewardedViewModel
     @State private var buttonClicked: Bool = false
+    @State private var adLoading : Bool = false
     
     var body: some View {
         VStack {
-            VStack(alignment: .center) {
-                Text("현재 응모권")
-                    .font(.system(size: 24))
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                    .padding(16)
-                
-                HStack {
-                    SVGView(svgName: "ic_tickets",w:10,h:10) // Replace with your custom icon
-                        .frame(width: 40, height: 40)
-                    Text("\(observer.ticketCount)")
-                        .font(.system(size: 35))
+            if adLoading {
+                Text("광고 로딩중...")
+            }
+            else if observer.ticketCount == -1 || buttonClicked {
+                LoadingScreen()
+            } else {
+                VStack(alignment: .center) {
+                    Text("현재 응모권")
+                        .font(.system(size: 24))
+                        .fontWeight(.bold)
                         .foregroundColor(.black)
-                        .padding(.leading, 10)
+                        .padding(16)
+                    
+                    HStack {
+                        SVGView(svgName: "ic_tickets",w:10,h:10) // Replace with your custom icon
+                            .frame(width: 40, height: 40)
+                        Text("\(observer.ticketCount)")
+                            .font(.system(size: 35))
+                            .foregroundColor(.black)
+                            .padding(.leading, 10)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.bottom,15)
+                    
+                    Button(action: {
+                        if !buttonClicked {
+                            if rewardedViewModel.rewardedAd != nil {
+                                buttonClicked = true
+                            } else {
+                                rewardedViewModel.loadAd {
+                                    print("fail!")
+                                    adLoading = false
+                                    buttonClicked = false
+                                    observer.setError(message: "광고가 모두 소진되었습니다.. ㅠㅠ 10분정도 이후에 시도해주세요.")
+                                } success: {
+                                    print("success")
+                                    adLoading = false
+                                }
+                                buttonClicked = true
+                                adLoading = true
+                            }
+                        }
+                    }) {
+                        Text("광고 시청 후 응모권 획득")
+                            .padding()
+                            .font(.system(size:20))
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .background(Color("Main"))
+                            .cornerRadius(12)
+                    }
+                    .disabled(buttonClicked)
+                    .frame(maxWidth: .infinity, alignment: .center).padding(.bottom,10).padding(.horizontal,20)
+                    //                .padding(10)
+                    
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.bottom,15)
-                
-                Button(action: {
-                    buttonClicked.toggle()
-                    if buttonClicked {
-                        // observer.showAd()
-                    }
-                }) {
-                    Text("광고 시청 후 응모권 획득")
-                        .padding()
-                        .font(.system(size:20))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .background(Color("Main"))
-                        .cornerRadius(12)
-                }
-                .frame(maxWidth: .infinity, alignment: .center).padding(.bottom,10).padding(.horizontal,20)
-                //                .padding(10)
-                
             }
-            .frame(maxWidth: .infinity, alignment: .center)
         }
+        .onChange(of: buttonClicked) { _ in checkAndExecute() }
+        .onChange(of: rewardedViewModel.rewardedAd) { _ in checkAndExecute() }
+        .onChange(of: adLoading) { _ in checkAndExecute() }
         .frame(maxWidth: .infinity)
         .padding(3)
         .background(Color.white)
         .cornerRadius(8)
         .shadow(radius: 5)
+    }
+    
+    private func checkAndExecute() {
+        print(buttonClicked)
+        print(rewardedViewModel.rewardedAd)
+        print(adLoading)
+        if buttonClicked && rewardedViewModel.rewardedAd != nil && !adLoading {
+            rewardedViewModel.showAd {
+                observer.ticketPlusOne(jwt: loadJwt()!)
+                buttonClicked = false
+                rewardedViewModel.loadAd {
+                    adLoading = false
+                    buttonClicked = false
+                    observer.setError(message: "광고가 모두 소진되었습니다.. ㅠㅠ 10분정도 이후에 시도해주세요.")
+                } success: {
+                    adLoading = false
+                }
+            }
+        }
     }
 }
 
@@ -193,6 +247,6 @@ struct TicketView: View {
 //}
 struct HomeViewPreview: PreviewProvider {
     static var previews: some View {
-        HomeView(observer: HomeObserver(viewModel: HomeViewModel(),jwt: loadJwt()!))
+        HomeView(observer: HomeObserver(viewModel: HomeViewModel(),jwt: loadJwt()!),rewardedViewModel: RewardedViewModel())
     }
 }
