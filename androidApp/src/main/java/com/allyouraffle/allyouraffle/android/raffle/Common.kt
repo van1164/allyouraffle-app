@@ -38,7 +38,7 @@ fun Banner(message: String, tickets: Int) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             val fireComposition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.ad_animation))
             LottieAnimation(
@@ -54,7 +54,7 @@ fun Banner(message: String, tickets: Int) {
                 iterations = LottieConstants.IterateForever,
                 alignment = Alignment.Center,
             )
-            Text(message, fontSize = 25.sp, fontFamily = FontFamily(Font(R.font.fontdefault)))
+            Text(message, fontSize = 30.sp, fontFamily = FontFamily(Font(R.font.fontdefault)))
 
         }
 

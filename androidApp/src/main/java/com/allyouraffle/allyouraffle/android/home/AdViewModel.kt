@@ -27,4 +27,8 @@ class AdViewModel {
     fun setButtonClickedFalse() {
         _buttonClicked.update { false }
     }
+
+    fun setAdNull() {
+        _rewardedAd.update { null }
+    }
 }

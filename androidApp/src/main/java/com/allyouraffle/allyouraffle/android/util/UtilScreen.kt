@@ -270,3 +270,42 @@ fun ScrollingText(text: String) {
             .horizontalScroll(scrollState) // 가로 스크롤 가능하도록 설정
     )
 }
+
+@Composable
+fun BottomInfo(){
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .height(200.dp)
+        .background(Color(0XFFF4F4F4))
+        .padding(start = 5.dp)
+        .graphicsLayer {
+            shape = RoundedCornerShape(10.dp)
+        }
+    ){
+        androidx.compose.material.Text(
+            text = "상호 : 올유레플",
+            modifier = Modifier.padding(1.dp),
+            fontSize = 10.sp
+        )
+        androidx.compose.material.Text(
+            text = "대표자 명 : 김시환",
+            modifier = Modifier.padding(1.dp),
+            fontSize = 10.sp
+        )
+        androidx.compose.material.Text(
+            text = "사업자 등록 번호 : 580-46-01046",
+            modifier = Modifier.padding(1.dp),
+            fontSize = 10.sp
+        )
+        androidx.compose.material.Text(
+            text = "문의 이메일 : allyouraffle.info@gmail.com",
+            modifier = Modifier.padding(1.dp),
+            fontSize = 10.sp
+        )
+        androidx.compose.material.Text(
+            text = "사업장 소재지 : 경기도 용인시 기흥구 서그내로 46-14",
+            modifier = Modifier.padding(1.dp),
+            fontSize = 10.sp
+        )
+    }
+}

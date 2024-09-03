@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
@@ -54,11 +55,15 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.home.myiconpack.IcTickets
 import com.allyouraffle.allyouraffle.android.raffle.ProductCard
+import com.allyouraffle.allyouraffle.android.util.BannersAds
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.android.util.getRewardedAd
 import com.allyouraffle.allyouraffle.viewModel.HomeViewModel
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.rewarded.RewardedAd
 import kotlinx.coroutines.runBlocking
 
@@ -134,7 +139,9 @@ private fun HomeScreenBody(
                 // 응모권 개수 표시
                 TicketView(homeViewModel,adViewModel, jwt, isLoading)
             }
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(15.dp))
+            BannersAds("ca-app-pub-7372592599478425/6983154510")
+            Spacer(modifier = Modifier.height(15.dp))
             Surface(
                 shape = RoundedCornerShape(15.dp),
                 elevation = 10.dp
@@ -207,9 +214,11 @@ private fun TicketView(
             runBlocking {
                 viewModel.ticketPlusOne(jwt)
                 adViewModel.setButtonClickedFalse()
+                adViewModel.setAdNull()
                 getRewardedAd(context,{
                     viewModel.setLoadingFalse()
-                    viewModel.setError("광고가 모두 소진되었습니다.. ㅠㅠ")
+                    adViewModel.setButtonClickedFalse()
+                    viewModel.setError("광고가 모두 소진되었습니다.. ㅠㅠ 10분정도 이후에 시도해주세요.")
                 }) { ad ->
                     adViewModel.loadRewardedAd(ad)
                     viewModel.setLoadingFalse()
@@ -267,9 +276,10 @@ private fun TicketView(
                         } else {
                             getRewardedAd(context,{
                                 viewModel.setLoadingFalse()
-                                viewModel.setError("광고가 모두 소진되었습니다.. ㅠㅠ")
+                                adViewModel.setButtonClickedFalse()
+                                viewModel.setError("광고가 모두 소진되었습니다.. ㅠㅠ 10분정도 이후에 시도해주세요.")
                             }) { ad ->
-                                viewModel.printTest()
+                                adViewModel.setAdNull()
                                 adViewModel.loadRewardedAd(ad)
                                 viewModel.setLoadingFalse()
                             }

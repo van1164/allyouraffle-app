@@ -56,6 +56,8 @@ import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
 import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.IcTickets
 import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.TicketWhite
+import com.allyouraffle.allyouraffle.android.util.BannersAds
+import com.allyouraffle.allyouraffle.android.util.BottomInfo
 import com.allyouraffle.allyouraffle.android.util.CustomDialog
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
@@ -134,7 +136,7 @@ fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boole
         buttonClickedState.value = false
     }
 
-    if (loading.value || raffle.value == null) {
+    if (loading.value || raffle.value == null || userTickets == -1) {
         LoadingScreen()
     } else {
         Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
@@ -206,7 +208,7 @@ fun RaffleDetailBody(
                     .fillMaxWidth()
                     .height(20.dp)
                     .clip(RoundedCornerShape(12.dp)),
-                color = if (isFree) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary,
+                color = if (isFree) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.tertiary,
                 trackColor = Color.LightGray,
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -221,11 +223,15 @@ fun RaffleDetailBody(
                     .padding(end = 2.dp)
             )
         }
+            Spacer(modifier = Modifier.height(15.dp))
+            BannersAds(adId = "ca-app-pub-7372592599478425/1330069240")
             Column(modifier = Modifier.fillMaxWidth()) {
                 raffle.item.imageList.forEach {
                     ImageLoading(imageUrl = it.imageUrl)
                 }
             }
+            Spacer(modifier = Modifier.height(200.dp))
+            BottomInfo()
         }
     }
 
@@ -324,7 +330,7 @@ fun NewViewAdButton(
             .fillMaxWidth()
             .padding(5.dp)
             .clickable(enabled = !buttonClicked) {},
-        containerColor = MaterialTheme.colorScheme.secondary,
+        containerColor = MaterialTheme.colorScheme.tertiary,
         contentColor = Color.White
     ) {
         Row {
@@ -382,6 +388,24 @@ fun PurchaseButton(
             color = Color.White,
             fontSize = 19.sp
         )
+    }
+}
+
+@Composable
+fun SuccessDialog(viewModel: RaffleDetailViewModel) {
+    CustomDialog(
+        title = "응모 완료!",
+        body = "응모가 완료되었습니다. \n구매내역은 마이페이지에서 확인 가능합니다. \n당첨시 메일로 당첨내역이 발송됩니다.",
+        "확인"
+    ) {
+        viewModel.setSuccessFalse()
+    }
+}
+
+@Composable
+fun FailDialog(viewModel: RaffleDetailViewModel) {
+    CustomDialog(title = "응모 실패", body = "응모에 실패하였습니다. \n다시 시도해주세요", "확인") {
+        viewModel.setFailFalse()
     }
 }
 
@@ -471,21 +495,3 @@ fun PurchaseButton(
 //    }
 //
 //}
-
-@Composable
-fun SuccessDialog(viewModel: RaffleDetailViewModel) {
-    CustomDialog(
-        title = "응모 완료!",
-        body = "응모가 완료되었습니다. \n구매내역은 마이페이지에서 확인 가능합니다. \n당첨시 메일로 당첨내역이 발송됩니다.",
-        "확인"
-    ) {
-        viewModel.setSuccessFalse()
-    }
-}
-
-@Composable
-fun FailDialog(viewModel: RaffleDetailViewModel) {
-    CustomDialog(title = "응모 실패", body = "응모에 실패하였습니다. \n다시 시도해주세요", "확인") {
-        viewModel.setFailFalse()
-    }
-}

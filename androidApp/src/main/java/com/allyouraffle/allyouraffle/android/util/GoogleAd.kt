@@ -2,8 +2,14 @@ package com.allyouraffle.allyouraffle.android.util
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
 import com.allyouraffle.allyouraffle.exception.NetworkException
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
@@ -68,4 +74,21 @@ fun getRewardedAd(context: Context,onAdFailed : () -> Unit, onAdLoad: (RewardedA
             }
         })
 
+}
+
+@Composable
+fun BannersAds(adId : String) {
+    AndroidView(
+        modifier = Modifier.fillMaxWidth(),
+        factory = { context ->
+            AdView(context).apply {
+                setAdSize(AdSize.LARGE_BANNER)
+                adUnitId = adId
+                loadAd(AdRequest.Builder().build())
+            }
+        },
+        update = { adView ->
+            adView.loadAd(AdRequest.Builder().build())
+        }
+    )
 }

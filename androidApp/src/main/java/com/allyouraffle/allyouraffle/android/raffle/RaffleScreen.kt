@@ -119,8 +119,9 @@ private fun RaffleScreenBody(
             .fillMaxSize()
     ) {
 //        Logo(55.sp)
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Banner(message = if (isFree) "광고 래플" else "천원 래플", tickets.value)
+        Spacer(modifier = Modifier.height(10.dp))
         Box(modifier = Modifier.fillMaxHeight()) {
             PullRefreshIndicator(
                 refreshing = refreshing,
@@ -223,7 +224,7 @@ fun RaffleRightColumn(
                 .height(15.dp)
                 .padding(3.dp)
                 .clip(RoundedCornerShape(12.dp)),
-            color = if (isFree) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary,
+            color = if (isFree) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.tertiary,
             trackColor = Color.LightGray,
         )
         Spacer(modifier = Modifier.height(15.dp))

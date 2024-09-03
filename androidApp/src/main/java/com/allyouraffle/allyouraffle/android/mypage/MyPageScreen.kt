@@ -2,6 +2,8 @@ package com.allyouraffle.allyouraffle.android.mypage
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,8 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,6 +53,8 @@ import coil.request.ImageRequest
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.login.SetAddressView
 import com.allyouraffle.allyouraffle.android.login.UserPhoneNumberMain
+import com.allyouraffle.allyouraffle.android.util.BannersAds
+import com.allyouraffle.allyouraffle.android.util.BottomInfo
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.LogoutButton
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
@@ -178,6 +184,11 @@ fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
         }
         Spacer(modifier = Modifier.height(15.dp))
         LogoutButton()
+        Spacer(modifier = Modifier.height(10.dp))
+        BannersAds("ca-app-pub-7372592599478425/4301150857")
+        Spacer(modifier = Modifier.height(100.dp))
+
+        BottomInfo()
     }
 
 }
