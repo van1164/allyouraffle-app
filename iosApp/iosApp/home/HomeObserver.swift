@@ -2,7 +2,7 @@ import shared
 import SwiftUI
 
 @MainActor
-class HomeObserver: ObservableObject {
+class HomeObserver: ObservableObject,BaseObserver {
     private var viewModel: HomeViewModel
     var jwt : String
     @Published var raffleList: [RaffleResponse] = []
@@ -105,5 +105,9 @@ class HomeObserver: ObservableObject {
     
     func setError(message : String) {
         viewModel.setError(message: message)
+    }
+    
+    func setErrorNull(){
+        viewModel.setNullError()
     }
 }

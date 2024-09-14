@@ -1,4 +1,5 @@
 import GoogleMobileAds
+import SwiftUI
 
 @MainActor
 class RewardedViewModel: NSObject, ObservableObject, GADFullScreenContentDelegate {
@@ -11,22 +12,17 @@ class RewardedViewModel: NSObject, ObservableObject, GADFullScreenContentDelegat
     func loadAd(fail : @escaping () -> Void,success : @escaping () -> Void) {
         Task {
             do {
-                print("AAAAAAAAAAAAAA")
                 rewardedAd = try await GADRewardedAd.load(
                     withAdUnitID: "ca-app-pub-7372592599478425/7706687595", request: GADRequest())
-                print("BBBBBBBBBBBBBB")
                 rewardedAd?.fullScreenContentDelegate = self
-                print("XXXXXXXXXXXXXXXXXXXXXXXXXXX")
-                print(rewardedAd)
                 if(rewardedAd == nil){
                     fail()
                 }
                 else{
                     success()
                 }
-//                showAd(onload:onload)
             } catch {
-                print("Failed to load rewarded ad with error: \(error.localizedDescription)")
+                fail()
             }
         }
     }
@@ -72,5 +68,26 @@ class RewardedViewModel: NSObject, ObservableObject, GADFullScreenContentDelegat
         onSuccess()
         print("Reward amount: \(reward.amount)")
       }
+    }
+}
+
+
+
+struct AdBannerView: UIViewControllerRepresentable {
+    let adUnitID: String
+    let bannerView = GADBannerView(adSize: GADAdSizeBanner)
+    func makeUIViewController(context: Context) -> UIViewController {
+        let viewController = UIViewController()
+        
+        bannerView.adUnitID = adUnitID
+        bannerView.rootViewController = viewController
+        viewController.view.addSubview(bannerView)
+        
+        return viewController
+
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        bannerView.load(GADRequest())
     }
 }

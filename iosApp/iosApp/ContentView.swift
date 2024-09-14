@@ -11,13 +11,16 @@ struct ContentView: View {
 //            .font(.custom("jua",size: 16))
     }
 }
-
+@MainActor
 struct MainView: View {
+    var homeViewModel = HomeViewModel()
+    var rewardedViewModel = RewardedViewModel()
+    @State var goRoot = false
     var body: some View {
-        NavigationView{
+        NavigationStack{
             TabView {
                 let jwt = loadJwt()
-                HomeView(observer: HomeObserver(viewModel:HomeViewModel(),jwt:jwt!))
+                HomeView(observer: HomeObserver(viewModel:homeViewModel,jwt:jwt!),rewardedViewModel:rewardedViewModel)
                     .tabItem {
                         Label("홈", systemImage: "house")
                     }
@@ -27,10 +30,12 @@ struct MainView: View {
                         Label("광고 래플", systemImage: "play.display")
                     }
                 
-                RaffleListView(isFree: false)
+                MyPageView(goRoot: $goRoot)
                     .tabItem {
                         Label("마이 페이지", systemImage: "person")
                     }
+            }.navigationDestination(isPresented: $goRoot){
+                LoginView().navigationBarBackButtonHidden(true)
             }
         }
     }
