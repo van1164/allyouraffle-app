@@ -32,24 +32,33 @@ struct LoginViewBody: View {
     @ObservedObject var loginObserver : LoginObserver
     @State private var isSignedIn = false
     var body: some View {
-        VStack {
-            Text("AllYouRaffle")
-                .font(.custom("jua", size: 54))
-                .multilineTextAlignment(.center)
-                .padding()
-                .padding(.top,60)
-                .foregroundColor(Color("Main")) // 글자색 설정
-                .shadow(color: .gray, radius: 2, x: 2, y: 2) // 그림자 설정
-            Spacer()
-            GoogleLoginBtn(loginObserver: loginObserver,isSignedIn: $isSignedIn)
-            
-            AppleLoginBtn().padding(.bottom ,130)
-        }
-        .padding(.top, 30)
-        .fullScreenCover(isPresented: $isSignedIn) {
-            if let jwt = loadJwt(){
-                let userInfo = loginObserver.getUserInfo(jwt:jwt)
-                AddressView(userInfo: userInfo)
+        GeometryReader { geometry in
+            VStack{
+                Text("AllYouRaffle")
+                    .font(.custom("jua", size: min(geometry.size.width, geometry.size.height) * 0.15))
+                    .frame(width: geometry.size.width, alignment: .center)
+                    .minimumScaleFactor(0.1) // 글자가 너무 커지지 않도록 최소 크기 설정
+                    .lineLimit(1) // 한 줄로 제한
+                    .padding(.top,90)
+                    .foregroundColor(Color("Main")) // 글자색 설정
+                    .shadow(color: .gray, radius: 2, x: 2, y: 2) // 그림자 설정
+
+                Spacer().padding(.horizontal,geometry.size.height)
+                
+                GoogleLoginBtn(loginObserver: loginObserver,isSignedIn: $isSignedIn)
+                    .padding(.bottom ,5)
+                    .padding(.horizontal,geometry.size.width * 0.1)
+                AppleLoginBtn(loginObserver: loginObserver,isSignedIn: $isSignedIn)
+                    .frame(height: geometry.size.height * 0.1)
+                    .padding(.bottom ,geometry.size.height * 0.2)
+                    .padding(.horizontal,geometry.size.width * 0.1)
+            }
+            .frame(width: geometry.size.width,height: geometry.size.height)
+            .fullScreenCover(isPresented: $isSignedIn) {
+                if let jwt = loadJwt(){
+                    let userInfo = loginObserver.getUserInfo(jwt:jwt)
+                    AddressView(userInfo: userInfo)
+                }
             }
         }
     }
@@ -57,23 +66,71 @@ struct LoginViewBody: View {
 }
 
 struct AppleLoginBtn : View {
+    @ObservedObject var loginObserver : LoginObserver
+    @Binding var isSignedIn : Bool
     var body: some View {
-        SignInWithAppleButton(.signIn) { request in
-            request.requestedScopes = [.fullName, .email]
-        } onCompletion: { result in
-            switch result {
-            case .success(let authResults):
-                // Handle successful login
-                print("Logged in: \(authResults)")
-            case .failure(let error):
-                // Handle error
-                print("Error: \(error.localizedDescription)")
+        GeometryReader { geometry in
+            SignInWithAppleButton(
+                .signIn,
+                onRequest: { request in
+                    // 요청을 사용자 지정합니다.
+                    request.requestedScopes = [.fullName, .email]
+                },
+                onCompletion: { result in
+                    switch result {
+                    case .success(let authResults):
+                        switch authResults.credential {
+                        case let appleIDCredential as ASAuthorizationAppleIDCredential:
+                            let userId = appleIDCredential.user
+                            let email = appleIDCredential.email
+                            let fullName = appleIDCredential.fullName
+                            
+                            if email != nil && fullName != nil {
+                                let response = loginObserver.appleSignIn(email: email!, displayName: fullName!.givenName!, id: userId, profileImageUrl: nil, userId: userId)
+                                
+                                if response == nil{
+                                    loginObserver.error = "애플로그인에 실패하였습니다."
+                                    return
+                                }
+                                
+                                saveJwt(jwt: response!.jwt)
+                                saveRefreshToken(refreshToken: response!.refreshToken)
+                                isSignedIn = true
+                            }
+                            else{
+                                
+                                
+                                print("User ID: \(userId)")
+                                print("Email: \(email ?? "No email")")
+                                print("Full Name: \(fullName?.description ?? "No name")")
+                                let response = loginObserver.appleLogin(userId: userId)
+                                
+                                if response == nil{
+                                    loginObserver.error = "애플로그인에 실패하였습니다."
+                                    return
+                                }
+                                saveJwt(jwt: response!.jwt)
+                                saveRefreshToken(refreshToken: response!.refreshToken)
+                                isSignedIn = true
+                            }
+                            // 애플은 userId로 로그인이 필요.
+                            
+                            
+                            
+                        default:
+                            loginObserver.error = "애플로그인에 실패하였습니다."
+                        }
+                    case .failure( _):
+                        // 오류 처리
+                        loginObserver.error = "애플로그인에 실패하였습니다."
+                    }
+                }
+            )
+            .toast(isPresented: loginObserver.error != nil, message: $loginObserver.error){
+                loginObserver.error = nil
             }
+            .signInWithAppleButtonStyle(.black)
         }
-        .signInWithAppleButtonStyle(.black)
-        .frame(height: 60)
-        .padding(.leading,60)
-        .padding(.trailing,60)
     }
 }
 
@@ -85,7 +142,7 @@ struct LoginViewPreview: PreviewProvider {
 }
 
 struct GoogleLoginBtn: View {
-    var loginObserver : LoginObserver
+    @ObservedObject var loginObserver : LoginObserver
     @Binding var isSignedIn : Bool
     @State private var googleError = false
     @State private var loginState = false
@@ -96,11 +153,8 @@ struct GoogleLoginBtn: View {
             Image("GoogleLogin")
                 .resizable()
                 .scaledToFit()
-                .frame(width: .infinity)
                 .shadow(radius: 4)
         }
-        .padding(.leading,60)
-        .padding(.trailing,60)
         .alert(isPresented: $googleError){
             Alert(title: Text("구글 로그인 실패"),message: Text("구글 로그인 실패"),dismissButton: .default(Text("확인")))
         }
@@ -134,7 +188,7 @@ struct GoogleLoginBtn: View {
             if let id = user.user.userID,
                let email = user.user.profile?.email,
                let name = user.user.profile?.name{
-                var response = loginObserver.googleSignIn(email: email, displayName: name, id: id, profileImageUrl: nil)
+                let response = loginObserver.googleSignIn(email: email, displayName: name, id: id, profileImageUrl: nil)
                 
                 if response == nil{
                     googleError = true

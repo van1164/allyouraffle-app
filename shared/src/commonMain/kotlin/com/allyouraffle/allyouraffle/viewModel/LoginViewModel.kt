@@ -1,6 +1,7 @@
 package com.allyouraffle.allyouraffle.viewModel
 
 
+import com.allyouraffle.allyouraffle.network.AppleSignUpDto
 import com.allyouraffle.allyouraffle.network.JwtTokenResponse
 import com.allyouraffle.allyouraffle.network.LoginApi
 import com.allyouraffle.allyouraffle.network.MobileLoginResponse
@@ -44,6 +45,55 @@ class LoginViewModel : BaseViewModel() {
             }
             return@runBlocking response
         }
+    }
+
+    fun appleRegister(
+        email: String,
+        displayName: String,
+        id: String,
+        profileImageUrl: String?,
+        userId : String
+    ): MobileLoginResponse? {
+        return runBlocking {
+            var response: MobileLoginResponse? = null
+            safeApiCall {
+                response = LoginApi.appleSignUp(
+                    AppleSignUpDto(
+                        email = email,
+                        name = displayName,
+                        profileImageUrl = profileImageUrl,
+                        userNameAttributeNameValue = id,
+                        userId = userId
+                    )
+                )
+            }
+            return@runBlocking response
+        }
+    }
+
+    fun appleLogin(
+        userId : String
+    ) : MobileLoginResponse?{
+        return runBlocking {
+            var response: MobileLoginResponse? = null
+            safeApiCall {
+                response =  LoginApi.appleLogin(userId)
+            }
+            return@runBlocking response
+        }
+    }
+
+    fun appleSignUp(
+        appleSignUpDto: AppleSignUpDto
+    ) : MobileLoginResponse?{
+        return runBlocking {
+            var response: MobileLoginResponse? = null
+            safeApiCall {
+                response =  LoginApi.appleSignUp(appleSignUpDto)
+            }
+            return@runBlocking response
+        }
+
     }
 
 }

@@ -84,8 +84,8 @@ object LoginApi {
             setBody(PhoneNumberVerifyDto(phoneNumber))
         }
         println(response)
-        if(response.status ==HttpStatusCode.BadRequest){
-            val body : ErrorResponse? = response.body() as? ErrorResponse
+        if (response.status == HttpStatusCode.BadRequest) {
+            val body: ErrorResponse? = response.body() as? ErrorResponse
             println(body)
             if (body != null) throw PhoneNumberDuplicatedException(body.message.toString())
         }
@@ -100,13 +100,35 @@ object LoginApi {
             setBody(PhoneNumberDto(phoneNumber))
         }
         println(response)
-        if(response.status ==HttpStatusCode.BadRequest){
-            val body : ErrorResponse? = response.body() as? ErrorResponse
+        if (response.status == HttpStatusCode.BadRequest) {
+            val body: ErrorResponse? = response.body() as? ErrorResponse
             println(body)
             if (body != null) throw PhoneNumberDuplicatedException(body.message.toString())
         }
         checkNotOkThrowNetworkException(response.status)
 
+    }
+
+    fun appleLogin(userId: String): MobileLoginResponse {
+        return runBlocking {
+            val response = ktorClient.post(BASE_URL + "api/v1/login/apple") {
+                contentType(ContentType.Application.Json)
+                setBody(AppleLoginDto(userId))
+            }
+            checkNotOkThrowNetworkException(response.status)
+            return@runBlocking response.body()
+        }
+    }
+
+    fun appleSignUp(appleSignUpDto: AppleSignUpDto): MobileLoginResponse {
+        return runBlocking {
+            val response = ktorClient.post(BASE_URL + "api/v1/login/apple/signup") {
+                contentType(ContentType.Application.Json)
+                setBody(appleSignUpDto)
+            }
+            checkNotOkThrowNetworkException(response.status)
+            return@runBlocking response.body()
+        }
     }
 }
 
@@ -126,6 +148,11 @@ data class PhoneNumberDto(
     val phone_number: String
 )
 
+@Serializable
+data class AppleLoginDto(
+    val userId: String
+)
+
 
 @Serializable
 data class MobileUserLoginDto(
@@ -134,6 +161,15 @@ data class MobileUserLoginDto(
     val name: String,
     val profileImageUrl: String?,
     val userNameAttributeNameValue: String
+)
+
+@Serializable
+data class AppleSignUpDto(
+    val email: String,
+    val name: String,
+    val profileImageUrl: String?,
+    val userNameAttributeNameValue: String,
+    val userId : String
 )
 
 @Serializable
@@ -213,9 +249,10 @@ data class AddressInfo(
     val country: String,
     val detail: String? = null
 )
+
 @Serializable
 data class PurchaseHistory(
-    val raffle : RaffleResponse,
-    val count : Int,
-    val isWinner : Boolean
+    val raffle: RaffleResponse,
+    val count: Int,
+    val isWinner: Boolean
 )
