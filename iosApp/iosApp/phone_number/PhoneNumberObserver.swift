@@ -43,8 +43,13 @@ class PhoneNumberObserver: ObservableObject {
     
     func savePhoneNumber(jwt : String){
         phoneNumberViewModel.savePhoneNumber(jwt:jwt){ data in
-            
         }
     }
+    func setError(message : String) {
+        phoneNumberViewModel.setError(message: message)
+    }
     
+    func setErrorNull(){
+        phoneNumberViewModel.setNullError()
+    }
 }

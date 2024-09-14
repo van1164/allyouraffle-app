@@ -1,9 +1,9 @@
-//
-//  BaseObserver.swift
-//  iosApp
-//
-//  Created by sihwan on 9/4/24.
-//  Copyright © 2024 orgName. All rights reserved.
-//
+import shared
+import SwiftUI
 
-import Foundation
+@MainActor
+protocol BaseObserver {
+    func setError(message : String)
+    
+    func setErrorNull()
+}

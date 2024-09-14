@@ -3,22 +3,23 @@ import shared
 
 struct PhoneNumberView : View{
     var userInfo : UserInfoResponse
-    //    @ObservableObject private var addressObserver = AddressObserver()
-    
     var body: some View {
         if userInfo.phoneNumber != nil {
             MainView()
         } else {
-            UserPhoneNumberMainView()
+            UserPhoneNumberMainView(isModified: false)
         }
     }
     
 }
 
 struct UserPhoneNumberMainView: View {
+    var isModified : Bool
+    var onFinished : () -> (Void) = {}
     @ObservedObject private var observer = PhoneNumberObserver()
     @State private var userVerificationCode = ""
     @FocusState private var isInputActive: Bool
+    @State private var goRoot = false
     var body: some View {
         if observer.loading {
             LoadingScreen()
@@ -31,7 +32,17 @@ struct UserPhoneNumberMainView: View {
                             .padding(.horizontal, 16)
                             .background(Color.white)
                             .navigationDestination(isPresented: $observer.numberSaved){
-                                MainView().navigationBarBackButtonHidden(true)
+                                if isModified{
+                                    Text("변경이 완료되었습니다.").onAppear{
+                                        onFinished()
+                                    }
+                                }
+                                else {
+                                    MainView().navigationBarBackButtonHidden(true)
+                                }
+                            }
+                            .navigationDestination(isPresented: $goRoot){
+                                LoginView().navigationBarBackButtonHidden(true)
                             }
                             .onTapGesture {
                                 isInputActive = false // 키보드 내리기
@@ -39,7 +50,9 @@ struct UserPhoneNumberMainView: View {
                     }
                 }
             }
-            .toast(isPresented: observer.error != nil, message: $observer.error)
+            .toast(isPresented: observer.error != nil, message: $observer.error){
+                observer.setErrorNull()
+            }
         }
     }
     
@@ -96,8 +109,9 @@ struct UserPhoneNumberMainView: View {
                 )
                 Spacer().frame(height: 30)
             }
-            LogoutButton()
-            
+            if !isModified{
+                LogoutButton(goRoot: $goRoot)
+            }
         }
         
     }
