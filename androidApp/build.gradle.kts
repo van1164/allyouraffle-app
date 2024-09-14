@@ -11,8 +11,8 @@ android {
         applicationId = "com.allyouraffle.allyouraffle.android"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "0.0.3-beta"
     }
     buildFeatures {
         compose = true

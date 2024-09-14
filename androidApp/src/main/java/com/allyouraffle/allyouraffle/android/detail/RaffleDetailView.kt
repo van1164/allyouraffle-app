@@ -94,7 +94,7 @@ fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boole
     val userTickets = userTicketsState.value
     LaunchedEffect(buttonClickedState.value) {
         if(buttonClickedState.value){
-            if (userTickets == null) {
+            if (userTickets == -1) {
                 raffleViewModel.setError("응모권 조회과정에서 오류가 발생하였습니다.")
             } else if (userTickets <= 0) {
                 raffleViewModel.setError("응모권이 부족합니다.")
