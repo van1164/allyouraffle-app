@@ -45,7 +45,7 @@ struct ToastView: View {
 }
 
 extension View {
-    func toast(isPresented: Bool, message: Binding<String?>) -> some View {
+    func toast(isPresented: Bool, message: Binding<String?>, onFinished: @escaping () -> (Void)) -> some View {
         ZStack {
             self
             if isPresented, let toastMessage = message.wrappedValue {
@@ -54,7 +54,7 @@ extension View {
                     .transition(.move(edge: .bottom))
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            message.wrappedValue = nil
+                            onFinished()
                         }
                     }
                 }

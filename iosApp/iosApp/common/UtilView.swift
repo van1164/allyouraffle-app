@@ -27,7 +27,7 @@ struct Logo: View {
 struct Banner: View {
     var message: String
     var tickets: Int
-
+    
     var body: some View {
         HStack {
             HStack {
@@ -35,13 +35,13 @@ struct Banner: View {
                     .frame(width: 50, height: 50)
                     .scaleEffect(4.0)
                     .padding(.trailing, 4)
-
+                
                 Text(message)
                     .font(.system(size: 30))
                     .bold()
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
+            
             HStack {
                 SVGView(svgName: "ic_tickets",w:30,h:30) // Replace with your custom icon
                     .frame(width: 30, height: 30)
@@ -51,11 +51,11 @@ struct Banner: View {
                     .padding(.leading, 5)
                     .padding(.trailing,5)
                     .bold()
-
-//                Text("\(tickets)")
-//                    .font(.system(size: 30))
-//                    .foregroundColor(.black)
-//                    .font(.system(size: 30)) // Replace with your font name
+                
+                //                Text("\(tickets)")
+                //                    .font(.system(size: 30))
+                //                    .foregroundColor(.black)
+                //                    .font(.system(size: 30)) // Replace with your font name
             }
         }
         .frame(height: 70)
@@ -123,44 +123,32 @@ struct LodingScreenPreview: PreviewProvider {
 
 
 struct LogoutButton: View {
+    @Binding var goRoot : Bool
     @State private var showDialog = false
-    @State private var goRoot = false
-    
     var body: some View {
-        NavigationView{
-            VStack {
-                Text("다른 계정으로 로그인하기 =>")
-                    .foregroundColor(Color.black.opacity(0.5))
-                    .bold()
-                    .onTapGesture {
-                        showDialog = true
-                    }
-            }
-            .alert(isPresented: $showDialog) {
-                Alert(
-                    title: Text(""),
-                    message: Text("로그아웃 하시겠습니까?"),
-                    primaryButton: .destructive(Text("로그아웃")) {
-                        // Handle logout
-                        clearToken()
-                        GIDSignIn.sharedInstance.signOut()
-                        goRoot = true
-                        print("Logged out")
-                    },
-                    secondaryButton: .cancel(Text("취소"))
-                )
-            }
-            .fullScreenCover(isPresented: $goRoot){
-                LoginView()
-                    .onAppear{
-                        goRoot = false
-                        showDialog = false
-                    }
-            }
-            .fixedSize()
+        VStack {
+            Text("다른 계정으로 로그인하기 =>")
+                .foregroundColor(Color.black.opacity(0.5))
+                .bold()
+                .onTapGesture {
+                    showDialog = true
+                }
+            
         }
-        .frame(maxHeight: 30)
-        .fixedSize()
+        .alert(isPresented: $showDialog) {
+            Alert(
+                title: Text(""),
+                message: Text("로그아웃 하시겠습니까?"),
+                primaryButton: .destructive(Text("로그아웃")) {
+                    // Handle logout
+                    clearToken()
+                    GIDSignIn.sharedInstance.signOut()
+                    goRoot = true
+                    print("Logged out")
+                },
+                secondaryButton: .cancel(Text("취소"))
+            )
+        }
     }
 }
 
@@ -228,7 +216,7 @@ struct SVGView: UIViewRepresentable {
     func makeUIView(context: Context) -> SVGKFastImageView {
         let svgImage = SVGKImage(named: svgName)
         let svgView = SVGKFastImageView(svgkImage: svgImage)
-//        svgView?.frame.size =
+        //        svgView?.frame.size =
         svgView?.image.size = CGSize(width: w, height: h)
         return svgView!
     }

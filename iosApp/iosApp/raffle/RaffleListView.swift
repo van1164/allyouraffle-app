@@ -1,66 +1,71 @@
 import SwiftUI
 import shared
+import Kingfisher
 
 struct RaffleListView: View {
     @ObservedObject var observer: RaffleObserver
     var isFree: Bool
-
+    var jwt : String
     init(isFree: Bool) {
-        self.observer = RaffleObserver(isFree: isFree)
+        let raffleViewModel = RaffleViewModel()
+        self.jwt = loadJwt()!
+        self.observer = RaffleObserver(isFree: isFree,raffleViewModel: raffleViewModel,jwt: jwt)
         self.isFree = isFree
     }
-
+    
     var body: some View {
-        NavigationView{
-            VStack(alignment:.leading) {
-                Logo(fontSize: 60)
-                Spacer().frame(height: 10)
-                
-                Text(isFree ? "광고 래플" : "천원 래플")
-                    .font(.custom("Jua",size: 30))
-                    .multilineTextAlignment(.trailing)
-                    .padding()
-                
-                ScrollView {
-                    LazyVStack {
-                        ForEach(observer.raffleList, id: \.id) { raffle in
-                            ProductCard(raffle: raffle, viewModel: observer, isFree: isFree)
-                        }
-                    }
-                }.refreshable {
-                    observer.fetchRaffleList()
-                }
-                
+        VStack{
+            if(observer.loading || observer.ticketCount == -1){
+                LoadingScreen()
             }
+            else{
+                VStack(alignment:.leading) {
+                    //                Logo(fontSize: 60)
+                    Spacer().frame(height: 10)
+                    
+                    Banner(message: isFree ? "광고 래플" : "천원 래플", tickets: observer.ticketCount)
+                    
+                    
+                    ScrollView {
+                        LazyVStack {
+                            ForEach(observer.raffleList, id: \.id) { raffle in
+                                ProductCard(raffle: raffle)
+                            }
+                        }
+                    }.refreshable {
+                        observer.initRaffle(isFree: isFree)
+                        observer.loadTickets(jwt: jwt)
+                    }
+                    
+                }
+                .toast(isPresented: observer.error != nil, message: $observer.error){
+                    observer.setErrorNull()
+                }
+            }
+        }.onAppear{
+            observer.loadTickets(jwt: jwt)
         }
     }
 }
 
 struct ProductCard: View {
     var raffle: RaffleResponse
-    @ObservedObject var viewModel: RaffleObserver
-    var isFree: Bool
-
+    
     var body: some View {
         let rowHeight: CGFloat = 120
-
-        NavigationLink(destination: DetailView(raffleId: String(raffle.id))) {
+        
+        NavigationLink(destination: DetailView(itemId: String(raffle.id), isFree: raffle.isFree)) {
             HStack {
-                AsyncImage(url: URL(string: raffle.item.imageUrl)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(1,contentMode: .fit)
-                        .frame(height: rowHeight)
-                        .clipped()
-                } placeholder: {
-                    Image("error_image") // 오류 이미지
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: rowHeight)
-                        .clipped()
-                }
-
-                RaffleRightColumn(raffle: raffle, viewModel: viewModel, rowHeight: rowHeight)
+                
+                KFImage(URL(string: raffle.item.imageUrl))
+                    .placeholder{
+                        ProgressView()
+                    }
+                    .resizable()
+                    .aspectRatio(1,contentMode: .fit)
+                    .frame(height: rowHeight)
+                
+                RaffleRightColumn(raffle: raffle, rowHeight: rowHeight)
             }
             .padding(3)
             .background(Color.white)
@@ -72,26 +77,26 @@ struct ProductCard: View {
 
 struct RaffleRightColumn: View {
     var raffle: RaffleResponse
-    @ObservedObject var viewModel: RaffleObserver
     var rowHeight: CGFloat
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text(raffle.item.name)
-                .font(.custom("Jua",size: 23))
+                .font(.system(size: 23))
+                .fontWeight(.bold)
                 .foregroundColor(.black)
                 .padding(.leading, 2)
-
+            
             Spacer().frame(height: 15)
-
+            
             ProgressView(value: Double(raffle.currentCount), total: Double(raffle.totalCount))
-                .progressViewStyle(LinearProgressViewStyle(tint: Color.blue))
+                .progressViewStyle(LinearProgressViewStyle(tint: Color("Main")))
                 .frame(height: 15)
                 .padding(.trailing,15)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-
+            
             Spacer().frame(height: 15)
-
+            
             Text("\(Int((Double(raffle.currentCount) / Double(raffle.totalCount)) * 100))%")
                 .font(.custom("Jua", size: 15))
                 .foregroundColor(.black)

@@ -74,8 +74,13 @@ class RaffleDetailViewModel : BaseViewModel() {
                 if (api.purchaseWithTicket(jwt, id)) {
                     _purchaseSuccess.update { true }
                 }
+                else{
+                    _purchaseFail.update { true }
+                    setError("응모에 실패하였습니다.")
+                }
             } catch (e: PurchaseException) {
-                _error.update { e.message }
+                setError(e.message)
+//                _error.update { e.message }
                 _purchaseFail.update { true }
             }
         }
