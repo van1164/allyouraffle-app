@@ -27,7 +27,7 @@ struct Logo: View {
 struct Banner: View {
     var message: String
     var tickets: Int
-    
+    @Environment(\.colorScheme) var colorScheme
     var body: some View {
         HStack {
             HStack {
@@ -43,19 +43,14 @@ struct Banner: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             HStack {
-                SVGView(svgName: "ic_tickets",w:30,h:30) // Replace with your custom icon
+                SVGView(svgName: colorScheme == .dark ? "ticket_white" : "ic_tickets",w:10,h:10) // Replace with your
                     .frame(width: 30, height: 30)
                 Text(String(tickets))
                     .font(.system(size: 30))
-                    .foregroundColor(.black)
                     .padding(.leading, 5)
                     .padding(.trailing,5)
                     .bold()
                 
-                //                Text("\(tickets)")
-                //                    .font(.system(size: 30))
-                //                    .foregroundColor(.black)
-                //                    .font(.system(size: 30)) // Replace with your font name
             }
         }
         .frame(height: 70)
@@ -128,7 +123,7 @@ struct LogoutButton: View {
     var body: some View {
         VStack {
             Text("다른 계정으로 로그인하기 =>")
-                .foregroundColor(Color.black.opacity(0.5))
+                .foregroundColor(Color("LogoutButton").opacity(0.5))
                 .bold()
                 .onTapGesture {
                     showDialog = true
@@ -230,18 +225,23 @@ struct BottomInfo: View {
             VStack(alignment: .leading){
                 Text("상호 : 올유레플")
                     .font(.system(size: 10))
+                    .foregroundColor(Color.black)
                     .padding(1)
                 Text("대표자 명 : 김시환")
                     .font(.system(size: 10))
+                    .foregroundColor(Color.black)
                     .padding(1)
                 Text("사업자 등록 번호 : 580-46-01046")
                     .font(.system(size: 10))
+                    .foregroundColor(Color.black)
                     .padding(1)
                 Text("문의 이메일 : allyouraffle.info@gmail.com")
                     .font(.system(size: 10))
+                    .foregroundColor(Color.black)
                     .padding(1)
                 Text("사업장 소재지 : 경기도 용인시 기흥구 서그내로 46-14")
                     .font(.system(size: 10))
+                    .foregroundColor(Color.black)
                     .padding(1)
             }.padding(.leading,15)
                 .padding(.vertical,5)

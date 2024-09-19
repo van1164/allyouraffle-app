@@ -245,16 +245,16 @@ struct UserActionButton: View {
     var label: String
     var imageName : String
     var onClick: () -> Void
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         Button(action: onClick) {
             HStack {
                 Text(label)
-                    .foregroundColor(.black)
+                    .foregroundColor(Color("Text"))
                     .bold()
                 Spacer()
-                Image(systemName: imageName)
-                    .foregroundColor(.black)
+                Image(systemName: imageName).foregroundColor(colorScheme == .dark ? Color.white : Color.black)
             }
             .padding()
             .background(Color.primary.opacity(0.1))

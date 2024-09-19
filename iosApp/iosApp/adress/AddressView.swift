@@ -10,9 +10,55 @@ struct AddressView : View{
             PhoneNumberView(userInfo: userInfo)
         } else {
             SetAddressView(userInfo :userInfo, isModified: false)
+                .frame(width: .infinity,height: .infinity)
+                .background(Color("LoginViewBackground"))
         }
     }
 }
+
+struct AddressView_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        Group {
+            AddressView(userInfo: UserInfoResponse(
+                userId: "test",
+                email: "test@example.com",
+                name: "테스트 이름",
+                nickname: "테스트 닉",
+                password: "test_pass",
+                phoneNumber: "testPhone",
+                profileImageUrl: "testProfile",
+                address: nil,
+                role: "test",
+                id: 1,
+                createdDate: "2023-01-01",
+                updatedDate: "2023-01-01",
+                deletedDate: "2023-01-01"
+            ))
+            .previewLayout(.sizeThatFits)
+            .preferredColorScheme(.dark)
+            
+            AddressView(userInfo: UserInfoResponse(
+                userId: "test",
+                email: "test@example.com",
+                name: "테스트 이름",
+                nickname: "테스트 닉",
+                password: "test_pass",
+                phoneNumber: "testPhone",
+                profileImageUrl: "testProfile",
+                address: nil,
+                role: "test",
+                id: 1,
+                createdDate: "2023-01-01",
+                updatedDate: "2023-01-01",
+                deletedDate: "2023-01-01"
+            ))
+            .previewLayout(.sizeThatFits)
+            .preferredColorScheme(.light)
+        }
+    }
+}
+
 
 struct SetAddressView: View {
     var userInfo: UserInfoResponse
@@ -45,9 +91,6 @@ struct SetAddressView: View {
                     LogoutButton(goRoot: $goRoot)
                 }
             }
-            //            .fullScreenCover(isPresented: $showAddressSearch) {
-            //
-            //            }
         }
     }
 }
@@ -76,6 +119,7 @@ struct InputMain: View {
                 Text("주소 입력하기")
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
+                    .bold()
                     .padding()
                     .background(Color.blue)
                     .cornerRadius(8)
@@ -152,7 +196,7 @@ struct AddressDetail: View {
                     if !isModified{
                         LogoutButton(goRoot: $goRoot)
                     }
-                    } else {
+                } else {
                     Text("주소 입력에 실패하였습니다.")
                         .foregroundColor(.red)
                 }

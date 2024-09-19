@@ -59,7 +59,7 @@ struct DetailView : View{
             Alert(title: Text("응모 실패!"), message: Text("응모에 실패하였습니다."),
                   dismissButton: .default(Text("확인")){
                 observer.setFailFalse()
-//                observer.loadTickets()
+                //                observer.loadTickets()
                 observer.initRaffleDetail()
             })
         }
@@ -96,63 +96,65 @@ struct RaffleDetailBody: View {
     var body: some View {
         if let raffle = observer.raffleDetail {
             VStack {
-                KFImage(URL(string: raffle.item.imageUrl))
-                    .placeholder{
-                        ProgressView()
-                    }
-                    .resizable()
-                    .aspectRatio(1,contentMode: .fit)
-                    .scaledToFit()
-                    .frame(width: UIScreen.main.bounds.width * 0.7)
-                    .padding(.bottom, 30)
-                
-                
-                Text(raffle.item.name)
-                    .font(.system(size: 35))
-                    .bold()
-                    .multilineTextAlignment(.center)
-                
-                ProgressView(value: Float(raffle.currentCount), total: Float(raffle.totalCount))
-                    .progressViewStyle(LinearProgressViewStyle(tint: isFree ? Color.blue : Color.green))
-                    .frame(height: 20)
-                    .cornerRadius(12)
-                
-                HStack{
-                    Text(String(raffle.currentCount) + "/" + String(raffle.totalCount))
-                        .font(.system(size: 25))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 2)
-                        .bold()
-                    Spacer()
-                    Text("\(Int((Float(raffle.currentCount) / Float(raffle.totalCount)) * 100))%")
-                        .font(.system(size: 25))
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, 2)
-                        .bold()
-                }
-                Spacer().frame(height: 15)
-                
-                AdBannerView(adUnitID: "ca-app-pub-7372592599478425/2941354189")
-                    .frame(width: GADAdSizeBanner.size.width, height: GADAdSizeBanner.size.height)
-                
-                ForEach(raffle.item.imageList, id: \.self) { image in
-                    KFImage(URL(string: image.imageUrl))
+                VStack{
+                    KFImage(URL(string: raffle.item.imageUrl))
                         .placeholder{
                             ProgressView()
                         }
                         .resizable()
+                        .aspectRatio(1,contentMode: .fit)
                         .scaledToFit()
+                        .frame(width: UIScreen.main.bounds.width * 0.7)
+                        .padding(.bottom, 30)
                     
+                    
+                    Text(raffle.item.name)
+                        .font(.system(size: 35))
+                        .bold()
+                        .multilineTextAlignment(.center)
+                    
+                    ProgressView(value: Float(raffle.currentCount), total: Float(raffle.totalCount))
+                        .progressViewStyle(LinearProgressViewStyle(tint: isFree ? Color.blue : Color.green))
+                        .frame(height: 20)
+                        .cornerRadius(12)
+                    
+                    HStack{
+                        Text(String(raffle.currentCount) + "/" + String(raffle.totalCount))
+                            .font(.system(size: 25))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 2)
+                            .bold()
+                        Spacer()
+                        Text("\(Int((Float(raffle.currentCount) / Float(raffle.totalCount)) * 100))%")
+                            .font(.system(size: 25))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.trailing, 2)
+                            .bold()
+                    }
+                    Spacer().frame(height: 15)
+                    
+                    AdBannerView(adUnitID: "ca-app-pub-7372592599478425/2941354189")
+                        .frame(width: GADAdSizeBanner.size.width, height: GADAdSizeBanner.size.height)
                 }
+                .padding(.horizontal, 30)
                 
-                Spacer().frame(height: 200)
-                
-                BottomInfo()
+                VStack{
+                    
+                    ForEach(raffle.item.imageList, id: \.self) { image in
+                        KFImage(URL(string: image.imageUrl))
+                            .placeholder{
+                                ProgressView()
+                            }
+                            .resizable()
+                            .scaledToFit()
+                    }
+                    Spacer().frame(height: 200)
+                    BottomInfo()
+                }
+                .padding(.horizontal, 30)
+                .background(Color.white)
             }
-            .padding(.horizontal, 30)
-            .onAppear{
-                print("TEST")
-            }
+
         }
     }
 }

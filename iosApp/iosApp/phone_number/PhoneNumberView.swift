@@ -8,9 +8,87 @@ struct PhoneNumberView : View{
             MainView()
         } else {
             UserPhoneNumberMainView(isModified: false)
+                .background(Color("LoginViewBackground"))
         }
     }
     
+}
+
+struct PhoneNumberView_Previews: PreviewProvider {
+
+    static var previews: some View {
+        Group {
+            PhoneNumberView(userInfo: UserInfoResponse(
+                userId: "test",
+                email: "test@example.com",
+                name: "테스트 이름",
+                nickname: "테스트 닉",
+                password: "test_pass",
+                phoneNumber: nil,
+                profileImageUrl: "testProfile",
+                address: Address(
+                    address: "서울특별시 강남구",
+                    addressEnglish: "Gangnam-gu, Seoul",
+                    bname: "강남역",
+                    jibunAddress: "서울 강남구 역삼동 123-45",
+                    jibunAddressEnglish: "123-45 Yeoksam-dong, Gangnam-gu, Seoul",
+                    roadAddress: "서울특별시 강남구 테헤란로 123",
+                    sido: "서울특별시",
+                    sigungu: "강남구",
+                    detail: "2층 201호",
+                    postalCode: "06000",
+                    country: "대한민국",
+                    isDefault: true,
+                    id: 1,
+                    createdDate: "2023-01-01",
+                    updatedDate: "2023-01-01",
+                    deletedDate: nil
+                ),
+                role: "test",
+                id: 1,
+                createdDate: "2023-01-01",
+                updatedDate: "2023-01-01",
+                deletedDate: "2023-01-01"
+            ))
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.dark)
+            
+            PhoneNumberView(userInfo: UserInfoResponse(
+                userId: "test",
+                email: "test@example.com",
+                name: "테스트 이름",
+                nickname: "테스트 닉",
+                password: "test_pass",
+                phoneNumber: nil,
+                profileImageUrl: "testProfile",
+                address: Address(
+                    address: "서울특별시 강남구",
+                    addressEnglish: "Gangnam-gu, Seoul",
+                    bname: "강남역",
+                    jibunAddress: "서울 강남구 역삼동 123-45",
+                    jibunAddressEnglish: "123-45 Yeoksam-dong, Gangnam-gu, Seoul",
+                    roadAddress: "서울특별시 강남구 테헤란로 123",
+                    sido: "서울특별시",
+                    sigungu: "강남구",
+                    detail: "2층 201호",
+                    postalCode: "06000",
+                    country: "대한민국",
+                    isDefault: true,
+                    id: 1,
+                    createdDate: "2023-01-01",
+                    updatedDate: "2023-01-01",
+                    deletedDate: nil
+                ),
+                role: "test",
+                id: 1,
+                createdDate: "2023-01-01",
+                updatedDate: "2023-01-01",
+                deletedDate: "2023-01-01"
+            ))
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.light)
+        }
+    }
 }
 
 struct UserPhoneNumberMainView: View {
@@ -30,7 +108,6 @@ struct UserPhoneNumberMainView: View {
                     ZStack{
                         mainContent
                             .padding(.horizontal, 16)
-                            .background(Color.white)
                             .navigationDestination(isPresented: $observer.numberSaved){
                                 if isModified{
                                     Text("변경이 완료되었습니다.").onAppear{
@@ -62,15 +139,15 @@ struct UserPhoneNumberMainView: View {
             Spacer().frame(height: 60)
             
             Text("휴대폰 인증")
-                .font(.system(size: 40))
+                .font(.system(size: 50))
                 .bold()
                 .foregroundColor(Color("Main"))
                 .padding(.bottom, 16)
             
             Text("본인인증을 진행해주세요.")
                 .font(.system(size: 16))
-                .foregroundColor(Color(hex: "#424242"))
-                .padding(.bottom, 32)
+                .foregroundColor(Color("LogoutButton"))
+                .padding(.bottom, 16)
             
             TextField("휴대폰 번호", text: $observer.phoneNumber)
                 .font(.system(size: 30))

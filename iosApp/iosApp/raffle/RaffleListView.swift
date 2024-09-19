@@ -68,7 +68,7 @@ struct ProductCard: View {
                 RaffleRightColumn(raffle: raffle, rowHeight: rowHeight)
             }
             .padding(3)
-            .background(Color.white)
+            .background(Color("ComponentBackground"))
             .cornerRadius(8)
             .shadow(radius: 2)
         }
@@ -84,7 +84,7 @@ struct RaffleRightColumn: View {
             Text(raffle.item.name)
                 .font(.system(size: 23))
                 .fontWeight(.bold)
-                .foregroundColor(.black)
+                .foregroundColor(Color("Text"))
                 .padding(.leading, 2)
             
             Spacer().frame(height: 15)
@@ -99,7 +99,7 @@ struct RaffleRightColumn: View {
             
             Text("\(Int((Double(raffle.currentCount) / Double(raffle.totalCount)) * 100))%")
                 .font(.custom("Jua", size: 15))
-                .foregroundColor(.black)
+                .foregroundColor(Color("Text"))
                 .frame(maxWidth: .infinity, alignment: .trailing)
                 .padding(.trailing, 10)
         }

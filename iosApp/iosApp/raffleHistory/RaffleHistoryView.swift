@@ -105,10 +105,13 @@ struct RaffleCard: View {
                 }
                 VStack(alignment: .leading) {
                     Text(purchaseHistory.raffle.item.name)
+                        .foregroundColor(Color("Text"))
                         .font(.headline)
                     Text("응모 개수: \(purchaseHistory.count)")
+                        .foregroundColor(Color("Text"))
                         .font(.subheadline)
                     Text("래플 고유 ID: \(purchaseHistory.raffle.id)")
+                        .foregroundColor(Color("Text"))
                         .font(.footnote)
                         .foregroundColor(.gray)
                     
@@ -117,13 +120,14 @@ struct RaffleCard: View {
                             .foregroundColor(.gray)
                     } else {
                         Text("당첨자: \(purchaseHistory.raffle.winner!.nickname) (\(String(purchaseHistory.raffle.winner!.phoneNumber?.prefix(8).suffix(5) ?? "")))")
+                            .foregroundColor(Color("Text"))
                             .font(.footnote)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
             }
-            .background(Color.white)
+            .background(Color("ComponentBackground"))
             .cornerRadius(10)
             .shadow(radius: 2)
         }

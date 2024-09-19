@@ -54,6 +54,7 @@ struct LoginViewBody: View {
                     .padding(.horizontal,geometry.size.width * 0.1)
             }
             .frame(width: geometry.size.width,height: geometry.size.height)
+            .background(Color("LoginViewBackground"))
             .fullScreenCover(isPresented: $isSignedIn) {
                 if let jwt = loadJwt(){
                     let userInfo = loginObserver.getUserInfo(jwt:jwt)
@@ -134,13 +135,6 @@ struct AppleLoginBtn : View {
     }
 }
 
-
-struct LoginViewPreview: PreviewProvider {
-    static var previews: some View {
-        LoginView()
-    }
-}
-
 struct GoogleLoginBtn: View {
     @ObservedObject var loginObserver : LoginObserver
     @Binding var isSignedIn : Bool
@@ -203,6 +197,20 @@ struct GoogleLoginBtn: View {
             else{
                 googleError = true
             }
+        }
+    }
+}
+
+struct WinLoseCardComponent_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            LoginView()
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.dark)
+            
+            LoginView()
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.light)
         }
     }
 }

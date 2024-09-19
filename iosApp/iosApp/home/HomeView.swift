@@ -65,7 +65,7 @@ struct PopularRankingView: View {
                 Text("인기 래플")
                     .font(.system(size: 30))
                     .fontWeight(.bold)
-                    .foregroundColor(.black)
+                    .foregroundColor(Color("Text"))
             }.frame(maxWidth: .infinity, alignment: .leading)
                 .frame(height: 50)
                 .padding(.vertical,5)
@@ -78,7 +78,7 @@ struct PopularRankingView: View {
                 }
             }
         }   .padding(3)
-            .background(Color.white)
+            .background(Color("ComponentBackground"))
             .cornerRadius(8)
             .shadow(radius: 2)
     }
@@ -88,6 +88,7 @@ struct TicketView: View {
     @ObservedObject var observer: HomeObserver
     @ObservedObject var rewardedViewModel : RewardedViewModel
     @State private var buttonClicked: Bool = false
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack {
@@ -98,15 +99,15 @@ struct TicketView: View {
                     Text("현재 응모권")
                         .font(.system(size: 24))
                         .fontWeight(.bold)
-                        .foregroundColor(.black)
+                        .foregroundColor(Color("Text"))
                         .padding(16)
                     
                     HStack {
-                        SVGView(svgName: "ic_tickets",w:10,h:10) // Replace with your custom icon
+                        SVGView(svgName: colorScheme == .dark ? "ticket_white" : "ic_tickets",w:10,h:10) // Replace with your custom icon
                             .frame(width: 40, height: 40)
                         Text("\(observer.ticketCount)")
                             .font(.system(size: 35))
-                            .foregroundColor(.black)
+                            .foregroundColor(Color("Text"))
                             .padding(.leading, 10)
                             .bold()
                     }
@@ -154,7 +155,7 @@ struct TicketView: View {
         .onChange(of: rewardedViewModel.adLoading) { _ in checkAndExecute() }
         .frame(maxWidth: .infinity)
         .padding(3)
-        .background(Color.white)
+        .background(Color("ComponentBackground"))
         .cornerRadius(8)
         .shadow(radius: 5)
         .onAppear{
@@ -187,8 +188,17 @@ struct TicketView: View {
     }
 }
 
+
 struct HomeViewPreview: PreviewProvider {
     static var previews: some View {
-        HomeView(observer: HomeObserver(viewModel: HomeViewModel(),jwt: loadJwt()!),rewardedViewModel: RewardedViewModel())
+        Group {
+            HomeView(observer: HomeObserver(viewModel: HomeViewModel(),jwt: loadJwt()!),rewardedViewModel: RewardedViewModel())
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.dark)
+            
+            HomeView(observer: HomeObserver(viewModel: HomeViewModel(),jwt: loadJwt()!),rewardedViewModel: RewardedViewModel())
+                .previewLayout(.sizeThatFits)
+                .preferredColorScheme(.light)
+        }
     }
 }
