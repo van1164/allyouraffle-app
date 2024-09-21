@@ -148,12 +148,12 @@ fun LogoutButton() {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
             title = { },
+            backgroundColor = MaterialTheme.colorScheme.onPrimary,
             text = {
-
                 Text(
                     text = "로그아웃 하시겠습니까?",
                     fontSize = 20.sp,
-                    color = Color(0xFF424242)
+                    color = MaterialTheme.colorScheme.primary
                 )
 
             },
@@ -170,7 +170,7 @@ fun LogoutButton() {
                     },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
-                    modifier = Modifier
+                    modifier = Modifier.padding(5.dp)
                 ) {
                     androidx.compose.material.Text(text = "로그아웃", color = Color.White)
                 }
@@ -180,7 +180,7 @@ fun LogoutButton() {
                     onClick = { showDialog.value = false },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                    modifier = Modifier
+                    modifier = Modifier.padding(5.dp)
                 ) {
                     androidx.compose.material.Text("취소")
                 }
