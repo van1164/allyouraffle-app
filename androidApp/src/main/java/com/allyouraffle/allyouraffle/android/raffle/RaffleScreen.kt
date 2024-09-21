@@ -117,6 +117,7 @@ private fun RaffleScreenBody(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
 //        Logo(55.sp)
         Spacer(modifier = Modifier.height(20.dp))
@@ -159,12 +160,14 @@ fun ProductCard(
                 navController.navigate("raffle/" + raffle.id + "/" + isFree)
             },
         elevation = 4.dp,
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(10.dp),
+        backgroundColor = MaterialTheme.colorScheme.onPrimary
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(rowHeight),
+                .height(rowHeight)
+                .background(MaterialTheme.colorScheme.onPrimary),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(modifier = Modifier.aspectRatio(1f)) {
@@ -201,7 +204,7 @@ fun RaffleRightColumn(
 ) {
     Column(
         modifier = Modifier
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.onPrimary)
             .height(rowHeight)
             .padding(start = 3.dp),
         verticalArrangement = Arrangement.Center,
@@ -209,7 +212,7 @@ fun RaffleRightColumn(
 
         Text(
             text = raffle.item.name,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 23.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 5.dp),
@@ -225,13 +228,13 @@ fun RaffleRightColumn(
                 .padding(3.dp)
                 .clip(RoundedCornerShape(12.dp)),
             color = if (isFree) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.tertiary,
-            trackColor = Color.LightGray,
+            trackColor = MaterialTheme.colorScheme.onTertiary,
         )
         Spacer(modifier = Modifier.height(15.dp))
         Text(
             text = ((raffle.currentCount.toFloat() / raffle.totalCount.toFloat()) * 100).toInt()
                 .toString() + "%",
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 15.sp,
             textAlign = TextAlign.Right,
             modifier = Modifier

@@ -1,6 +1,7 @@
 package com.allyouraffle.allyouraffle.android.raffle
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -15,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -26,9 +29,20 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.home.MyIconPack
 import com.allyouraffle.allyouraffle.android.home.myiconpack.IcTickets
+import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.IcTickets
+import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.TicketWhite
 
 @Composable
 fun Banner(message: String, tickets: Int) {
+    val icon : ImageVector = if(isSystemInDarkTheme()){
+        remember {
+            TicketWhite.IcTickets
+        }
+    } else{
+        remember {
+            MyIconPack.IcTickets
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,14 +68,11 @@ fun Banner(message: String, tickets: Int) {
                 iterations = LottieConstants.IterateForever,
                 alignment = Alignment.Center,
             )
-            Text(message, fontSize = 30.sp, fontFamily = FontFamily(Font(R.font.fontdefault)))
+            Text(message, color = MaterialTheme.colorScheme.primary, fontSize = 30.sp, fontFamily = FontFamily(Font(R.font.fontdefault)))
 
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val icon = remember {
-                MyIconPack.IcTickets
-            }
             Image(
                 imageVector = icon,
                 contentDescription = null,
@@ -72,7 +83,7 @@ fun Banner(message: String, tickets: Int) {
             Text(
                 text = "$tickets",
                 fontSize = 30.sp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.primary,
                 fontFamily = FontFamily(Font(R.font.fontdefault))
             )
         }

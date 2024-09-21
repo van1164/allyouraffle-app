@@ -111,7 +111,7 @@ fun AddressDetail(
 //        Toast.makeText(LocalContext.current, "주소 입력에 실패하였습니다.", Toast.LENGTH_LONG).show()
 //        addressNavController.navigate("address")
     } else {
-        Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.onPrimary) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -129,34 +129,34 @@ fun AddressDetail(
                 Text(
                     text = "주소",
                     fontSize = 18.sp,
-                    color = Color(0xFF424242),
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Text(
                     text = userAddress.address,
                     fontSize = 30.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
                     text = "우편번호",
                     fontSize = 18.sp,
-                    color = Color(0xFF424242),
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 Text(
                     text =userAddress.postalCode,
                     fontSize = 30.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 TextField(
                     value = detail.value,
                     onValueChange = { addressViewModel.setDetail(it) },
-                    label = { Text("상세 주소 입력", fontSize = 12.sp) },
+                    label = { Text("상세 주소 입력", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSecondary) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
@@ -164,8 +164,9 @@ fun AddressDetail(
                     textStyle = TextStyle(fontSize = 20.sp),
                     colors = androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-                        focusedLabelColor = Color(0xFF424242),
-                        cursorColor = Color(0xFF424242)
+                        focusedLabelColor = MaterialTheme.colorScheme.onSecondary,
+                        cursorColor = MaterialTheme.colorScheme.onSecondary,
+                        textColor = MaterialTheme.colorScheme.primary
                     ),
                 )
 
@@ -202,7 +203,7 @@ fun AddressDetail(
 
 @Composable
 fun InputMain(addressNavController: NavHostController) {
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.onPrimary) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -220,7 +221,7 @@ fun InputMain(addressNavController: NavHostController) {
             Text(
                 text = "배송을 위해 주소를 입력해 주세요.",
                 fontSize = 16.sp,
-                color = Color(0xFF424242),
+                color = MaterialTheme.colorScheme.onSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 32.dp)
             )

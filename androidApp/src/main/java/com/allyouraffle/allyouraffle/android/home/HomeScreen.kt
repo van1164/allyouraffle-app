@@ -4,6 +4,8 @@ import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -54,6 +57,9 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.home.myiconpack.IcTickets
+import com.allyouraffle.allyouraffle.android.home.myiconpack.IcTicketsWhite
+import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.IcTickets
+import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.TicketWhite
 import com.allyouraffle.allyouraffle.android.raffle.ProductCard
 import com.allyouraffle.allyouraffle.android.util.BannersAds
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
@@ -113,7 +119,7 @@ private fun HomeScreenBody(
         refreshing = false
     })
 
-    Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
+    Box(modifier = Modifier.pullRefresh(pullRefreshState).background(MaterialTheme.colorScheme.background)) {
         PullRefreshIndicator(
             refreshing = refreshing,
             state = pullRefreshState,
@@ -134,7 +140,8 @@ private fun HomeScreenBody(
             Spacer(modifier = Modifier.height(15.dp))
             Surface(
                 shape = RoundedCornerShape(15.dp),
-                elevation = 10.dp
+                elevation = 10.dp,
+                color = MaterialTheme.colorScheme.onPrimary
             ) {
                 // 응모권 개수 표시
                 TicketView(homeViewModel,adViewModel, jwt, isLoading)
@@ -159,11 +166,13 @@ private fun PopularRankingView(homeViewModel: HomeViewModel, navHostController: 
     val raffleList = homeViewModel.popularRaffleList.collectAsState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(15.dp),
+                .padding(15.dp)
+            ,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             LottieAnimation(
@@ -178,7 +187,7 @@ private fun PopularRankingView(homeViewModel: HomeViewModel, navHostController: 
             Text(
                 text = "인기 래플",
                 fontSize = 30.sp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.align(Alignment.CenterVertically)
             )
         }
@@ -204,12 +213,20 @@ private fun TicketView(
 ) {
     // 버튼 클릭 시 응모권 추가 애니메이션
     val context = LocalContext.current
-    var ticketCount = viewModel.ticketCount.collectAsState()
+    val ticketCount = viewModel.ticketCount.collectAsState()
 //    var adLoaded by remember { mutableStateOf(false) }
-    var buttonClicked = adViewModel.buttonClicked.collectAsState()
-    var rewardedAd = adViewModel.rewardedAd.collectAsState()
+    val buttonClicked = adViewModel.buttonClicked.collectAsState()
+    val rewardedAd = adViewModel.rewardedAd.collectAsState()
+    val icon :ImageVector = if(isSystemInDarkTheme()){
+        remember {
+            TicketWhite.IcTickets
+        }
+    } else{
+        remember {
+            MyIconPack.IcTickets
+        }
+    }
     if (buttonClicked.value && rewardedAd.value != null && !isLoading.value) {
-        Log.d("NNNNNNNNNNNNNNNNNN","NNNNNNNNNNNNNNN")
         rewardedAd.value?.show(context as Activity) { reward ->
             runBlocking {
                 viewModel.ticketPlusOne(jwt)
@@ -238,7 +255,7 @@ private fun TicketView(
             Text(
                 text = "현재 응모권",
                 fontSize = 24.sp,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(16.dp)
             )
 
@@ -249,9 +266,8 @@ private fun TicketView(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                val icon = remember {
-                    MyIconPack.IcTickets
-                }
+
+
                 Image(
                     imageVector = icon,
                     contentDescription = null,
@@ -260,7 +276,7 @@ private fun TicketView(
                 Text(
                     text = "${ticketCount.value}",
                     fontSize = 35.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(16.dp),
                     fontFamily = FontFamily(Font(R.font.fontdefault))
                 )

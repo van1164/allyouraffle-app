@@ -56,7 +56,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserPhoneNumberView(navController: NavHostController, userInfoResponse: UserInfoResponse) {
     if (userInfoResponse.phoneNumber != null) {
-        println("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
         navigatePhoneNumberToMain(navController)
     } else {
         UserPhoneNumberMain(navController = navController)
@@ -90,7 +89,7 @@ fun UserPhoneNumberMain(navController: NavHostController) {
     if (isLoading) {
         LoadingScreen()
     } else {
-        Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.onPrimary) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -110,7 +109,7 @@ fun UserPhoneNumberMain(navController: NavHostController) {
                 Text(
                     text = "본인인증을 진행해주세요.",
                     fontSize = 16.sp,
-                    color = Color(0xFF424242),
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(bottom = 32.dp),
                     textAlign = TextAlign.Center
                 )
@@ -176,7 +175,7 @@ private fun VerifyView(
                 userVerificationCode.value = it
             }
         },
-        label = { Text("인증번호 입력") },
+        label = { Text("인증번호 입력", color = MaterialTheme.colorScheme.onSecondary) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp),
@@ -184,7 +183,9 @@ private fun VerifyView(
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = MaterialTheme.colorScheme.tertiary,
             focusedLabelColor = Color(0xFF424242),
-            cursorColor = Color(0xFF424242)
+            cursorColor = MaterialTheme.colorScheme.onSecondary,
+            textColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.primary
         ),
         textStyle = TextStyle(fontSize = 20.sp)
     )
@@ -234,7 +235,7 @@ fun PhoneField(
             onPhoneChanged(it.take(mask.count { it == maskNumber }))
         },
         label = {
-            Text(text = "휴대폰 번호")
+            Text(text = "휴대폰 번호", color = MaterialTheme.colorScheme.onSecondary)
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         visualTransformation = PhoneVisualTransformation(mask, maskNumber),
@@ -245,14 +246,15 @@ fun PhoneField(
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = MaterialTheme.colorScheme.tertiary,
             focusedLabelColor = Color(0xFF424242),
-            cursorColor = Color(0xFF424242)
+            cursorColor = MaterialTheme.colorScheme.onSecondary,
+            textColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.primary
         ),
         textStyle = TextStyle(fontSize = 20.sp)
     )
 }
 
 fun navigatePhoneNumberToMain(navController: NavHostController) {
-    println("NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN")
     if (navController.currentDestination?.route != "main") {
         navController.navigate("main") {
             popUpTo("userPhoneNumber") { inclusive = true } // 로그인 화면을 스택에서 제거

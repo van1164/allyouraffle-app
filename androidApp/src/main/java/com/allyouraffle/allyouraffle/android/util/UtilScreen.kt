@@ -33,10 +33,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -117,13 +120,15 @@ fun LoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center // Box의 중앙 정렬
     ) {
-        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.logo_loading_shadow))
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.logo_shadow_trans))
         LottieAnimation(
             composition,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             iterations = LottieConstants.IterateForever,
             alignment = Alignment.Center,
         )
@@ -142,7 +147,7 @@ fun LogoutButton() {
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
-            title = {  },
+            title = { },
             text = {
 
                 Text(
@@ -185,7 +190,7 @@ fun LogoutButton() {
 
 
     Text("다른 계정으로 로그인하기 =>",
-        color = Color.DarkGray.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.5f),
         modifier = Modifier.clickable {
             showDialog.value = true
         })
@@ -214,11 +219,11 @@ fun CustomDialog(title: String, body: String, buttonMessage: String, onDismiss: 
         },
         text = {
             Column(modifier = Modifier.padding(3.dp)) {
-                Text(body, lineHeight = 20.sp, fontSize = 13.sp)
+                Text(body, color = MaterialTheme.colorScheme.primary,lineHeight = 20.sp, fontSize = 13.sp)
             }
         },
         confirmButton = {
-            MainButton(onClick = onDismiss) {
+            MainButton(onClick = onDismiss, modifier = Modifier.padding(10.dp).fillMaxWidth()) {
                 Text(buttonMessage, color = Color.White)
             }
 //            Button(
@@ -230,8 +235,8 @@ fun CustomDialog(title: String, body: String, buttonMessage: String, onDismiss: 
 //            }
         },
         shape = RoundedCornerShape(16.dp),
-        backgroundColor = Color.White,
-        contentColor = Color.Black,
+        backgroundColor = MaterialTheme.colorScheme.onPrimary,
+        contentColor = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .padding(5.dp)
             .graphicsLayer {
@@ -272,40 +277,61 @@ fun ScrollingText(text: String) {
 }
 
 @Composable
-fun BottomInfo(){
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .height(200.dp)
-        .background(Color(0XFFF4F4F4))
-        .padding(start = 5.dp)
-        .graphicsLayer {
-            shape = RoundedCornerShape(10.dp)
+fun BottomInfo() {
+
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // 버튼
+        androidx.compose.material3.Button(
+            shape = RoundedCornerShape(5.dp),
+            onClick = { isExpanded = !isExpanded },
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary),
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth()
+        ) {
+            Text(text = if (isExpanded) "정보 숨기기" else "판매자 정보 보기", color = MaterialTheme.colorScheme.primary)
         }
-    ){
-        androidx.compose.material.Text(
-            text = "상호 : 올유레플",
-            modifier = Modifier.padding(1.dp),
-            fontSize = 10.sp
-        )
-        androidx.compose.material.Text(
-            text = "대표자 명 : 김시환",
-            modifier = Modifier.padding(1.dp),
-            fontSize = 10.sp
-        )
-        androidx.compose.material.Text(
-            text = "사업자 등록 번호 : 580-46-01046",
-            modifier = Modifier.padding(1.dp),
-            fontSize = 10.sp
-        )
-        androidx.compose.material.Text(
-            text = "문의 이메일 : allyouraffle.info@gmail.com",
-            modifier = Modifier.padding(1.dp),
-            fontSize = 10.sp
-        )
-        androidx.compose.material.Text(
-            text = "사업장 소재지 : 경기도 용인시 기흥구 서그내로 46-14",
-            modifier = Modifier.padding(1.dp),
-            fontSize = 10.sp
-        )
+
+        // 정보 표시
+        if (isExpanded) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0XFFF4F4F4))
+                .height(200.dp)
+                .padding(start = 5.dp)
+                .graphicsLayer {
+                    shape = RoundedCornerShape(10.dp)
+                }
+            ) {
+                androidx.compose.material.Text(
+                    text = "상호 : 올유레플",
+                    modifier = Modifier.padding(1.dp),
+                    fontSize = 10.sp
+                )
+                androidx.compose.material.Text(
+                    text = "대표자 명 : 김시환",
+                    modifier = Modifier.padding(1.dp),
+                    fontSize = 10.sp
+                )
+                androidx.compose.material.Text(
+                    text = "사업자 등록 번호 : 580-46-01046",
+                    modifier = Modifier.padding(1.dp),
+                    fontSize = 10.sp
+                )
+                androidx.compose.material.Text(
+                    text = "문의 이메일 : allyouraffle.info@gmail.com",
+                    modifier = Modifier.padding(1.dp),
+                    fontSize = 10.sp
+                )
+                androidx.compose.material.Text(
+                    text = "사업장 소재지 : 경기도 용인시 기흥구 서그내로 46-14",
+                    modifier = Modifier.padding(1.dp),
+                    fontSize = 10.sp
+                )
+            }
+        }
     }
+
 }

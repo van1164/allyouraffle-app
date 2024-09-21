@@ -129,6 +129,7 @@ fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -202,23 +203,24 @@ private fun ChangePhoneDialog(
 ) {
     AlertDialog(
         onDismissRequest = { showPhoneNumber.value = false },
-        title = { Text("휴대폰 번호 변경 변경") },
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        backgroundColor = MaterialTheme.colorScheme.onPrimary,
         text = {
             Column {
                 androidx.compose.material3.Text(
                     text = "현재 번호",
                     fontSize = 18.sp,
-                    color = Color(0xFF424242),
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 androidx.compose.material3.Text(
                     text = userInfo.phoneNumber?:"없음",
                     fontSize = 25.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                Text("휴대폰 번호를 변경하시겠습니까?")
+                Text("휴대폰 번호를 변경하시겠습니까?",color = MaterialTheme.colorScheme.primary)
             }
 
         },
@@ -230,7 +232,7 @@ private fun ChangePhoneDialog(
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
-                modifier = Modifier
+                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
             ) {
                 Text(text = "변경하기", color = Color.White)
             }
@@ -240,7 +242,7 @@ private fun ChangePhoneDialog(
                 onClick = { showPhoneNumber.value = false },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                modifier = Modifier
+                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
             ) {
                 Text("취소")
             }
@@ -256,36 +258,39 @@ private fun ChangeAddressDialog(
 ) {
     AlertDialog(
         onDismissRequest = { showSetAddress.value = false },
-        title = { Text("주소 변경") },
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        backgroundColor = MaterialTheme.colorScheme.onPrimary,
         text = {
-            Column {
+            Column(
+                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)
+            ) {
                 androidx.compose.material3.Text(
                     text = "현재 주소",
                     fontSize = 18.sp,
-                    color = Color(0xFF424242),
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 androidx.compose.material3.Text(
                     text = userInfo.address?.address + " " + userInfo.address?.detail,
                     fontSize = 25.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 androidx.compose.material3.Text(
                     text = "우편번호",
                     fontSize = 18.sp,
-                    color = Color(0xFF424242),
+                    color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 androidx.compose.material3.Text(
                     text = userInfo.address?.postalCode ?: "없음",
                     fontSize = 25.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-                Text("주소를 변경하시겠습니까?")
+                Text("주소를 변경하시겠습니까?",color = MaterialTheme.colorScheme.primary,)
             }
 
         },
@@ -298,9 +303,9 @@ private fun ChangeAddressDialog(
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
-                modifier = Modifier
+                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
             ) {
-                Text(text = "변경하기", color = Color.White)
+                Text(text = "변경하기", color = Color.White, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -308,9 +313,9 @@ private fun ChangeAddressDialog(
                 onClick = { showSetAddress.value = false },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                modifier = Modifier
+                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
             ) {
-                Text("취소")
+                Text("취소", fontWeight = FontWeight.Bold)
             }
         }
     )
@@ -323,13 +328,13 @@ fun UserActionButton(label: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.primary)
+        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.onTertiary)
     ) {
-        Text(text = label, color = Color.Black, textAlign = TextAlign.Start)
+        Text(text = label, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Start)
         Icon(
             imageVector = Icons.Default.Edit,
             contentDescription = null,
-            tint = Color.Black,
+            tint = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(start = 8.dp)
         )
     }

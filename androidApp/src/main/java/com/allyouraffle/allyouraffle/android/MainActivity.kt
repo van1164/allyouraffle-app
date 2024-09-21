@@ -6,9 +6,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -44,6 +44,7 @@ import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
 import com.allyouraffle.allyouraffle.android.home.AdViewModel
 import com.allyouraffle.allyouraffle.android.home.HomeScreen
 import com.allyouraffle.allyouraffle.android.login.LoginPage
+import com.allyouraffle.allyouraffle.android.login.LoginViewModel
 import com.allyouraffle.allyouraffle.android.mypage.MyPageScreen
 import com.allyouraffle.allyouraffle.android.raffle.RaffleListScreen
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
@@ -69,7 +70,7 @@ class MainActivity : ComponentActivity() {
             MyApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onPrimary
                 ) {
                     var isSplashVisible by remember { mutableStateOf(true) }
 
@@ -130,7 +131,7 @@ fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         // 스플래시 화면 콘텐츠
@@ -140,6 +141,19 @@ fun SplashScreen() {
 
 @Composable
 fun MainPage() {
+    val context = LocalContext.current
+    val loginViewModel = remember { LoginViewModel() }
+    val sharedPreference = SharedPreference(context)
+    LaunchedEffect(Unit) {
+        while (true) {
+            // 특정 함수 실행
+            val refreshToken = sharedPreference.getRefreshToken()
+            val jwtResponse = loginViewModel.refresh(refreshToken)?:continue
+            sharedPreference.setJwt(jwtResponse.jwt)
+            // 5분 대기 (5분 = 5 * 60 * 1000ms)
+            delay(5 * 60 * 1000)
+        }
+    }
     val navController = rememberNavController()
     BottomNav(navController)
 }
@@ -159,15 +173,16 @@ private fun BottomNav(
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     var backPressedTime by remember { mutableStateOf(0L) }
     Scaffold(
+        modifier = Modifier.background(color = MaterialTheme.colorScheme.onPrimary),
         bottomBar = {
             if (currentRoute in listOf("raffle/{itemId}/{isFree}")) return@Scaffold
 
             BottomNavigation(
                 contentColor = MaterialTheme.colorScheme.tertiary,
-                backgroundColor = Color.White,
+                backgroundColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp, 10.dp))
-                    .border(BorderStroke(0.5.dp, Color.LightGray)),
+                    .background(MaterialTheme.colorScheme.background)
+                    .clip(RoundedCornerShape(10.dp, 10.dp)),
                 elevation = 10.dp
             ) {
                 items.forEach { (screen, icon, selectedIcon) ->

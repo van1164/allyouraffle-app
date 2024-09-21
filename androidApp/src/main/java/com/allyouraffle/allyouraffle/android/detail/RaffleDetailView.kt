@@ -2,6 +2,7 @@ package com.allyouraffle.allyouraffle.android.detail
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -65,6 +66,8 @@ import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.model.RaffleDetailResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleDetailViewModel
 import kotlinx.coroutines.runBlocking
+import java.text.NumberFormat
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -139,7 +142,7 @@ fun RaffleDetail(navController: NavHostController, itemId: String, isFree: Boole
     if (loading.value || raffle.value == null || userTickets == -1) {
         LoadingScreen()
     } else {
-        Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
+        Box(modifier = Modifier.pullRefresh(pullRefreshState).background(MaterialTheme.colorScheme.background)) {
             val data = raffle.value
             checkNotNull(data)
             PullRefreshIndicator(
@@ -200,7 +203,7 @@ fun RaffleDetailBody(
                 ImageLoading(raffle.item.imageUrl)
             }
             Spacer(modifier = Modifier.height(30.dp))
-            Text(raffle.item.name, fontSize = 35.sp, textAlign = TextAlign.Center)
+            Text(raffle.item.name, fontSize = 35.sp, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.padding(bottom = 20.dp))
             LinearProgressIndicator(
                 progress = { raffle.currentCount.toFloat() / raffle.totalCount },
@@ -209,23 +212,33 @@ fun RaffleDetailBody(
                     .height(20.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 color = if (isFree) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.tertiary,
-                trackColor = Color.LightGray,
+                trackColor = MaterialTheme.colorScheme.onTertiary,
             )
             Spacer(modifier = Modifier.height(10.dp))
-            androidx.compose.material3.Text(
-                text = ((raffle.currentCount.toFloat() / raffle.totalCount.toFloat()) * 100).toInt()
-                    .toString() + "%",
-                color = Color.Black,
-                fontSize = 25.sp,
-                textAlign = TextAlign.Right,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(end = 2.dp)
-            )
+            Row(horizontalArrangement = Arrangement.Absolute.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                androidx.compose.material3.Text(
+                    text = formatNumberWithCommas(raffle.currentCount) +  "/" + formatNumberWithCommas(raffle.totalCount),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Right,
+                    modifier = Modifier
+                        .padding(start = 2.dp)
+                )
+
+                androidx.compose.material3.Text(
+                    text = ((raffle.currentCount.toFloat() / raffle.totalCount.toFloat()) * 100).toInt()
+                        .toString() + "%",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Right,
+                    modifier = Modifier
+                        .padding(end = 2.dp)
+                )
+            }
         }
             Spacer(modifier = Modifier.height(15.dp))
             BannersAds(adId = "ca-app-pub-7372592599478425/1330069240")
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth().padding(top = 30.dp)) {
                 raffle.item.imageList.forEach {
                     ImageLoading(imageUrl = it.imageUrl)
                 }
@@ -389,6 +402,10 @@ fun PurchaseButton(
             fontSize = 19.sp
         )
     }
+}
+fun formatNumberWithCommas(number: Int): String {
+    val formatter = NumberFormat.getInstance(Locale.US)
+    return formatter.format(number)
 }
 
 @Composable

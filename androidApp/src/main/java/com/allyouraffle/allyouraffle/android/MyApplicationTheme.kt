@@ -22,15 +22,23 @@ fun MyApplicationTheme(
 ) {
     val colors = if (darkTheme) {
         darkColorScheme(
-            primary = Color(0xFFFFFFFF),
+            primary = Color.White,
+            onPrimary = Color(0xFF1D1D1D),
             secondary = Color(0xFF5FD855),
-            tertiary = Color(0xFF60A5FA)
+            onSecondary = Color.LightGray,
+            tertiary = Color(0xFF60A5FA),
+            onTertiary = Color.DarkGray,
+            background = Color.Black
         )
     } else {
         lightColorScheme(
-            primary = Color(0xFFFFFFFF),
+            primary = Color.Black,
+            onPrimary = Color.White,
             secondary = Color(0xFF5FD855),
-            tertiary = Color(0xFF60A5FA)
+            onSecondary = Color.DarkGray,
+            tertiary = Color(0xFF60A5FA),
+            onTertiary = Color.LightGray,
+            background = Color.White
         )
     }
     val myFontFamily = FontFamily(

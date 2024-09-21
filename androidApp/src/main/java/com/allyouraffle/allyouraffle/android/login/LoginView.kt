@@ -8,11 +8,14 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -145,6 +148,7 @@ private fun LoginView(
     Column(
         modifier = Modifier
             .padding(top = 30.dp)
+            .background(color = MaterialTheme.colorScheme.onPrimary)
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -153,6 +157,7 @@ private fun LoginView(
             "All You Raffle에 오신 것을 환영합니다! \n이제 광고를 보는 것만으로도\n특별한 보상을 받을 수 있습니다.\n다양한 상품이 여러분을 기다립니다!",
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary,
             lineHeight = 50.sp,
             fontSize = 18.sp
         )
