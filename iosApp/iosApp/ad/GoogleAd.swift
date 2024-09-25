@@ -12,8 +12,12 @@ class RewardedViewModel: NSObject, ObservableObject, GADFullScreenContentDelegat
     func loadAd(fail : @escaping () -> Void,success : @escaping () -> Void) {
         Task {
             do {
+                let request = GADRequest()
+                let extras = GADExtras()
+                extras.additionalParameters = ["suppress_test_label": "1"]
+                request.register(extras)
                 rewardedAd = try await GADRewardedAd.load(
-                    withAdUnitID: "ca-app-pub-7372592599478425/7706687595", request: GADRequest())
+                    withAdUnitID: "ca-app-pub-7372592599478425/7706687595", request: request)
                 rewardedAd?.fullScreenContentDelegate = self
                 if(rewardedAd == nil){
                     fail()
@@ -80,14 +84,21 @@ struct AdBannerView: UIViewControllerRepresentable {
         let viewController = UIViewController()
         
         bannerView.adUnitID = adUnitID
+    
         bannerView.rootViewController = viewController
         viewController.view.addSubview(bannerView)
+        
         
         return viewController
 
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        bannerView.load(GADRequest())
+        print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")
+        let request = GADRequest()
+        let extras = GADExtras()
+        extras.additionalParameters = ["suppress_test_label": "1"]
+        request.register(extras)
+        bannerView.load(request)
     }
 }

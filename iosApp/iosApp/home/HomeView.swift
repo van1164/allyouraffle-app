@@ -32,7 +32,7 @@ struct HomeScreenBody: View {
     @ObservedObject var observer: HomeObserver
     @Binding var refreshing: Bool
     @ObservedObject var rewardedViewModel : RewardedViewModel
-    
+
     var body: some View {
         
         ScrollView {
@@ -42,6 +42,7 @@ struct HomeScreenBody: View {
                     .padding(.top,10)
                 AdBannerView(adUnitID: "ca-app-pub-7372592599478425/8910537174")
                     .frame(width: GADAdSizeBanner.size.width, height: GADAdSizeBanner.size.height)
+
                 PopularRankingView(observer: observer)
             }
             .padding(10)
@@ -162,7 +163,7 @@ struct TicketView: View {
             rewardedViewModel.loadAd {
                 print("fail!")
                 rewardedViewModel.adLoading = false
-                observer.setError(message: "광고가 모두 소진되었습니다.. ㅠㅠ 10분정도 이후에 시도해주세요.")
+                observer.setError(message: "광고가 모두 소진되었습니다.. ㅠㅠ\n 10분정도 이후에 시도해주세요.")
             } success: {
                 print("success")
                 rewardedViewModel.adLoading = false

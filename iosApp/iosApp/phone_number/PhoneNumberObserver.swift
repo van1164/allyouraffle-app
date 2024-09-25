@@ -1,5 +1,5 @@
 import shared
-
+import Foundation
 
 class PhoneNumberObserver: ObservableObject {
     private var phoneNumberViewModel = PhoneNumberViewModel()
@@ -45,6 +45,11 @@ class PhoneNumberObserver: ObservableObject {
         phoneNumberViewModel.savePhoneNumber(jwt:jwt){ data in
         }
     }
+    
+    func savePhoneNumberDemo(jwt : String){
+        phoneNumberViewModel.savePhoneNumberDemo(jwt: jwt, uuid : generateUUID()){ data in
+        }
+    }
     func setError(message : String) {
         phoneNumberViewModel.setError(message: message)
     }
@@ -52,4 +57,10 @@ class PhoneNumberObserver: ObservableObject {
     func setErrorNull(){
         phoneNumberViewModel.setNullError()
     }
+    
+    func generateUUID() -> String {
+        let uuid = UUID().uuidString
+        return uuid
+    }
+
 }

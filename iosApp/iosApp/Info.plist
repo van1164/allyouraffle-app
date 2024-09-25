@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>GADIsAdManagerApp</key>
+	<true/>
 	<key>ASAuthorizationAppleIDScopes</key>
 	<array>
 		<string>fullName</string>
@@ -28,9 +30,11 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.941459557793-qce2amo38r9nri0e87qadfp72slg085s</string>
+				<string>com.googleusercontent.apps.941459557793-sksjmbbup0khfbl7pncs05i61uemdret</string>
 			</array>
 		</dict>
 	</array>
@@ -44,6 +48,10 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>어플리케이션 사용을 위해 필요합니다.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

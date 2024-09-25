@@ -33,7 +33,6 @@
 		1E7698F72C7FCD390070EA5C /* jua.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1E7698F62C7FCD390070EA5C /* jua.ttf */; };
 		1E7698FB2C7FD2300070EA5C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 1E7698FA2C7FD2300070EA5C /* GoogleSignIn */; };
 		1E7698FD2C7FD2300070EA5C /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1E7698FC2C7FD2300070EA5C /* GoogleSignInSwift */; };
-		1E7698FF2C7FD2A30070EA5C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1E7698FE2C7FD2A30070EA5C /* GoogleService-Info.plist */; };
 		1E7699012C7FD2CD0070EA5C /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1E7699002C7FD2CD0070EA5C /* FirebaseAnalytics */; };
 		1E7699032C7FD5B10070EA5C /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 1E7699022C7FD5B10070EA5C /* FirebaseAnalyticsOnDeviceConversion */; };
 		1E7699052C7FD5B10070EA5C /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 1E7699042C7FD5B10070EA5C /* FirebaseAnalyticsWithoutAdIdSupport */; };
@@ -64,6 +63,7 @@
 		1E9C6BE82C898BB400153A11 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1E9C6BE72C898BB400153A11 /* Kingfisher */; };
 		1E9C6BEA2C899D7200153A11 /* RaffleHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9C6BE92C899D7200153A11 /* RaffleHistoryView.swift */; };
 		1E9C991F2C86714C001E7562 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 1E9C991E2C86714C001E7562 /* GoogleMobileAds */; };
+		1EA142D52CA29A4C007E5DA2 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1EA142D42CA29A4C007E5DA2 /* GoogleService-Info.plist */; };
 		1EB137082C888C3900A71603 /* BaseObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EB137072C888C3900A71603 /* BaseObserver.swift */; };
 		1EBAE7A42C7B982300AFCA1F /* logo_loading_shadow.json in Resources */ = {isa = PBXBuildFile; fileRef = 1EBAE7A32C7B982300AFCA1F /* logo_loading_shadow.json */; };
 		1EBAE7A62C7B98EF00AFCA1F /* loading.json in Resources */ = {isa = PBXBuildFile; fileRef = 1EBAE7A52C7B98EF00AFCA1F /* loading.json */; };
@@ -115,12 +115,12 @@
 		1E6AB9652C86B8C200855C74 /* GoogleAd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAd.swift; sourceTree = "<group>"; };
 		1E7698F32C7FC99E0070EA5C /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		1E7698F62C7FCD390070EA5C /* jua.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = jua.ttf; path = iosApp/Assets.xcassets/jua.ttf; sourceTree = SOURCE_ROOT; };
-		1E7698FE2C7FD2A30070EA5C /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1E76992E2C7FE61B0070EA5C /* LoginObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginObserver.swift; sourceTree = "<group>"; };
 		1E8E6B9D2C85FF8B00FC8A1B /* ticket_white.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ticket_white.svg; sourceTree = "<group>"; };
 		1E9C6BE22C893AC500153A11 /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
 		1E9C6BE42C893E9E00153A11 /* MyPageObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageObserver.swift; sourceTree = "<group>"; };
 		1E9C6BE92C899D7200153A11 /* RaffleHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RaffleHistoryView.swift; sourceTree = "<group>"; };
+		1EA142D42CA29A4C007E5DA2 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1EB137072C888C3900A71603 /* BaseObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseObserver.swift; sourceTree = "<group>"; };
 		1EBAE7A32C7B982300AFCA1F /* logo_loading_shadow.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = logo_loading_shadow.json; path = ../../../androidApp/src/main/res/raw/logo_loading_shadow.json; sourceTree = "<group>"; };
 		1EBAE7A52C7B98EF00AFCA1F /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = loading.json; sourceTree = "<group>"; };
@@ -341,7 +341,7 @@
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				7555FF82242A565900829871 /* ContentView.swift */,
 				7555FF8C242A565B00829871 /* Info.plist */,
-				1E7698FE2C7FD2A30070EA5C /* GoogleService-Info.plist */,
+				1EA142D42CA29A4C007E5DA2 /* GoogleService-Info.plist */,
 				2152FB032600AC8F00CF470E /* iOSApp.swift */,
 				058557D7273AAEEB004C7B11 /* Preview Content */,
 				1EB137072C888C3900A71603 /* BaseObserver.swift */,
@@ -460,6 +460,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
+				1EA142D52CA29A4C007E5DA2 /* GoogleService-Info.plist in Resources */,
 				1E03B51F2C7B478C003EED17 /* ad_animation.json in Resources */,
 				1EBAE7A62C7B98EF00AFCA1F /* loading.json in Resources */,
 				1E7698F72C7FCD390070EA5C /* jua.ttf in Resources */,
@@ -471,7 +472,6 @@
 				1EBAE7AA2C7B9B7100AFCA1F /* load.json in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
 				1EBAE7A42C7B982300AFCA1F /* logo_loading_shadow.json in Resources */,
-				1E7698FF2C7FD2A30070EA5C /* GoogleService-Info.plist in Resources */,
 				1E03B5282C7B5412003EED17 /* ic_tickets.svg in Resources */,
 				1E03B5222C7B478C003EED17 /* logo_loading_shadow.json in Resources */,
 				1E03B5242C7B478C003EED17 /* logo_loading.json in Resources */,
@@ -644,6 +644,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -659,7 +660,7 @@
 				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
 				DEVELOPMENT_TEAM = THZJJ49T9W;
 				ENABLE_PREVIEWS = YES;
@@ -675,7 +676,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -697,7 +698,7 @@
 				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
 				DEVELOPMENT_TEAM = THZJJ49T9W;
 				ENABLE_PREVIEWS = YES;
@@ -713,7 +714,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",

@@ -55,6 +55,7 @@ extension View {
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                             onFinished()
+                            message.wrappedValue = nil
                         }
                     }
                 }
@@ -130,3 +131,8 @@ func loadRefreshToken() -> String? {
 }
 
 
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}

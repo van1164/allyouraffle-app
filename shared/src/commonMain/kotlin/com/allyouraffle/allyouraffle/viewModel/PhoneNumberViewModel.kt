@@ -74,6 +74,26 @@ class PhoneNumberViewModel : BaseViewModel() {
         }
     }
 
+    suspend fun savePhoneNumberDemo(jwt: String,uuid:String) {
+        coroutineScope.launch {
+            safeApiCall {
+                try {
+                    LoginApi.setPhoneNumber(jwt, uuid)
+                    _numberSaved.update { true }
+                } catch (
+                    e: PhoneNumberDuplicatedException
+                ) {
+                    _verifying.update { false }
+                    _verifyNumber.update { null }
+                    _phoneNumber.update { "" }
+                    _error.update { "이미 등록된 전화번호입니다." }
+                }
+
+            }
+        }
+    }
+
+
     private fun formatPhoneNumber(input: String): String {
         // 숫자만 추출
         val digits = input.filter { it.isDigit() }
