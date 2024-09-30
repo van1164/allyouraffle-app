@@ -114,7 +114,7 @@ fun RaffleHistoryBody(
         }
     }
 
-    Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+    Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background).fillMaxWidth()) {
         PullRefreshIndicator(
             refreshing = refreshing,
             state = pullRefreshState,
@@ -138,6 +138,7 @@ fun RaffleHistoryBody(
         LazyColumn(
             modifier = Modifier
                 .pullRefresh(pullRefreshState)
+                .background(color = MaterialTheme.colorScheme.background)
                 .fillMaxHeight(), state = listState
         ) {
             items(purchaseHistory.value.size) { index ->

@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -27,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -57,6 +56,7 @@ import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.android.util.errorToast
 import com.allyouraffle.allyouraffle.model.RaffleResponse
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
+import com.allyouraffle.allyouraffle.viewModel.TicketViewModel
 import kotlinx.coroutines.runBlocking
 
 
@@ -69,17 +69,12 @@ fun RaffleListScreen(
 ) {
     println("RAFFLE SCREEN$isFree")
     val raffleList by viewModel.raffleList.collectAsState()
-    val loading by viewModel.loading.collectAsState()
     val error = viewModel.error.collectAsState()
-    val tickets = viewModel.ticketCount.collectAsState()
     val context = LocalContext.current
     val sharedPreference = SharedPreference(context)
     val jwt = sharedPreference.getJwt()
     LaunchedEffect(Unit) {
         viewModel.initRaffle(isFree)
-    }
-    LaunchedEffect(Unit) {
-        viewModel.loadTickets(jwt)
     }
     if (error.value != null) {
         errorToast(context, error.value!!, viewModel)
@@ -87,11 +82,8 @@ fun RaffleListScreen(
 //        viewModel.setNullError()
     }
 
-    if (loading || tickets.value ==-1) {
-        LoadingScreen()
-    }else{
-        RaffleScreenBody(viewModel, isFree, jwt, tickets, raffleList, navController)
-    }
+    RaffleScreenBody(viewModel, isFree, jwt, raffleList, navController)
+
 
 }
 
@@ -101,19 +93,25 @@ private fun RaffleScreenBody(
     viewModel: RaffleViewModel,
     isFree: Boolean,
     jwt: String,
-    tickets: State<Int>,
     raffleList: List<RaffleResponse>,
     navController: NavHostController
 ) {
     var refreshing by remember { mutableStateOf(false) }
+    val ticketViewModel = remember {
+        TicketViewModel()
+    }
+    val tickets = ticketViewModel.ticketCount.collectAsState()
     val pullRefreshState = rememberPullRefreshState(refreshing, onRefresh = {
         refreshing = true
         runBlocking {
             viewModel.loadRaffles(isFree)
-            viewModel.loadTickets(jwt)
+            ticketViewModel.loadTickets(jwt)
         }
         refreshing = false
     })
+    LaunchedEffect(Unit) {
+        ticketViewModel.loadTickets(jwt)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -121,7 +119,7 @@ private fun RaffleScreenBody(
     ) {
 //        Logo(55.sp)
         Spacer(modifier = Modifier.height(20.dp))
-        Banner(message = if (isFree) "광고 래플" else "천원 래플", tickets.value)
+        Banner(message = if (isFree) "광고 래플" else "천원 래플", tickets)
         Spacer(modifier = Modifier.height(10.dp))
         Box(modifier = Modifier.fillMaxHeight()) {
             PullRefreshIndicator(
@@ -132,6 +130,7 @@ private fun RaffleScreenBody(
                     .zIndex(1f)
             )
             // 상품 리스트
+
             LazyColumn(
                 modifier = Modifier
                     .pullRefresh(pullRefreshState)
@@ -141,6 +140,9 @@ private fun RaffleScreenBody(
                 items(raffleList) { raffle ->
                     ProductCard(raffle, navController, isFree)
                 }
+            }
+            if(viewModel.loading.value){
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
     }

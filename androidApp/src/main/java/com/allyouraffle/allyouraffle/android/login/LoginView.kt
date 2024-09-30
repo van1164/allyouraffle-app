@@ -50,6 +50,15 @@ import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.runBlocking
 
 
+fun navigationToMain(navController: NavHostController) {
+    if (navController.currentDestination?.route != "main") {
+        navController.navigate("main") {
+            popUpTo("userPhoneNumber") { inclusive = true } // 로그인 화면을 스택에서 제거
+            popUpTo("login") { inclusive = true }
+        }
+    }
+}
+
 @Composable
 fun LoginPage(navController: NavHostController) {
     Log.d("START", "START")
@@ -59,9 +68,10 @@ fun LoginPage(navController: NavHostController) {
     var jwtState by remember { mutableStateOf(true) }
     key(jwtState) {
         if (checkJwtExist(sharedPreference, loginViewModel)) {
-            val userInfoResponse =
-                runBlocking { loginViewModel.getUserInfo(sharedPreference.getJwt()) }
-            AddressNavHost(userInfoResponse, navController)
+            navigationToMain(navController)
+//            val userInfoResponse =
+//                runBlocking { loginViewModel.getUserInfo(sharedPreference.getJwt()) }
+//            AddressNavHost(userInfoResponse, navController)
 //        goMain(navController)
         } else {
             val authResultLauncher = rememberLauncherForActivityResult(

@@ -1,13 +1,17 @@
 package com.allyouraffle.allyouraffle.android
 
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,22 +47,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.allyouraffle.allyouraffle.android.detail.RaffleDetail
+import com.allyouraffle.allyouraffle.android.firebase.TicketPlusEvent
 import com.allyouraffle.allyouraffle.android.home.AdViewModel
 import com.allyouraffle.allyouraffle.android.home.HomeScreen
 import com.allyouraffle.allyouraffle.android.login.LoginPage
 import com.allyouraffle.allyouraffle.android.login.LoginViewModel
 import com.allyouraffle.allyouraffle.android.mypage.MyPageScreen
+import com.allyouraffle.allyouraffle.android.permission.NotificationPermissionRequest
 import com.allyouraffle.allyouraffle.android.raffle.RaffleListScreen
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
 import com.allyouraffle.allyouraffle.android.util.SharedPreference
 import com.allyouraffle.allyouraffle.exception.DetailServiceException
 import com.allyouraffle.allyouraffle.exception.JwtException
 import com.allyouraffle.allyouraffle.exception.NetworkException
+import com.allyouraffle.allyouraffle.exception.NotificationException
 import com.allyouraffle.allyouraffle.network.LoginApi
 import com.allyouraffle.allyouraffle.viewModel.HomeViewModel
 import com.allyouraffle.allyouraffle.viewModel.MyPageViewModel
 import com.allyouraffle.allyouraffle.viewModel.RaffleViewModel
 import com.google.android.gms.ads.MobileAds
+import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.delay
 
@@ -66,12 +76,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this)
+        FirebaseApp.initializeApp(this)
+        createNotificationChannel()
         setContent {
             MyApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.onPrimary
                 ) {
+                    NotificationPermissionRequest()
                     var isSplashVisible by remember { mutableStateOf(true) }
 
                     LaunchedEffect(Unit) {
@@ -87,6 +100,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+
         exceptionHandler = CoroutineExceptionHandler { _, exception ->
             when (exception) {
                 is JwtException -> {
@@ -111,14 +126,25 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun createNotificationChannel() {
+        val channel = NotificationChannel(
+            "channelId",
+            "Default Channel",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "This is the default notification channel."
+        }
+
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
 }
 
 @Composable
 fun MyApp() {
     MaterialTheme {
         val navController = rememberNavController()
-
-
         NavHost(navController = navController, startDestination = "login") {
             composable("login") { LoginPage(navController) }
             composable("main") { MainPage() }
@@ -144,6 +170,7 @@ fun MainPage() {
     val context = LocalContext.current
     val loginViewModel = remember { LoginViewModel() }
     val sharedPreference = SharedPreference(context)
+
     LaunchedEffect(Unit) {
         while (true) {
             // 특정 함수 실행
@@ -169,13 +196,15 @@ private fun BottomNav(
 //        Triple("천원 래플", R.drawable.ic_shop_non_click, R.drawable.ic_shop_click),
         Triple("마이 페이지", R.drawable.ic_user_non_click, R.drawable.ic_user_click)
     )
-    var selectedItem by remember { mutableStateOf(startDestination) }
+    var selectedItem by rememberSaveable { mutableStateOf(startDestination) }
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    var backPressedTime by remember { mutableStateOf(0L) }
+    var backPressedTime by remember { mutableLongStateOf(0L) }
+    val context = LocalContext.current
+
     Scaffold(
         modifier = Modifier.background(color = MaterialTheme.colorScheme.onPrimary),
         bottomBar = {
-            if (currentRoute in listOf("raffle/{itemId}/{isFree}")) return@Scaffold
+            if (currentRoute in listOf("raffle/{itemId}/{isFree}","ticketPlusEvent/{reward}")) return@Scaffold
 
             BottomNavigation(
                 contentColor = MaterialTheme.colorScheme.tertiary,
@@ -209,6 +238,7 @@ private fun BottomNav(
                                 restoreState = true
                             }
                         },
+                        enabled = selectedItem != screen,
                         selectedContentColor = MaterialTheme.colorScheme.tertiary,
                         unselectedContentColor = Color.LightGray,
                     )
@@ -244,9 +274,19 @@ private fun BottomNav(
                     ?: throw DetailServiceException()).toBoolean()
                 RaffleDetail(navController, itemId, isFree)
             }
+            composable("ticketPlusEvent/{reward}"){backStackEntry ->
+                val reward =
+                    backStackEntry.arguments?.getString("reward") ?: throw NotificationException()
+
+                val rewardInt = reward.toIntOrNull()?.run {
+                    TicketPlusEvent(navController,this)
+                }
+            }
+            composable("test2"){
+                test2()
+            }
         }
 
-        val context = LocalContext.current
         BackHandler(enabled = true) {
             val noFinishRouteList = listOf("raffle/{itemId}/{isFree}")
             if (currentRoute !in noFinishRouteList) {
@@ -263,9 +303,48 @@ private fun BottomNav(
                 navController.popBackStack()
             }
         }
+        LaunchedEffect(Unit) {
+            val activity = context as? Activity
+            // Activity의 Intent에서 데이터를 가져옴
+            val intent = activity?.intent
+            // FCM 메시지에 따라 특정 화면으로 이동 처리
+            intent?.let {
+                val targetScreen = it.getStringExtra("notification")
+                val reward = it.getStringExtra("reward")
+                targetScreen?.let { screen ->
+                    handleNotificationNavigation(screen,reward,navController)
+                }
+            }
+        }
+
+    }
+
+}
+private fun handleNotificationNavigation(screen: String,reward : String?,navController: NavHostController) {
+    // targetScreen에 따라 특정 화면으로 네비게이트
+    when (screen) {
+        "ticketPlusEvent" -> {
+                navController.navigate("ticketPlusEvent/$reward"){
+            }
+        }
+        "test2" -> {
+            navController.navigate("test2")
+        }
+        else -> {
+            Log.d("qwert","기타등등")
+        }
     }
 }
 
+@Composable
+fun test1(){
+    Text("TEST1")
+}
+
+@Composable
+fun test2(){
+    Text("TEST2")
+}
 
 @Preview
 @Composable

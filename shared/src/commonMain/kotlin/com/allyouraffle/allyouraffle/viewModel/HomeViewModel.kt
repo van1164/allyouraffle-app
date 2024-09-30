@@ -24,6 +24,15 @@ class HomeViewModel : BaseViewModel() {
         }
     }
 
+    suspend fun initHomeV2(jwt: String) {
+        safeApiCall {
+            if (_popularRaffleList.value.isEmpty()) {
+                _loadPopularRaffleList()
+            }
+        }
+    }
+
+    @Deprecated("이제 티켓이랑 분리함.")
     suspend fun initHome(jwt: String) {
         safeApiCall {
             if (_popularRaffleList.value.isEmpty()) {
@@ -33,10 +42,17 @@ class HomeViewModel : BaseViewModel() {
         }
     }
 
+    @Deprecated("이제 티켓이랑 분리함.")
     suspend fun refresh(jwt: String) {
         safeApiCall {
             _loadPopularRaffleList()
             _loadTickets(jwt)
+        }
+    }
+
+    suspend fun refreshV2() {
+        safeApiCall {
+            _loadPopularRaffleList()
         }
     }
 

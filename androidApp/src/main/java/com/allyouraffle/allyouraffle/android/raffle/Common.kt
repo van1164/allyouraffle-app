@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.Font
@@ -33,7 +36,7 @@ import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.IcTicke
 import com.allyouraffle.allyouraffle.android.home.myiconpack.ticketwhite.TicketWhite
 
 @Composable
-fun Banner(message: String, tickets: Int) {
+fun Banner(message: String, tickets: State<Int>) {
     val icon : ImageVector = if(isSystemInDarkTheme()){
         remember {
             TicketWhite.IcTickets
@@ -80,12 +83,17 @@ fun Banner(message: String, tickets: Int) {
                     .size(40.dp)
                     .padding(end = 10.dp)
             )
-            Text(
-                text = "$tickets",
-                fontSize = 30.sp,
-                color = MaterialTheme.colorScheme.primary,
-                fontFamily = FontFamily(Font(R.font.fontdefault))
-            )
+            if(tickets.value == -1) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            }
+            else{
+                Text(
+                    text = "${tickets.value}",
+                    fontSize = 30.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = FontFamily(Font(R.font.fontdefault))
+                )
+            }
         }
     }
 }

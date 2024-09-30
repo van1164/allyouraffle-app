@@ -28,7 +28,8 @@ fun MyApplicationTheme(
             onSecondary = Color.LightGray,
             tertiary = Color(0xFF60A5FA),
             onTertiary = Color.DarkGray,
-            background = Color.Black
+            background = Color.Black,
+            onBackground = Color.DarkGray
         )
     } else {
         lightColorScheme(
@@ -38,7 +39,8 @@ fun MyApplicationTheme(
             onSecondary = Color.DarkGray,
             tertiary = Color(0xFF60A5FA),
             onTertiary = Color.LightGray,
-            background = Color.White
+            background = Color.White,
+            onBackground = Color.White
         )
     }
     val myFontFamily = FontFamily(

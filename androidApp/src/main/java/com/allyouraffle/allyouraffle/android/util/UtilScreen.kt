@@ -36,10 +36,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -116,11 +114,14 @@ fun MainButton(
 }
 
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(
+    backGroundColor: Color = MaterialTheme.colorScheme.background,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(backGroundColor),
         contentAlignment = Alignment.Center // Box의 중앙 정렬
     ) {
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.logo_shadow_trans))
@@ -128,7 +129,7 @@ fun LoadingScreen() {
             composition,
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(backGroundColor),
             iterations = LottieConstants.IterateForever,
             alignment = Alignment.Center,
         )
@@ -219,11 +220,18 @@ fun CustomDialog(title: String, body: String, buttonMessage: String, onDismiss: 
         },
         text = {
             Column(modifier = Modifier.padding(3.dp)) {
-                Text(body, color = MaterialTheme.colorScheme.primary,lineHeight = 20.sp, fontSize = 13.sp)
+                Text(
+                    body,
+                    color = MaterialTheme.colorScheme.primary,
+                    lineHeight = 20.sp,
+                    fontSize = 13.sp
+                )
             }
         },
         confirmButton = {
-            MainButton(onClick = onDismiss, modifier = Modifier.padding(10.dp).fillMaxWidth()) {
+            MainButton(onClick = onDismiss, modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth()) {
                 Text(buttonMessage, color = Color.White)
             }
 //            Button(
@@ -291,7 +299,10 @@ fun BottomInfo() {
                 .padding(5.dp)
                 .fillMaxWidth()
         ) {
-            Text(text = if (isExpanded) "정보 숨기기" else "판매자 정보 보기", color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = if (isExpanded) "정보 숨기기" else "판매자 정보 보기",
+                color = MaterialTheme.colorScheme.primary
+            )
         }
 
         // 정보 표시

@@ -1,9 +1,12 @@
 package com.allyouraffle.allyouraffle.android.login
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -51,6 +54,7 @@ import com.allyouraffle.allyouraffle.network.AddressInfo
 import com.allyouraffle.allyouraffle.network.UserInfoResponse
 import com.allyouraffle.allyouraffle.viewModel.AddressViewModel
 import kotlinx.coroutines.launch
+import java.net.URISyntaxException
 
 @Composable
 fun UserAddressView(loginNavController: NavHostController, userInfoResponse: UserInfoResponse) {
@@ -246,6 +250,7 @@ fun InputMain(addressNavController: NavHostController) {
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun AddressSearchWebView(onAddressLoaded: (AddressInfo) -> Unit) {
+    val context = LocalContext.current
     AndroidView(
         factory = { context ->
             WebView(context).apply {
@@ -253,6 +258,19 @@ fun AddressSearchWebView(onAddressLoaded: (AddressInfo) -> Unit) {
                     override fun onPageFinished(view: WebView?, url: String?) {
                         loadUrl("javascript:sample2_execDaumPostcode();")
                         Log.d("AAAAAAAAAAAAAAAAAAAAAAAAAA", "ZZZZZZZZZZZZZZZZZZZZZZZZZ")
+                    }
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): Boolean {
+                        val urlString = request?.url.toString()
+                        return if (urlString.startsWith("mailto:") || urlString.startsWith("intent:")) {
+                            // Handle non-http schemes (e.g., mailto, intent)
+                            handleCustomUrlScheme(urlString, context)
+                            true // Tell WebView not to handle it
+                        } else {
+                            false // Let WebView handle the URL
+                        }
                     }
                 }
                 webChromeClient = WebChromeClient()
@@ -263,6 +281,17 @@ fun AddressSearchWebView(onAddressLoaded: (AddressInfo) -> Unit) {
             }
         }, modifier = Modifier.fillMaxSize()
     )
+}
+
+private fun handleCustomUrlScheme(url: String,context:Context) {
+    try {
+        val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        }
+    } catch (e: URISyntaxException) {
+        e.printStackTrace()
+    }
 }
 
 class BridgeInterface(private val onAddressLoaded: (AddressInfo) -> Unit) {

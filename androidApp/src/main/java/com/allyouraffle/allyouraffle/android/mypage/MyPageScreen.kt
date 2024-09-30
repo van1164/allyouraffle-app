@@ -1,9 +1,10 @@
 package com.allyouraffle.allyouraffle.android.mypage
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +21,9 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,14 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -53,6 +56,7 @@ import coil.request.ImageRequest
 import com.allyouraffle.allyouraffle.android.R
 import com.allyouraffle.allyouraffle.android.login.SetAddressView
 import com.allyouraffle.allyouraffle.android.login.UserPhoneNumberMain
+import com.allyouraffle.allyouraffle.android.permission.NotificationPermissionRequestAlways
 import com.allyouraffle.allyouraffle.android.util.BannersAds
 import com.allyouraffle.allyouraffle.android.util.BottomInfo
 import com.allyouraffle.allyouraffle.android.util.LoadingScreen
@@ -112,12 +116,10 @@ fun MyPageScreen(myPageViewModel: MyPageViewModel) {
                 composable("main") {
                     infoUpdated.value = true
                 }
-                composable("raffleHistory"){
+                composable("raffleHistory") {
                     RaffleHistoryScreen(myPageNavController)
                 }
             }
-//
-//            MyPage(data)
         }
     }
 }
@@ -126,6 +128,14 @@ fun MyPageScreen(myPageViewModel: MyPageViewModel) {
 @Composable
 fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
     val scrollState = rememberScrollState()
+    val showNotificationAlert = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val notificationState = remember { mutableStateOf(checkNotification(context)) }
+    LaunchedEffect(showNotificationAlert.value) {
+        notificationState.value = checkNotification(context)
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -145,9 +155,11 @@ fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
             ChangeAddressDialog(showSetAddress, userInfo, myPageNavController)
         }
 
-        if (showSetPhoneNumber.value){
-            ChangePhoneDialog(showSetPhoneNumber,userInfo,myPageNavController)
+        if (showSetPhoneNumber.value) {
+            ChangePhoneDialog(showSetPhoneNumber, userInfo, myPageNavController)
         }
+
+
 
         Text(
             "마이 페이지",
@@ -161,6 +173,14 @@ fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
                 )
             ),
         )
+
+
+        if (showNotificationAlert.value) {
+            NotificationPermissionRequestAlways {
+                showNotificationAlert.value = false
+            }
+        }
+
         // 프로필 이미지
         ImageLoading(userInfo.profileImageUrl)
 
@@ -172,15 +192,32 @@ fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
             text = userInfo.nickname,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // 버튼들
-        UserActionButton("주소 변경") { showSetAddress.value = true }
-        UserActionButton("휴대폰번호 변경") { showSetPhoneNumber.value = true }
-        UserActionButton("래플 이력") {
+        UserActionButton(
+            label = if (notificationState.value) "알림 허용됨" else "알림 차단됨",
+            labelColor = MaterialTheme.colorScheme.primary,
+            imageVector = Icons.Default.Notifications,
+            imageTint = if (notificationState.value) Color.Green else Color.Red
+        ) {
+            showNotificationAlert.value = true
+        }
+        UserActionButton(
+            "주소 변경",
+            warningLabel = if (userInfo.address == null) "등록 필요!" else null
+        ) { showSetAddress.value = true }
+        UserActionButton(
+            "휴대폰번호 변경",
+            warningLabel = if (userInfo.phoneNumber == null) "등록 필요!" else null
+        ) { showSetPhoneNumber.value = true }
+        UserActionButton(
+            label = "래플 이력",
+            imageVector = Icons.AutoMirrored.Filled.List
+        ) {
             myPageNavController.navigate("raffleHistory")
         }
         Spacer(modifier = Modifier.height(15.dp))
@@ -194,6 +231,12 @@ fun MyPage(userInfo: UserInfoResponse, myPageNavController: NavHostController) {
 
 }
 
+fun checkNotification(context: Context): Boolean {
+    val permission = android.Manifest.permission.POST_NOTIFICATIONS
+    return ContextCompat.checkSelfPermission(
+        context, permission
+    ) == PackageManager.PERMISSION_GRANTED
+}
 
 @Composable
 private fun ChangePhoneDialog(
@@ -206,21 +249,25 @@ private fun ChangePhoneDialog(
         contentColor = MaterialTheme.colorScheme.onPrimary,
         backgroundColor = MaterialTheme.colorScheme.onPrimary,
         text = {
-            Column {
-                androidx.compose.material3.Text(
-                    text = "현재 번호",
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+            if (userInfo.phoneNumber == null) {
+                Text("휴대폰 번호를 새로 등록하시겠습니까?", color = MaterialTheme.colorScheme.primary)
+            } else {
+                Column {
+                    androidx.compose.material3.Text(
+                        text = "현재 번호",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
 
-                androidx.compose.material3.Text(
-                    text = userInfo.phoneNumber?:"없음",
-                    fontSize = 25.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text("휴대폰 번호를 변경하시겠습니까?",color = MaterialTheme.colorScheme.primary)
+                    androidx.compose.material3.Text(
+                        text = userInfo.phoneNumber ?: "없음",
+                        fontSize = 25.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text("휴대폰 번호를 변경하시겠습니까?", color = MaterialTheme.colorScheme.primary)
+                }
             }
 
         },
@@ -232,9 +279,14 @@ private fun ChangePhoneDialog(
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
-                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .padding(5.dp)
             ) {
-                Text(text = "변경하기", color = Color.White)
+                Text(
+                    text = if (userInfo.phoneNumber == null) "등록하기" else "변경하기",
+                    color = Color.White
+                )
             }
         },
         dismissButton = {
@@ -242,7 +294,9 @@ private fun ChangePhoneDialog(
                 onClick = { showPhoneNumber.value = false },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .padding(5.dp)
             ) {
                 Text("취소")
             }
@@ -261,38 +315,41 @@ private fun ChangeAddressDialog(
         contentColor = MaterialTheme.colorScheme.onPrimary,
         backgroundColor = MaterialTheme.colorScheme.onPrimary,
         text = {
-            Column(
-                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)
-            ) {
-                androidx.compose.material3.Text(
-                    text = "현재 주소",
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+            if (userInfo.address == null) {
+                Text("주소를 새로 등록하시겠습니까?", color = MaterialTheme.colorScheme.primary)
+            } else {
+                Column(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary)
+                ) {
+                    androidx.compose.material3.Text(
+                        text = "현재 주소",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
 
-                androidx.compose.material3.Text(
-                    text = userInfo.address?.address + " " + userInfo.address?.detail,
-                    fontSize = 25.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                androidx.compose.material3.Text(
-                    text = "우편번호",
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                    androidx.compose.material3.Text(
+                        text = userInfo.address?.address + " " + userInfo.address?.detail,
+                        fontSize = 25.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    androidx.compose.material3.Text(
+                        text = "우편번호",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
 
-                androidx.compose.material3.Text(
-                    text = userInfo.address?.postalCode ?: "없음",
-                    fontSize = 25.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Text("주소를 변경하시겠습니까?",color = MaterialTheme.colorScheme.primary,)
+                    androidx.compose.material3.Text(
+                        text = userInfo.address?.postalCode ?: "없음",
+                        fontSize = 25.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Text("주소를 변경하시겠습니까?", color = MaterialTheme.colorScheme.primary)
+                }
             }
-
         },
         confirmButton = {
             Button(
@@ -303,9 +360,15 @@ private fun ChangeAddressDialog(
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.tertiary),
-                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .padding(5.dp)
             ) {
-                Text(text = "변경하기", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(
+                    text = if (userInfo.address == null) "등록하기" else "변경하기",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
             }
         },
         dismissButton = {
@@ -313,7 +376,9 @@ private fun ChangeAddressDialog(
                 onClick = { showSetAddress.value = false },
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                modifier = Modifier.background(MaterialTheme.colorScheme.onPrimary).padding(5.dp)
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .padding(5.dp)
             ) {
                 Text("취소", fontWeight = FontWeight.Bold)
             }
@@ -322,21 +387,32 @@ private fun ChangeAddressDialog(
 }
 
 @Composable
-fun UserActionButton(label: String, onClick: () -> Unit) {
+fun UserActionButton(
+    label: String,
+    labelColor: Color = MaterialTheme.colorScheme.primary,
+    warningLabel: String? = null,
+    imageVector: ImageVector = Icons.Default.Edit,
+    imageTint: Color = MaterialTheme.colorScheme.onSecondary,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.onTertiary)
+        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.onBackground)
     ) {
-        Text(text = label, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Start)
-        Icon(
-            imageVector = Icons.Default.Edit,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.padding(start = 8.dp)
-        )
+        Text(text = label, color = labelColor, textAlign = TextAlign.Start)
+
+        if (warningLabel == null) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = null,
+                tint = imageTint,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+        warningLabel?.let { Text(text = it, color = Color.Red, fontSize = 13.sp, modifier = Modifier.padding(start = 8.dp)) }
     }
 }
 
